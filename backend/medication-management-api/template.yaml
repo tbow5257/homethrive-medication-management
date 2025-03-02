@@ -154,6 +154,8 @@ Resources:
       CodeUri: api/
       Handler: app.lambdaHandler
       Runtime: nodejs20.x
+      Layers:
+        - !Ref PrismaLayer
       Architectures:
         - x86_64
       VpcConfig:
@@ -164,7 +166,10 @@ Resources:
           - !Ref PrivateSubnet2
       Environment:
         Variables:
-          DATABASE_URL: !Sub 'postgresql://${DatabaseSecret.SecretString.username}:${DatabaseSecret.SecretString.password}@${DatabaseInstance.Endpoint.Address}:${DatabaseInstance.Endpoint.Port}/medication_management?schema=public'
+          DATABASE_URL: !Sub 
+            - 'postgresql://postgres:{{resolve:secretsmanager:${SecretId}:SecretString:password}}@${DatabaseHost}:5432/medication_management'
+            - SecretId: !Ref DatabaseSecret
+              DatabaseHost: !Ref DatabaseHost
           JWT_SECRET: !Sub '{{resolve:secretsmanager:${JwtSecret}:SecretString:secret}}'
           IS_LOCAL: 'false'
           NODE_ENV: !Ref Environment
@@ -206,7 +211,15 @@ Resources:
         - AWSSecretsManagerGetSecretValuePolicy:
             SecretArn: !Ref JwtSecret
     Metadata:
-      BuildMethod: makefile
+      BuildMethod: esbuild
+      BuildProperties:
+        Minify: true
+        Target: "es2020"
+        Sourcemap: true
+        EntryPoints:
+          - app.ts
+        External:
+          - "@prisma/client"
 
   JwtSecret:
     Type: AWS::SecretsManager::Secret
@@ -234,6 +247,17 @@ Resources:
       ResourceGroupName:
         Ref: ApplicationResourceGroup
       AutoConfigurationEnabled: 'true'
+
+  # Add the Prisma Layer
+  PrismaLayer:
+    Type: AWS::Serverless::LayerVersion
+    Properties:
+      LayerName: prisma-layer
+      Description: Prisma ORM Layer
+      ContentUri: layers/prisma/
+      CompatibleRuntimes:
+        - nodejs20.x
+      RetentionPolicy: Retain
 
 Outputs:
   MedicationManagementApi:

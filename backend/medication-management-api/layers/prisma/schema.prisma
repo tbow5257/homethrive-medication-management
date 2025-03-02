@@ -1,0 +1,67 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+  binaryTargets = ["native", "rhel-openssl-3.0.x"]
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model CareRecipient {
+  id          String       @id @default(uuid())
+  firstName   String       @map("first_name")
+  lastName    String       @map("last_name")
+  dateOfBirth DateTime     @map("date_of_birth")
+  isActive    Boolean      @default(true) @map("is_active")
+  createdAt   DateTime     @default(now()) @map("created_at")
+  updatedAt   DateTime     @updatedAt @map("updated_at")
+  medications Medication[]
+
+  @@map("care_recipients")
+}
+
+model Medication {
+  id              String       @id @default(uuid())
+  name            String
+  dosage          String
+  instructions    String
+  isActive        Boolean      @default(true) @map("is_active")
+  careRecipientId String       @map("care_recipient_id")
+  createdAt       DateTime     @default(now()) @map("created_at")
+  updatedAt       DateTime     @updatedAt @map("updated_at")
+  careRecipient   CareRecipient @relation(fields: [careRecipientId], references: [id])
+  schedules       Schedule[]
+  doses           Dose[]
+
+  @@map("medications")
+}
+
+model Schedule {
+  id           String     @id @default(uuid())
+  time         String
+  daysOfWeek   String[]   @map("days_of_week")
+  isActive     Boolean    @default(true) @map("is_active")
+  medicationId String     @map("medication_id")
+  createdAt    DateTime   @default(now()) @map("created_at")
+  updatedAt    DateTime   @updatedAt @map("updated_at")
+  medication   Medication @relation(fields: [medicationId], references: [id])
+
+  @@map("schedules")
+}
+
+model Dose {
+  id           String     @id @default(uuid())
+  takenAt      DateTime?  @map("taken_at")
+  scheduledFor DateTime   @map("scheduled_for")
+  status       String     @default("scheduled") // scheduled, taken, missed, skipped
+  medicationId String     @map("medication_id")
+  createdAt    DateTime   @default(now()) @map("created_at")
+  updatedAt    DateTime   @updatedAt @map("updated_at")
+  medication   Medication @relation(fields: [medicationId], references: [id])
+
+  @@map("doses")
+} 
