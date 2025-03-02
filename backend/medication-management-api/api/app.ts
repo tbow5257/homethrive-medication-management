@@ -7,7 +7,13 @@ import {
   updateMedicationHandler, 
   deleteMedicationHandler 
 } from './src/handlers/medication';
+import {
+  registerHandler,
+  loginHandler,
+  profileHandler
+} from './src/handlers/auth';
 import { successResponse, serverErrorResponse } from './src/utils/response';
+import { requireAuth } from './src/utils/auth';
 
 /**
  * Router function to route requests to the appropriate handler
@@ -20,25 +26,38 @@ const router = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResul
     return successResponse({ status: 'ok' });
   }
   
-  // Medication endpoints
+  // Auth endpoints
+  if (path.match(/^\/auth\/register\/?$/) && httpMethod === 'POST') {
+    return registerHandler(event);
+  }
+  
+  if (path.match(/^\/auth\/login\/?$/) && httpMethod === 'POST') {
+    return loginHandler(event);
+  }
+  
+  if (path.match(/^\/auth\/profile\/?$/) && httpMethod === 'GET') {
+    return requireAuth(profileHandler)(event);
+  }
+  
+  // Medication endpoints - protected with authentication
   if (path.match(/^\/medications\/?$/) && httpMethod === 'GET') {
-    return getMedicationsHandler(event);
+    return requireAuth(getMedicationsHandler)(event);
   }
   
   if (path.match(/^\/medications\/?$/) && httpMethod === 'POST') {
-    return createMedicationHandler(event);
+    return requireAuth(createMedicationHandler)(event);
   }
   
   if (path.match(/^\/medications\/[a-zA-Z0-9-]+\/?$/) && httpMethod === 'GET') {
-    return getMedicationHandler(event);
+    return requireAuth(getMedicationHandler)(event);
   }
   
   if (path.match(/^\/medications\/[a-zA-Z0-9-]+\/?$/) && httpMethod === 'PUT') {
-    return updateMedicationHandler(event);
+    return requireAuth(updateMedicationHandler)(event);
   }
   
   if (path.match(/^\/medications\/[a-zA-Z0-9-]+\/?$/) && httpMethod === 'DELETE') {
-    return deleteMedicationHandler(event);
+    return requireAuth(deleteMedicationHandler)(event);
   }
   
   // If no route matches, return 404

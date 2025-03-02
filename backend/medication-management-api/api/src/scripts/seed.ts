@@ -1,5 +1,6 @@
 import { PrismaClient } from '@prisma/client';
 import dotenv from 'dotenv';
+import { hashPassword } from '../utils/auth';
 
 // Load environment variables
 dotenv.config();
@@ -8,7 +9,29 @@ dotenv.config();
 const prisma = new PrismaClient();
 
 async function main() {
-  console.log('Starting seed...');
+  console.log('Seeding database...');
+
+  // Create admin user
+  const adminEmail = 'admin@example.com';
+  const existingAdmin = await prisma.user.findUnique({
+    where: { email: adminEmail }
+  });
+
+  if (!existingAdmin) {
+    const hashedPassword = await hashPassword('Admin123!');
+    await prisma.user.create({
+      data: {
+        email: adminEmail,
+        password: hashedPassword,
+        firstName: 'Admin',
+        lastName: 'User',
+        role: 'admin'
+      }
+    });
+    console.log('Admin user created');
+  } else {
+    console.log('Admin user already exists');
+  }
 
   // Create a care recipient
   const careRecipient = await prisma.careRecipient.upsert({

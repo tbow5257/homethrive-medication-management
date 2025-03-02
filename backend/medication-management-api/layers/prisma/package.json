@@ -4,11 +4,11 @@
     "description": "Prisma Layer for Lambda functions",
     "main": "index.js",
     "scripts": {
-      "build": "npm install && npx prisma generate && mkdir -p nodejs/node_modules && cp -r node_modules/@prisma node_modules/.prisma nodejs/node_modules/ && cp -r prisma nodejs/ && cp prismaClient.js nodejs/"
+      "build": "npm install && npx prisma generate && mkdir -p nodejs/node_modules && cp -r node_modules/@prisma node_modules/.prisma nodejs/node_modules/ && cp prismaClient.js nodejs/"
     },
     "dependencies": {
       "@prisma/client": "^5.10.0",
       "prisma": "^5.10.0"
     }
-  }
+}
   

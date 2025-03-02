@@ -179,6 +179,23 @@ Resources:
           Properties:
             Path: /health
             Method: get
+        # Auth endpoints
+        Register:
+          Type: Api
+          Properties:
+            Path: /auth/register
+            Method: post
+        Login:
+          Type: Api
+          Properties:
+            Path: /auth/login
+            Method: post
+        Profile:
+          Type: Api
+          Properties:
+            Path: /auth/profile
+            Method: get
+        # Medication endpoints
         GetMedications:
           Type: Api
           Properties:
