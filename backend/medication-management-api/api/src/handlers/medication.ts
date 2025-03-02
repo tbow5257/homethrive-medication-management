@@ -5,42 +5,35 @@ import {
   notFoundResponse, 
   serverErrorResponse,
   createdResponse,
-  noContentResponse
+  noContentResponse,
+  unauthorizedResponse
 } from '../utils/response';
-import { getPrismaClient, disconnectPrisma } from '../utils/prisma';
+import { disconnectPrisma } from '../utils/prisma';
 // Import Prisma types directly
 import { Medication } from '@prisma/client';
 import { ApiResponse } from '../types/api';
+import { MedicationController } from '../controllers/MedicationController';
+import { authenticate } from '../utils/auth';
 
 /**
  * Get all medications
  */
 export const getMedicationsHandler = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
   try {
-    const prisma = getPrismaClient();
+    // Authenticate user
+    const user = authenticate(event);
+    if (!user) {
+      return unauthorizedResponse();
+    }
     
     // Get query parameters
     const { careRecipientId } = event.queryStringParameters || {};
     
-    // Build query
-    const query: any = {
-      where: {
-        isActive: true
-      },
-      include: {
-        careRecipient: true
-      }
-    };
+    // Use the controller
+    const controller = new MedicationController();
+    const result = await controller.getMedications(careRecipientId);
     
-    // Filter by care recipient if provided
-    if (careRecipientId) {
-      query.where.careRecipientId = careRecipientId;
-    }
-    
-    // Get medications
-    const medications = await prisma.medication.findMany(query);
-    
-    return successResponse(medications);
+    return successResponse(result);
   } catch (error) {
     console.error('Error getting medications:', error);
     return serverErrorResponse();
@@ -54,7 +47,11 @@ export const getMedicationsHandler = async (event: APIGatewayProxyEvent): Promis
  */
 export const getMedicationHandler = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
   try {
-    const prisma = getPrismaClient();
+    // Authenticate user
+    const user = authenticate(event);
+    if (!user) {
+      return unauthorizedResponse();
+    }
     
     // Get medication ID from path parameters
     const { id } = event.pathParameters || {};
@@ -63,20 +60,18 @@ export const getMedicationHandler = async (event: APIGatewayProxyEvent): Promise
       return badRequestResponse('Medication ID is required');
     }
     
-    // Get medication
-    const medication = await prisma.medication.findUnique({
-      where: { id },
-      include: {
-        careRecipient: true,
-        schedules: true
+    // Use the controller
+    const controller = new MedicationController();
+    
+    try {
+      const result = await controller.getMedication(id);
+      return successResponse(result);
+    } catch (error: any) {
+      if (error.message === "Medication not found") {
+        return notFoundResponse('Medication not found');
       }
-    });
-    
-    if (!medication) {
-      return notFoundResponse('Medication not found');
+      throw error;
     }
-    
-    return successResponse(medication);
   } catch (error) {
     console.error('Error getting medication:', error);
     return serverErrorResponse();
@@ -90,40 +85,31 @@ export const getMedicationHandler = async (event: APIGatewayProxyEvent): Promise
  */
 export const createMedicationHandler = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
   try {
-    const prisma = getPrismaClient();
+    // Authenticate user
+    const user = authenticate(event);
+    if (!user) {
+      return unauthorizedResponse();
+    }
     
     // Parse request body
-    const body = JSON.parse(event.body || '{}');
-    const { name, dosage, instructions, careRecipientId } = body;
-    
-    // Validate required fields
-    if (!name || !dosage || !instructions || !careRecipientId) {
-      return badRequestResponse('Name, dosage, instructions, and care recipient ID are required');
+    if (!event.body) {
+      return badRequestResponse('Request body is required');
     }
     
-    // Check if care recipient exists
-    const careRecipient = await prisma.careRecipient.findUnique({
-      where: { id: careRecipientId }
-    });
+    const body = JSON.parse(event.body);
     
-    if (!careRecipient) {
-      return badRequestResponse('Care recipient not found');
-    }
+    // Use the controller
+    const controller = new MedicationController();
     
-    // Create medication
-    const medication = await prisma.medication.create({
-      data: {
-        name,
-        dosage,
-        instructions,
-        careRecipientId
-      },
-      include: {
-        careRecipient: true
+    try {
+      const result = await controller.createMedication(body);
+      return createdResponse(result);
+    } catch (error: any) {
+      if (error.message.includes('required') || error.message.includes('not found')) {
+        return badRequestResponse(error.message);
       }
-    });
-    
-    return createdResponse(medication);
+      throw error;
+    }
   } catch (error) {
     console.error('Error creating medication:', error);
     return serverErrorResponse();
@@ -137,7 +123,11 @@ export const createMedicationHandler = async (event: APIGatewayProxyEvent): Prom
  */
 export const updateMedicationHandler = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
   try {
-    const prisma = getPrismaClient();
+    // Authenticate user
+    const user = authenticate(event);
+    if (!user) {
+      return unauthorizedResponse();
+    }
     
     // Get medication ID from path parameters
     const { id } = event.pathParameters || {};
@@ -147,34 +137,27 @@ export const updateMedicationHandler = async (event: APIGatewayProxyEvent): Prom
     }
     
     // Parse request body
-    const body = JSON.parse(event.body || '{}');
-    const { name, dosage, instructions, isActive, careRecipientId } = body;
-    
-    // Check if medication exists
-    const existingMedication = await prisma.medication.findUnique({
-      where: { id }
-    });
-    
-    if (!existingMedication) {
-      return notFoundResponse('Medication not found');
+    if (!event.body) {
+      return badRequestResponse('Request body is required');
     }
     
-    // Update medication
-    const medication = await prisma.medication.update({
-      where: { id },
-      data: {
-        name: name !== undefined ? name : undefined,
-        dosage: dosage !== undefined ? dosage : undefined,
-        instructions: instructions !== undefined ? instructions : undefined,
-        isActive: isActive !== undefined ? isActive : undefined,
-        careRecipientId: careRecipientId !== undefined ? careRecipientId : undefined
-      },
-      include: {
-        careRecipient: true
-      }
-    });
+    const body = JSON.parse(event.body);
     
-    return successResponse(medication);
+    // Use the controller
+    const controller = new MedicationController();
+    
+    try {
+      const result = await controller.updateMedication(id, body);
+      return successResponse(result);
+    } catch (error: any) {
+      if (error.message === "Medication not found") {
+        return notFoundResponse('Medication not found');
+      }
+      if (error.message.includes('required') || error.message.includes('not found')) {
+        return badRequestResponse(error.message);
+      }
+      throw error;
+    }
   } catch (error) {
     console.error('Error updating medication:', error);
     return serverErrorResponse();
@@ -188,7 +171,11 @@ export const updateMedicationHandler = async (event: APIGatewayProxyEvent): Prom
  */
 export const deleteMedicationHandler = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
   try {
-    const prisma = getPrismaClient();
+    // Authenticate user
+    const user = authenticate(event);
+    if (!user) {
+      return unauthorizedResponse();
+    }
     
     // Get medication ID from path parameters
     const { id } = event.pathParameters || {};
@@ -197,21 +184,18 @@ export const deleteMedicationHandler = async (event: APIGatewayProxyEvent): Prom
       return badRequestResponse('Medication ID is required');
     }
     
-    // Check if medication exists
-    const existingMedication = await prisma.medication.findUnique({
-      where: { id }
-    });
+    // Use the controller
+    const controller = new MedicationController();
     
-    if (!existingMedication) {
-      return notFoundResponse('Medication not found');
+    try {
+      await controller.deleteMedication(id);
+      return noContentResponse();
+    } catch (error: any) {
+      if (error.message === "Medication not found") {
+        return notFoundResponse('Medication not found');
+      }
+      throw error;
     }
-    
-    // Delete medication
-    await prisma.medication.delete({
-      where: { id }
-    });
-    
-    return noContentResponse();
   } catch (error) {
     console.error('Error deleting medication:', error);
     return serverErrorResponse();

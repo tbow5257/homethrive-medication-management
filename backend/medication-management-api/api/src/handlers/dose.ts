@@ -3,19 +3,26 @@ import {
   successResponse, 
   badRequestResponse, 
   notFoundResponse, 
-  serverErrorResponse
+  serverErrorResponse,
+  unauthorizedResponse
 } from '../utils/response';
-import { getPrismaClient, disconnectPrisma } from '../utils/prisma';
+import { disconnectPrisma } from '../utils/prisma';
 // Import Prisma types directly
 import { Dose } from '@prisma/client';
 import { ApiResponse } from '../types/api';
+import { DoseController } from '../controllers/DoseController';
+import { authenticate } from '../utils/auth';
 
 /**
  * Get all doses with optional filtering
  */
 export const getDosesHandler = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
   try {
-    const prisma = getPrismaClient();
+    // Authenticate user
+    const user = authenticate(event);
+    if (!user) {
+      return unauthorizedResponse();
+    }
     
     // Get query parameters
     const { 
@@ -25,50 +32,11 @@ export const getDosesHandler = async (event: APIGatewayProxyEvent): Promise<APIG
       endDate 
     } = event.queryStringParameters || {};
     
-    // Build query
-    const query: any = {
-      where: {},
-      include: {
-        medication: {
-          include: {
-            careRecipient: true
-          }
-        }
-      },
-      orderBy: {
-        scheduledFor: 'asc'
-      }
-    };
+    // Use the controller
+    const controller = new DoseController();
+    const result = await controller.getDoses(recipientId, status, startDate, endDate);
     
-    // Filter by recipient if provided
-    if (recipientId) {
-      query.where.medication = {
-        careRecipientId: recipientId
-      };
-    }
-    
-    // Filter by status if provided
-    if (status) {
-      query.where.status = status;
-    }
-    
-    // Filter by date range if provided
-    if (startDate || endDate) {
-      query.where.scheduledFor = {};
-      
-      if (startDate) {
-        query.where.scheduledFor.gte = new Date(startDate);
-      }
-      
-      if (endDate) {
-        query.where.scheduledFor.lte = new Date(endDate);
-      }
-    }
-    
-    // Get doses
-    const doses = await prisma.dose.findMany(query);
-    
-    return successResponse(doses);
+    return successResponse(result);
   } catch (error) {
     console.error('Error getting doses:', error);
     return serverErrorResponse();
@@ -82,7 +50,11 @@ export const getDosesHandler = async (event: APIGatewayProxyEvent): Promise<APIG
  */
 export const getDoseHandler = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
   try {
-    const prisma = getPrismaClient();
+    // Authenticate user
+    const user = authenticate(event);
+    if (!user) {
+      return unauthorizedResponse();
+    }
     
     // Get dose ID from path parameters
     const { id } = event.pathParameters || {};
@@ -91,23 +63,18 @@ export const getDoseHandler = async (event: APIGatewayProxyEvent): Promise<APIGa
       return badRequestResponse('Dose ID is required');
     }
     
-    // Get dose
-    const dose = await prisma.dose.findUnique({
-      where: { id },
-      include: {
-        medication: {
-          include: {
-            careRecipient: true
-          }
-        }
+    // Use the controller
+    const controller = new DoseController();
+    
+    try {
+      const result = await controller.getDose(id);
+      return successResponse(result);
+    } catch (error: any) {
+      if (error.message === "Dose not found") {
+        return notFoundResponse('Dose not found');
       }
-    });
-    
-    if (!dose) {
-      return notFoundResponse('Dose not found');
+      throw error;
     }
-    
-    return successResponse(dose);
   } catch (error) {
     console.error('Error getting dose:', error);
     return serverErrorResponse();
@@ -121,7 +88,11 @@ export const getDoseHandler = async (event: APIGatewayProxyEvent): Promise<APIGa
  */
 export const updateDoseStatusHandler = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
   try {
-    const prisma = getPrismaClient();
+    // Authenticate user
+    const user = authenticate(event);
+    if (!user) {
+      return unauthorizedResponse();
+    }
     
     // Get dose ID from path parameters
     const { id } = event.pathParameters || {};
@@ -131,40 +102,27 @@ export const updateDoseStatusHandler = async (event: APIGatewayProxyEvent): Prom
     }
     
     // Parse request body
-    const body = JSON.parse(event.body || '{}');
-    const { status } = body;
-    
-    // Validate status
-    if (!status || !['scheduled', 'taken', 'missed', 'skipped'].includes(status)) {
-      return badRequestResponse('Valid status is required (scheduled, taken, missed, skipped)');
+    if (!event.body) {
+      return badRequestResponse('Request body is required');
     }
     
-    // Check if dose exists
-    const existingDose = await prisma.dose.findUnique({
-      where: { id }
-    });
+    const body = JSON.parse(event.body);
     
-    if (!existingDose) {
-      return notFoundResponse('Dose not found');
-    }
+    // Use the controller
+    const controller = new DoseController();
     
-    // Update dose
-    const dose = await prisma.dose.update({
-      where: { id },
-      data: {
-        status,
-        takenAt: status === 'taken' ? new Date() : existingDose.takenAt
-      },
-      include: {
-        medication: {
-          include: {
-            careRecipient: true
-          }
-        }
+    try {
+      const result = await controller.updateDoseStatus(id, body);
+      return successResponse(result);
+    } catch (error: any) {
+      if (error.message === "Dose not found") {
+        return notFoundResponse('Dose not found');
       }
-    });
-    
-    return successResponse(dose);
+      if (error.message.includes("Valid status is required")) {
+        return badRequestResponse(error.message);
+      }
+      throw error;
+    }
   } catch (error) {
     console.error('Error updating dose status:', error);
     return serverErrorResponse();
@@ -178,7 +136,11 @@ export const updateDoseStatusHandler = async (event: APIGatewayProxyEvent): Prom
  */
 export const getUpcomingDosesHandler = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
   try {
-    const prisma = getPrismaClient();
+    // Authenticate user
+    const user = authenticate(event);
+    if (!user) {
+      return unauthorizedResponse();
+    }
     
     // Get query parameters
     const { limit = '5' } = event.queryStringParameters || {};
@@ -186,28 +148,11 @@ export const getUpcomingDosesHandler = async (event: APIGatewayProxyEvent): Prom
     // Parse limit
     const limitNum = parseInt(limit, 10);
     
-    // Get upcoming doses
-    const doses = await prisma.dose.findMany({
-      where: {
-        status: 'scheduled',
-        scheduledFor: {
-          gte: new Date()
-        }
-      },
-      include: {
-        medication: {
-          include: {
-            careRecipient: true
-          }
-        }
-      },
-      orderBy: {
-        scheduledFor: 'asc'
-      },
-      take: limitNum
-    });
+    // Use the controller
+    const controller = new DoseController();
+    const result = await controller.getUpcomingDoses(limitNum);
     
-    return successResponse(doses);
+    return successResponse(result);
   } catch (error) {
     console.error('Error getting upcoming doses:', error);
     return serverErrorResponse();
@@ -221,64 +166,17 @@ export const getUpcomingDosesHandler = async (event: APIGatewayProxyEvent): Prom
  */
 export const getDashboardStatsHandler = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
   try {
-    const prisma = getPrismaClient();
+    // Authenticate user
+    const user = authenticate(event);
+    if (!user) {
+      return unauthorizedResponse();
+    }
     
-    // Get today's date
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
+    // Use the controller
+    const controller = new DoseController();
+    const result = await controller.getDashboardStats();
     
-    const tomorrow = new Date(today);
-    tomorrow.setDate(tomorrow.getDate() + 1);
-    
-    // Get counts
-    const [
-      totalRecipients,
-      totalMedications,
-      totalSchedules,
-      todayDoses,
-      takenDoses,
-      missedDoses
-    ] = await Promise.all([
-      prisma.careRecipient.count({ where: { isActive: true } }),
-      prisma.medication.count({ where: { isActive: true } }),
-      prisma.schedule.count({ where: { isActive: true } }),
-      prisma.dose.count({
-        where: {
-          scheduledFor: {
-            gte: today,
-            lt: tomorrow
-          }
-        }
-      }),
-      prisma.dose.count({
-        where: {
-          status: 'taken',
-          scheduledFor: {
-            gte: today,
-            lt: tomorrow
-          }
-        }
-      }),
-      prisma.dose.count({
-        where: {
-          status: 'missed'
-        }
-      })
-    ]);
-    
-    // Calculate compliance rate
-    const complianceRate = todayDoses > 0 ? (takenDoses / todayDoses) * 100 : 0;
-    
-    // Return stats
-    return successResponse({
-      totalRecipients,
-      totalMedications,
-      totalSchedules,
-      todayDoses,
-      takenDoses,
-      missedDoses,
-      complianceRate: Math.round(complianceRate)
-    });
+    return successResponse(result);
   } catch (error) {
     console.error('Error getting dashboard stats:', error);
     return serverErrorResponse();

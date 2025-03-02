@@ -5,42 +5,35 @@ import {
   notFoundResponse, 
   serverErrorResponse,
   createdResponse,
-  noContentResponse
+  noContentResponse,
+  unauthorizedResponse
 } from '../utils/response';
-import { getPrismaClient, disconnectPrisma } from '../utils/prisma';
+import { disconnectPrisma } from '../utils/prisma';
 // Import Prisma types directly
 import { Schedule } from '@prisma/client';
 import { ApiResponse } from '../types/api';
+import { ScheduleController } from '../controllers/ScheduleController';
+import { authenticate } from '../utils/auth';
 
 /**
  * Get all schedules
  */
 export const getSchedulesHandler = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
   try {
-    const prisma = getPrismaClient();
+    // Authenticate user
+    const user = authenticate(event);
+    if (!user) {
+      return unauthorizedResponse();
+    }
     
     // Get query parameters
     const { medicationId } = event.queryStringParameters || {};
     
-    // Build query
-    const query: any = {
-      where: {
-        isActive: true
-      },
-      include: {
-        medication: true
-      }
-    };
+    // Use the controller
+    const controller = new ScheduleController();
+    const result = await controller.getSchedules(medicationId);
     
-    // Filter by medication if provided
-    if (medicationId) {
-      query.where.medicationId = medicationId;
-    }
-    
-    // Get schedules
-    const schedules = await prisma.schedule.findMany(query);
-    
-    return successResponse(schedules);
+    return successResponse(result);
   } catch (error) {
     console.error('Error getting schedules:', error);
     return serverErrorResponse();
@@ -54,7 +47,11 @@ export const getSchedulesHandler = async (event: APIGatewayProxyEvent): Promise<
  */
 export const getScheduleHandler = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
   try {
-    const prisma = getPrismaClient();
+    // Authenticate user
+    const user = authenticate(event);
+    if (!user) {
+      return unauthorizedResponse();
+    }
     
     // Get schedule ID from path parameters
     const { id } = event.pathParameters || {};
@@ -63,19 +60,18 @@ export const getScheduleHandler = async (event: APIGatewayProxyEvent): Promise<A
       return badRequestResponse('Schedule ID is required');
     }
     
-    // Get schedule
-    const schedule = await prisma.schedule.findUnique({
-      where: { id },
-      include: {
-        medication: true
+    // Use the controller
+    const controller = new ScheduleController();
+    
+    try {
+      const result = await controller.getSchedule(id);
+      return successResponse(result);
+    } catch (error: any) {
+      if (error.message === "Schedule not found") {
+        return notFoundResponse('Schedule not found');
       }
-    });
-    
-    if (!schedule) {
-      return notFoundResponse('Schedule not found');
+      throw error;
     }
-    
-    return successResponse(schedule);
   } catch (error) {
     console.error('Error getting schedule:', error);
     return serverErrorResponse();
@@ -89,44 +85,33 @@ export const getScheduleHandler = async (event: APIGatewayProxyEvent): Promise<A
  */
 export const createScheduleHandler = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
   try {
-    const prisma = getPrismaClient();
+    // Authenticate user
+    const user = authenticate(event);
+    if (!user) {
+      return unauthorizedResponse();
+    }
     
     // Parse request body
-    const body = JSON.parse(event.body || '{}');
-    const { time, daysOfWeek, medicationId } = body;
-    
-    // Validate required fields
-    if (!time || !daysOfWeek || !medicationId) {
-      return badRequestResponse('Time, days of week, and medication ID are required');
+    if (!event.body) {
+      return badRequestResponse('Request body is required');
     }
     
-    // Validate days of week
-    if (!Array.isArray(daysOfWeek) || daysOfWeek.length === 0) {
-      return badRequestResponse('Days of week must be a non-empty array');
-    }
+    const body = JSON.parse(event.body);
     
-    // Check if medication exists
-    const medication = await prisma.medication.findUnique({
-      where: { id: medicationId }
-    });
+    // Use the controller
+    const controller = new ScheduleController();
     
-    if (!medication) {
-      return badRequestResponse('Medication not found');
-    }
-    
-    // Create schedule
-    const schedule = await prisma.schedule.create({
-      data: {
-        time,
-        daysOfWeek,
-        medicationId
-      },
-      include: {
-        medication: true
+    try {
+      const result = await controller.createSchedule(body);
+      return createdResponse(result);
+    } catch (error: any) {
+      if (error.message.includes('required') || 
+          error.message.includes('not found') || 
+          error.message.includes('must be a non-empty array')) {
+        return badRequestResponse(error.message);
       }
-    });
-    
-    return createdResponse(schedule);
+      throw error;
+    }
   } catch (error) {
     console.error('Error creating schedule:', error);
     return serverErrorResponse();
@@ -140,7 +125,11 @@ export const createScheduleHandler = async (event: APIGatewayProxyEvent): Promis
  */
 export const updateScheduleHandler = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
   try {
-    const prisma = getPrismaClient();
+    // Authenticate user
+    const user = authenticate(event);
+    if (!user) {
+      return unauthorizedResponse();
+    }
     
     // Get schedule ID from path parameters
     const { id } = event.pathParameters || {};
@@ -150,49 +139,29 @@ export const updateScheduleHandler = async (event: APIGatewayProxyEvent): Promis
     }
     
     // Parse request body
-    const body = JSON.parse(event.body || '{}');
-    const { time, daysOfWeek, isActive, medicationId } = body;
-    
-    // Check if schedule exists
-    const existingSchedule = await prisma.schedule.findUnique({
-      where: { id }
-    });
-    
-    if (!existingSchedule) {
-      return notFoundResponse('Schedule not found');
+    if (!event.body) {
+      return badRequestResponse('Request body is required');
     }
     
-    // Validate days of week if provided
-    if (daysOfWeek !== undefined && (!Array.isArray(daysOfWeek) || daysOfWeek.length === 0)) {
-      return badRequestResponse('Days of week must be a non-empty array');
-    }
+    const body = JSON.parse(event.body);
     
-    // Check if medication exists if provided
-    if (medicationId !== undefined) {
-      const medication = await prisma.medication.findUnique({
-        where: { id: medicationId }
-      });
-      
-      if (!medication) {
-        return badRequestResponse('Medication not found');
+    // Use the controller
+    const controller = new ScheduleController();
+    
+    try {
+      const result = await controller.updateSchedule(id, body);
+      return successResponse(result);
+    } catch (error: any) {
+      if (error.message === "Schedule not found") {
+        return notFoundResponse('Schedule not found');
       }
-    }
-    
-    // Update schedule
-    const schedule = await prisma.schedule.update({
-      where: { id },
-      data: {
-        time: time !== undefined ? time : undefined,
-        daysOfWeek: daysOfWeek !== undefined ? daysOfWeek : undefined,
-        isActive: isActive !== undefined ? isActive : undefined,
-        medicationId: medicationId !== undefined ? medicationId : undefined
-      },
-      include: {
-        medication: true
+      if (error.message.includes('required') || 
+          error.message.includes('not found') || 
+          error.message.includes('must be a non-empty array')) {
+        return badRequestResponse(error.message);
       }
-    });
-    
-    return successResponse(schedule);
+      throw error;
+    }
   } catch (error) {
     console.error('Error updating schedule:', error);
     return serverErrorResponse();
@@ -206,7 +175,11 @@ export const updateScheduleHandler = async (event: APIGatewayProxyEvent): Promis
  */
 export const deleteScheduleHandler = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
   try {
-    const prisma = getPrismaClient();
+    // Authenticate user
+    const user = authenticate(event);
+    if (!user) {
+      return unauthorizedResponse();
+    }
     
     // Get schedule ID from path parameters
     const { id } = event.pathParameters || {};
@@ -215,24 +188,18 @@ export const deleteScheduleHandler = async (event: APIGatewayProxyEvent): Promis
       return badRequestResponse('Schedule ID is required');
     }
     
-    // Check if schedule exists
-    const existingSchedule = await prisma.schedule.findUnique({
-      where: { id }
-    });
+    // Use the controller
+    const controller = new ScheduleController();
     
-    if (!existingSchedule) {
-      return notFoundResponse('Schedule not found');
-    }
-    
-    // Instead of deleting, mark as inactive
-    const schedule = await prisma.schedule.update({
-      where: { id },
-      data: {
-        isActive: false
+    try {
+      await controller.deleteSchedule(id);
+      return noContentResponse();
+    } catch (error: any) {
+      if (error.message === "Schedule not found") {
+        return notFoundResponse('Schedule not found');
       }
-    });
-    
-    return noContentResponse();
+      throw error;
+    }
   } catch (error) {
     console.error('Error deleting schedule:', error);
     return serverErrorResponse();

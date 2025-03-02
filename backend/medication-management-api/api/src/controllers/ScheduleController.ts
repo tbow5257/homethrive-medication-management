@@ -1,0 +1,205 @@
+import { Route, Get, Post, Put, Delete, Body, Path, Query, Response, Tags, Security } from 'tsoa';
+import { getPrismaClient } from '../utils/prisma';
+import { Schedule, Medication } from '@prisma/client';
+
+interface ScheduleResponse extends Schedule {
+  medication?: Medication;
+}
+
+interface CreateScheduleRequest {
+  time: string;
+  daysOfWeek: string[];
+  medicationId: string;
+}
+
+interface UpdateScheduleRequest {
+  time?: string;
+  daysOfWeek?: string[];
+  isActive?: boolean;
+  medicationId?: string;
+}
+
+@Route("schedules")
+@Tags('Schedules')
+export class ScheduleController {
+  /**
+   * Get all schedules with optional filtering by medication
+   */
+  @Get()
+  @Security('jwt')
+  public async getSchedules(@Query() medicationId?: string): Promise<ScheduleResponse[]> {
+    const prisma = getPrismaClient();
+    
+    // Build query
+    const query: any = {
+      where: {
+        isActive: true
+      },
+      include: {
+        medication: true
+      }
+    };
+    
+    // Filter by medication if provided
+    if (medicationId) {
+      query.where.medicationId = medicationId;
+    }
+    
+    // Get schedules
+    const schedules = await prisma.schedule.findMany(query);
+    
+    return schedules;
+  }
+
+  /**
+   * Get a schedule by ID
+   */
+  @Get("{id}")
+  @Security('jwt')
+  @Response<{ message: string }>(404, "Schedule not found")
+  public async getSchedule(@Path() id: string): Promise<ScheduleResponse> {
+    const prisma = getPrismaClient();
+    
+    // Get schedule
+    const schedule = await prisma.schedule.findUnique({
+      where: { id },
+      include: {
+        medication: true
+      }
+    });
+    
+    if (!schedule) {
+      throw new Error("Schedule not found");
+    }
+    
+    return schedule;
+  }
+
+  /**
+   * Create a new schedule
+   */
+  @Post()
+  @Security('jwt')
+  @Response<{ message: string }>(400, "Bad request")
+  public async createSchedule(@Body() requestBody: CreateScheduleRequest): Promise<ScheduleResponse> {
+    const prisma = getPrismaClient();
+    const { time, daysOfWeek, medicationId } = requestBody;
+    
+    // Validate required fields
+    if (!time || !daysOfWeek || !medicationId) {
+      throw new Error('Time, days of week, and medication ID are required');
+    }
+    
+    // Validate days of week
+    if (!Array.isArray(daysOfWeek) || daysOfWeek.length === 0) {
+      throw new Error('Days of week must be a non-empty array');
+    }
+    
+    // Check if medication exists
+    const medication = await prisma.medication.findUnique({
+      where: { id: medicationId }
+    });
+    
+    if (!medication) {
+      throw new Error('Medication not found');
+    }
+    
+    // Create schedule
+    const schedule = await prisma.schedule.create({
+      data: {
+        time,
+        daysOfWeek,
+        medicationId
+      },
+      include: {
+        medication: true
+      }
+    });
+    
+    return schedule;
+  }
+
+  /**
+   * Update a schedule
+   */
+  @Put("{id}")
+  @Security('jwt')
+  @Response<{ message: string }>(404, "Schedule not found")
+  @Response<{ message: string }>(400, "Bad request")
+  public async updateSchedule(
+    @Path() id: string,
+    @Body() requestBody: UpdateScheduleRequest
+  ): Promise<ScheduleResponse> {
+    const prisma = getPrismaClient();
+    const { time, daysOfWeek, isActive, medicationId } = requestBody;
+    
+    // Check if schedule exists
+    const existingSchedule = await prisma.schedule.findUnique({
+      where: { id }
+    });
+    
+    if (!existingSchedule) {
+      throw new Error("Schedule not found");
+    }
+    
+    // Validate days of week if provided
+    if (daysOfWeek !== undefined && (!Array.isArray(daysOfWeek) || daysOfWeek.length === 0)) {
+      throw new Error('Days of week must be a non-empty array');
+    }
+    
+    // Check if medication exists if provided
+    if (medicationId !== undefined) {
+      const medication = await prisma.medication.findUnique({
+        where: { id: medicationId }
+      });
+      
+      if (!medication) {
+        throw new Error('Medication not found');
+      }
+    }
+    
+    // Update schedule
+    const schedule = await prisma.schedule.update({
+      where: { id },
+      data: {
+        time: time !== undefined ? time : undefined,
+        daysOfWeek: daysOfWeek !== undefined ? daysOfWeek : undefined,
+        isActive: isActive !== undefined ? isActive : undefined,
+        medicationId: medicationId !== undefined ? medicationId : undefined
+      },
+      include: {
+        medication: true
+      }
+    });
+    
+    return schedule;
+  }
+
+  /**
+   * Delete a schedule (mark as inactive)
+   */
+  @Delete("{id}")
+  @Security('jwt')
+  @Response<{ message: string }>(404, "Schedule not found")
+  @Response<void>(204, "No content")
+  public async deleteSchedule(@Path() id: string): Promise<void> {
+    const prisma = getPrismaClient();
+    
+    // Check if schedule exists
+    const existingSchedule = await prisma.schedule.findUnique({
+      where: { id }
+    });
+    
+    if (!existingSchedule) {
+      throw new Error("Schedule not found");
+    }
+    
+    // Instead of deleting, mark as inactive
+    await prisma.schedule.update({
+      where: { id },
+      data: {
+        isActive: false
+      }
+    });
+  }
+} 

@@ -6,58 +6,34 @@ import {
   serverErrorResponse,
   createdResponse
 } from '../utils/response';
-import { getPrismaClient, disconnectPrisma } from '../utils/prisma';
-import { hashPassword, comparePassword, generateToken } from '../utils/auth';
+import { disconnectPrisma } from '../utils/prisma';
+import { authenticate } from '../utils/auth';
+import { AuthController } from '../controllers/AuthController';
 
 /**
  * Register a new user
  */
 export const registerHandler = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
   try {
-    const prisma = getPrismaClient();
-    
     // Parse request body
-    const body = JSON.parse(event.body || '{}');
-    const { email, password, firstName, lastName, role } = body;
-    
-    // Validate required fields
-    if (!email || !password || !firstName || !lastName) {
-      return badRequestResponse('Email, password, first name, and last name are required');
+    if (!event.body) {
+      return badRequestResponse('Request body is required');
     }
     
-    // Check if user already exists
-    const existingUser = await prisma.user.findUnique({
-      where: { email }
-    });
+    const body = JSON.parse(event.body);
     
-    if (existingUser) {
-      return badRequestResponse('User with this email already exists');
-    }
+    // Use the controller
+    const controller = new AuthController();
     
-    // Hash password
-    const hashedPassword = await hashPassword(password);
-    
-    // Create user
-    const user = await prisma.user.create({
-      data: {
-        email,
-        password: hashedPassword,
-        firstName,
-        lastName,
-        role: role || 'caregiver'
+    try {
+      const result = await controller.register(body);
+      return createdResponse(result);
+    } catch (error: any) {
+      if (error.message.includes('required') || error.message.includes('already exists')) {
+        return badRequestResponse(error.message);
       }
-    });
-    
-    // Generate token
-    const token = generateToken(user);
-    
-    // Return user data without password
-    const { password: _, ...userData } = user;
-    
-    return createdResponse({
-      user: userData,
-      token
-    });
+      throw error;
+    }
   } catch (error) {
     console.error('Error registering user:', error);
     return serverErrorResponse();
@@ -71,49 +47,28 @@ export const registerHandler = async (event: APIGatewayProxyEvent): Promise<APIG
  */
 export const loginHandler = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
   try {
-    const prisma = getPrismaClient();
-    
     // Parse request body
-    const body = JSON.parse(event.body || '{}');
-    const { email, password } = body;
-    
-    // Validate required fields
-    if (!email || !password) {
-      return badRequestResponse('Email and password are required');
+    if (!event.body) {
+      return badRequestResponse('Request body is required');
     }
     
-    // Find user
-    const user = await prisma.user.findUnique({
-      where: { email }
-    });
+    const body = JSON.parse(event.body);
     
-    // Check if user exists
-    if (!user) {
-      return unauthorizedResponse('Invalid credentials');
+    // Use the controller
+    const controller = new AuthController();
+    
+    try {
+      const result = await controller.login(body);
+      return successResponse(result);
+    } catch (error: any) {
+      if (error.message.includes('required')) {
+        return badRequestResponse(error.message);
+      }
+      if (error.message.includes('Invalid credentials') || error.message.includes('inactive')) {
+        return unauthorizedResponse(error.message);
+      }
+      throw error;
     }
-    
-    // Check if user is active
-    if (!user.isActive) {
-      return unauthorizedResponse('Account is inactive');
-    }
-    
-    // Verify password
-    const isPasswordValid = await comparePassword(password, user.password);
-    
-    if (!isPasswordValid) {
-      return unauthorizedResponse('Invalid credentials');
-    }
-    
-    // Generate token
-    const token = generateToken(user);
-    
-    // Return user data without password
-    const { password: _, ...userData } = user;
-    
-    return successResponse({
-      user: userData,
-      token
-    });
   } catch (error) {
     console.error('Error logging in:', error);
     return serverErrorResponse();
@@ -127,24 +82,24 @@ export const loginHandler = async (event: APIGatewayProxyEvent): Promise<APIGate
  */
 export const profileHandler = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
   try {
-    // User is already authenticated by middleware
-    const { user } = event as any;
-    
-    const prisma = getPrismaClient();
-    
-    // Get fresh user data
-    const userData = await prisma.user.findUnique({
-      where: { id: user.userId }
-    });
-    
-    if (!userData) {
-      return unauthorizedResponse('User not found');
+    // Authenticate user
+    const user = authenticate(event);
+    if (!user) {
+      return unauthorizedResponse();
     }
     
-    // Return user data without password
-    const { password: _, ...userProfile } = userData;
+    // Use the controller
+    const controller = new AuthController();
     
-    return successResponse({ user: userProfile });
+    try {
+      const result = await controller.getProfile(user.userId);
+      return successResponse(result);
+    } catch (error: any) {
+      if (error.message === 'User not found') {
+        return unauthorizedResponse(error.message);
+      }
+      throw error;
+    }
   } catch (error) {
     console.error('Error getting profile:', error);
     return serverErrorResponse();
