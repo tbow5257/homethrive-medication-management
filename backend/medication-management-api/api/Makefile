@@ -1,0 +1,2 @@
+build-MedicationManagementFunction:
+	./build.sh
