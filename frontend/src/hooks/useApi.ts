@@ -1,19 +1,24 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { mockApi } from '../services/mockApi';
+import { realApi } from '../services/api';
 import { CareRecipient, Medication, Schedule, Dose } from '../types';
+
+// API Configuration - Change this to switch between mock and real API
+export const USE_MOCK_API = false; // Set to false to use the real API
+export const currentApi = USE_MOCK_API ? mockApi : realApi;
 
 // Recipients hooks
 export const useRecipients = () => {
   return useQuery({
     queryKey: ['recipients'],
-    queryFn: () => mockApi.getRecipients(),
+    queryFn: () => currentApi.getRecipients(),
   });
 };
 
 export const useRecipient = (id: string) => {
   return useQuery({
     queryKey: ['recipients', id],
-    queryFn: () => mockApi.getRecipient(id),
+    queryFn: () => currentApi.getRecipient(id),
     enabled: !!id,
   });
 };
@@ -22,7 +27,7 @@ export const useCreateRecipient = () => {
   const queryClient = useQueryClient();
   
   return useMutation({
-    mutationFn: (data: { name: string }) => mockApi.createRecipient(data),
+    mutationFn: (data: { name: string }) => currentApi.createRecipient(data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['recipients'] });
     },
@@ -34,7 +39,7 @@ export const useUpdateRecipient = () => {
   
   return useMutation({
     mutationFn: ({ id, data }: { id: string; data: { name: string } }) => 
-      mockApi.updateRecipient(id, data),
+      currentApi.updateRecipient(id, data),
     onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: ['recipients'] });
       queryClient.invalidateQueries({ queryKey: ['recipients', data.id] });
@@ -46,7 +51,7 @@ export const useDeleteRecipient = () => {
   const queryClient = useQueryClient();
   
   return useMutation({
-    mutationFn: (id: string) => mockApi.deleteRecipient(id),
+    mutationFn: (id: string) => currentApi.deleteRecipient(id),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['recipients'] });
     },
@@ -57,14 +62,14 @@ export const useDeleteRecipient = () => {
 export const useMedications = (recipientId?: string) => {
   return useQuery({
     queryKey: ['medications', { recipientId }],
-    queryFn: () => mockApi.getMedications(recipientId),
+    queryFn: () => currentApi.getMedications(recipientId),
   });
 };
 
 export const useMedication = (id: string) => {
   return useQuery({
     queryKey: ['medications', id],
-    queryFn: () => mockApi.getMedication(id),
+    queryFn: () => currentApi.getMedication(id),
     enabled: !!id,
   });
 };
@@ -74,7 +79,7 @@ export const useCreateMedication = () => {
   
   return useMutation({
     mutationFn: (data: Omit<Medication, 'id' | 'createdAt' | 'updatedAt'>) => 
-      mockApi.createMedication(data),
+      currentApi.createMedication(data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['medications'] });
     },
@@ -88,7 +93,7 @@ export const useUpdateMedication = () => {
     mutationFn: ({ id, data }: { 
       id: string; 
       data: Partial<Omit<Medication, 'id' | 'createdAt' | 'updatedAt'>>
-    }) => mockApi.updateMedication(id, data),
+    }) => currentApi.updateMedication(id, data),
     onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: ['medications'] });
       queryClient.invalidateQueries({ queryKey: ['medications', data.id] });
@@ -100,7 +105,7 @@ export const useDeleteMedication = () => {
   const queryClient = useQueryClient();
   
   return useMutation({
-    mutationFn: (id: string) => mockApi.deleteMedication(id),
+    mutationFn: (id: string) => currentApi.deleteMedication(id),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['medications'] });
     },
@@ -111,14 +116,14 @@ export const useDeleteMedication = () => {
 export const useSchedules = (medicationId?: string) => {
   return useQuery({
     queryKey: ['schedules', { medicationId }],
-    queryFn: () => mockApi.getSchedules(medicationId),
+    queryFn: () => currentApi.getSchedules(medicationId),
   });
 };
 
 export const useSchedule = (id: string) => {
   return useQuery({
     queryKey: ['schedules', id],
-    queryFn: () => mockApi.getSchedule(id),
+    queryFn: () => currentApi.getSchedule(id),
     enabled: !!id,
   });
 };
@@ -128,7 +133,7 @@ export const useCreateSchedule = () => {
   
   return useMutation({
     mutationFn: (data: Omit<Schedule, 'id' | 'createdAt' | 'updatedAt'>) => 
-      mockApi.createSchedule(data),
+      currentApi.createSchedule(data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['schedules'] });
       queryClient.invalidateQueries({ queryKey: ['doses'] });
@@ -143,7 +148,7 @@ export const useUpdateSchedule = () => {
     mutationFn: ({ id, data }: { 
       id: string; 
       data: Partial<Omit<Schedule, 'id' | 'createdAt' | 'updatedAt'>>
-    }) => mockApi.updateSchedule(id, data),
+    }) => currentApi.updateSchedule(id, data),
     onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: ['schedules'] });
       queryClient.invalidateQueries({ queryKey: ['schedules', data.id] });
@@ -156,7 +161,7 @@ export const useDeleteSchedule = () => {
   const queryClient = useQueryClient();
   
   return useMutation({
-    mutationFn: (id: string) => mockApi.deleteSchedule(id),
+    mutationFn: (id: string) => currentApi.deleteSchedule(id),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['schedules'] });
       queryClient.invalidateQueries({ queryKey: ['doses'] });
@@ -173,14 +178,14 @@ export const useDoses = (params?: {
 }) => {
   return useQuery({
     queryKey: ['doses', params],
-    queryFn: () => mockApi.getDoses(params),
+    queryFn: () => currentApi.getDoses(params),
   });
 };
 
 export const useDose = (id: string) => {
   return useQuery({
     queryKey: ['doses', id],
-    queryFn: () => mockApi.getDose(id),
+    queryFn: () => currentApi.getDose(id),
     enabled: !!id,
   });
 };
@@ -190,7 +195,7 @@ export const useUpdateDoseStatus = () => {
   
   return useMutation({
     mutationFn: ({ id, status }: { id: string; status: 'taken' | 'missed' }) => 
-      mockApi.updateDoseStatus(id, status),
+      currentApi.updateDoseStatus(id, status),
     onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: ['doses'] });
       queryClient.invalidateQueries({ queryKey: ['doses', data.id] });
@@ -203,13 +208,13 @@ export const useUpdateDoseStatus = () => {
 export const useDashboardStats = () => {
   return useQuery({
     queryKey: ['dashboard', 'stats'],
-    queryFn: () => mockApi.getDashboardStats(),
+    queryFn: () => currentApi.getDashboardStats(),
   });
 };
 
 export const useUpcomingDoses = (limit = 5) => {
   return useQuery({
     queryKey: ['dashboard', 'upcomingDoses', limit],
-    queryFn: () => mockApi.getUpcomingDoses(limit),
+    queryFn: () => currentApi.getUpcomingDoses(limit),
   });
 };

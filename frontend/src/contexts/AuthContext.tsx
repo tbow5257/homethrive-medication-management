@@ -1,8 +1,8 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { jwtDecode } from 'jwt-decode';
 import { message } from 'antd';
-import { mockApi } from '../services/mockApi';
 import api from '../services/api';
+import { USE_MOCK_API } from '../hooks/useApi';
 
 interface User {
   id: string;
@@ -37,13 +37,19 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const token = localStorage.getItem('token');
     if (token) {
       try {
-        // For mock token
-        const decoded = JSON.parse(atob(token));
-        setUser(decoded.user);
-        
-        // For real JWT token when backend is ready
-        // const decoded = jwtDecode<{ user: User }>(token);
-        // setUser(decoded.user);
+        if (USE_MOCK_API) {
+          // For mock token
+          const decoded = JSON.parse(atob(token));
+          setUser(decoded.user);
+        } else {
+          // For real JWT token
+          const decoded = jwtDecode<{ userId: string; email: string; firstName: string; lastName: string }>(token);
+          setUser({
+            id: decoded.userId,
+            name: `${decoded.firstName} ${decoded.lastName}`,
+            email: decoded.email
+          });
+        }
         
         api.defaults.headers.common['Authorization'] = `Bearer ${token}`;
       } catch (error) {
@@ -56,19 +62,26 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const login = async (email: string, password: string) => {
     try {
-      // Use mock API for now
-      const { token } = await mockApi.login(email, password);
+      // Import dynamically to avoid circular dependency
+      const { currentApi } = await import('../hooks/useApi');
+      const { token } = await currentApi.login(email, password);
       
       localStorage.setItem('token', token);
       api.defaults.headers.common['Authorization'] = `Bearer ${token}`;
       
-      // For mock token
-      const decoded = JSON.parse(atob(token));
-      setUser(decoded.user);
-      
-      // For real JWT token when backend is ready
-      // const decoded = jwtDecode<{ user: User }>(token);
-      // setUser(decoded.user);
+      if (USE_MOCK_API) {
+        // For mock token
+        const decoded = JSON.parse(atob(token));
+        setUser(decoded.user);
+      } else {
+        // For real JWT token
+        const decoded = jwtDecode<{ userId: string; email: string; firstName: string; lastName: string }>(token);
+        setUser({
+          id: decoded.userId,
+          name: `${decoded.firstName} ${decoded.lastName}`,
+          email: decoded.email
+        });
+      }
       
       message.success('Login successful');
     } catch (error) {
