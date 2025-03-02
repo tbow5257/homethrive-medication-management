@@ -12,6 +12,27 @@ import {
   loginHandler,
   profileHandler
 } from './src/handlers/auth';
+import {
+  getCareRecipientsHandler,
+  getCareRecipientHandler,
+  createCareRecipientHandler,
+  updateCareRecipientHandler,
+  deleteCareRecipientHandler
+} from './src/handlers/careRecipient';
+import {
+  getSchedulesHandler,
+  getScheduleHandler,
+  createScheduleHandler,
+  updateScheduleHandler,
+  deleteScheduleHandler
+} from './src/handlers/schedule';
+import {
+  getDosesHandler,
+  getDoseHandler,
+  updateDoseStatusHandler,
+  getUpcomingDosesHandler,
+  getDashboardStatsHandler
+} from './src/handlers/dose';
 import { successResponse, serverErrorResponse } from './src/utils/response';
 import { requireAuth } from './src/utils/auth';
 
@@ -39,6 +60,27 @@ const router = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResul
     return requireAuth(profileHandler)(event);
   }
   
+  // Care Recipient endpoints - protected with authentication
+  if (path.match(/^\/care-recipients\/?$/) && httpMethod === 'GET') {
+    return requireAuth(getCareRecipientsHandler)(event);
+  }
+  
+  if (path.match(/^\/care-recipients\/?$/) && httpMethod === 'POST') {
+    return requireAuth(createCareRecipientHandler)(event);
+  }
+  
+  if (path.match(/^\/care-recipients\/[a-zA-Z0-9-]+\/?$/) && httpMethod === 'GET') {
+    return requireAuth(getCareRecipientHandler)(event);
+  }
+  
+  if (path.match(/^\/care-recipients\/[a-zA-Z0-9-]+\/?$/) && httpMethod === 'PUT') {
+    return requireAuth(updateCareRecipientHandler)(event);
+  }
+  
+  if (path.match(/^\/care-recipients\/[a-zA-Z0-9-]+\/?$/) && httpMethod === 'DELETE') {
+    return requireAuth(deleteCareRecipientHandler)(event);
+  }
+  
   // Medication endpoints - protected with authentication
   if (path.match(/^\/medications\/?$/) && httpMethod === 'GET') {
     return requireAuth(getMedicationsHandler)(event);
@@ -58,6 +100,49 @@ const router = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResul
   
   if (path.match(/^\/medications\/[a-zA-Z0-9-]+\/?$/) && httpMethod === 'DELETE') {
     return requireAuth(deleteMedicationHandler)(event);
+  }
+  
+  // Schedule endpoints - protected with authentication
+  if (path.match(/^\/schedules\/?$/) && httpMethod === 'GET') {
+    return requireAuth(getSchedulesHandler)(event);
+  }
+  
+  if (path.match(/^\/schedules\/?$/) && httpMethod === 'POST') {
+    return requireAuth(createScheduleHandler)(event);
+  }
+  
+  if (path.match(/^\/schedules\/[a-zA-Z0-9-]+\/?$/) && httpMethod === 'GET') {
+    return requireAuth(getScheduleHandler)(event);
+  }
+  
+  if (path.match(/^\/schedules\/[a-zA-Z0-9-]+\/?$/) && httpMethod === 'PUT') {
+    return requireAuth(updateScheduleHandler)(event);
+  }
+  
+  if (path.match(/^\/schedules\/[a-zA-Z0-9-]+\/?$/) && httpMethod === 'DELETE') {
+    return requireAuth(deleteScheduleHandler)(event);
+  }
+  
+  // Dose endpoints - protected with authentication
+  if (path.match(/^\/doses\/?$/) && httpMethod === 'GET') {
+    return requireAuth(getDosesHandler)(event);
+  }
+  
+  if (path.match(/^\/doses\/[a-zA-Z0-9-]+\/?$/) && httpMethod === 'GET') {
+    return requireAuth(getDoseHandler)(event);
+  }
+  
+  if (path.match(/^\/doses\/[a-zA-Z0-9-]+\/status\/?$/) && httpMethod === 'PUT') {
+    return requireAuth(updateDoseStatusHandler)(event);
+  }
+  
+  // Dashboard endpoints - protected with authentication
+  if (path.match(/^\/dashboard\/stats\/?$/) && httpMethod === 'GET') {
+    return requireAuth(getDashboardStatsHandler)(event);
+  }
+  
+  if (path.match(/^\/dashboard\/upcoming-doses\/?$/) && httpMethod === 'GET') {
+    return requireAuth(getUpcomingDosesHandler)(event);
   }
   
   // If no route matches, return 404

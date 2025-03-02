@@ -21,10 +21,10 @@
     "build-layer": "cd ../layers/prisma && npm run build && cd ../../",
     "build": "npm run prisma:generate && tsc && node copy-prisma-engines.js && npm run sync-schemas && npm run build-layer && cd .. && sam build && cd api",
     "dev:sam": "cd .. && node api/start-sam.js",
-    "generate-types": "cd ../../../shared/types && npm run generate"
+    "generate-frontend-types": "node scripts/generate-frontend-types.js",
+    "generate-types": "npm run generate-frontend-types"
   },
   "dependencies": {
-    "@medication-management/shared-types": "1.0.0",
     "@prisma/client": "^5.10.0",
     "aws-sdk": "^2.1499.0",
     "bcryptjs": "^2.4.3",

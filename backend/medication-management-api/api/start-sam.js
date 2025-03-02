@@ -12,6 +12,7 @@ if (process.env.DOCKER_HOST) {
 try {
   execSync(command, { stdio: 'inherit', cwd: '.' });
 } catch (error) {
-  console.error('Error running SAM local:', error.message);
+  console.error('=================');
+  console.error('Check the error message above for details.');
   process.exit(1);
 }

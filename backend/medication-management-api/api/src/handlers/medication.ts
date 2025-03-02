@@ -8,8 +8,9 @@ import {
   noContentResponse
 } from '../utils/response';
 import { getPrismaClient, disconnectPrisma } from '../utils/prisma';
-// Import shared types
-import { Medication, ApiResponse } from '@medication-management/shared-types';
+// Import Prisma types directly
+import { Medication } from '@prisma/client';
+import { ApiResponse } from '../types/api';
 
 /**
  * Get all medications
