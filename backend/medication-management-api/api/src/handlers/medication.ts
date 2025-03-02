@@ -1,13 +1,15 @@
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda';
 import { 
   successResponse, 
-  createdResponse, 
-  notFoundResponse, 
   badRequestResponse, 
+  notFoundResponse, 
   serverErrorResponse,
+  createdResponse,
   noContentResponse
 } from '../utils/response';
 import { getPrismaClient, disconnectPrisma } from '../utils/prisma';
+// Import shared types
+import { Medication, ApiResponse } from '@medication-management/shared-types';
 
 /**
  * Get all medications
@@ -21,10 +23,11 @@ export const getMedicationsHandler = async (event: APIGatewayProxyEvent): Promis
     
     // Build query
     const query: any = {
-      where: {},
+      where: {
+        isActive: true
+      },
       include: {
-        careRecipient: true,
-        schedules: true
+        careRecipient: true
       }
     };
     
@@ -33,6 +36,7 @@ export const getMedicationsHandler = async (event: APIGatewayProxyEvent): Promis
       query.where.careRecipientId = careRecipientId;
     }
     
+    // Get medications
     const medications = await prisma.medication.findMany(query);
     
     return successResponse(medications);
@@ -52,23 +56,18 @@ export const getMedicationHandler = async (event: APIGatewayProxyEvent): Promise
     const prisma = getPrismaClient();
     
     // Get medication ID from path parameters
-    const id = event.pathParameters?.id;
+    const { id } = event.pathParameters || {};
     
     if (!id) {
       return badRequestResponse('Medication ID is required');
     }
     
+    // Get medication
     const medication = await prisma.medication.findUnique({
       where: { id },
       include: {
         careRecipient: true,
-        schedules: true,
-        doses: {
-          orderBy: {
-            scheduledFor: 'desc'
-          },
-          take: 10
-        }
+        schedules: true
       }
     });
     
@@ -94,27 +93,32 @@ export const createMedicationHandler = async (event: APIGatewayProxyEvent): Prom
     
     // Parse request body
     const body = JSON.parse(event.body || '{}');
-    const { name, dosage, instructions, careRecipientId, schedules } = body;
+    const { name, dosage, instructions, careRecipientId } = body;
     
     // Validate required fields
     if (!name || !dosage || !instructions || !careRecipientId) {
-      return badRequestResponse('Name, dosage, instructions, and careRecipientId are required');
+      return badRequestResponse('Name, dosage, instructions, and care recipient ID are required');
     }
     
-    // Create medication with schedules if provided
+    // Check if care recipient exists
+    const careRecipient = await prisma.careRecipient.findUnique({
+      where: { id: careRecipientId }
+    });
+    
+    if (!careRecipient) {
+      return badRequestResponse('Care recipient not found');
+    }
+    
+    // Create medication
     const medication = await prisma.medication.create({
       data: {
         name,
         dosage,
         instructions,
-        careRecipientId,
-        schedules: schedules ? {
-          create: schedules
-        } : undefined
+        careRecipientId
       },
       include: {
-        careRecipient: true,
-        schedules: true
+        careRecipient: true
       }
     });
     
@@ -135,7 +139,7 @@ export const updateMedicationHandler = async (event: APIGatewayProxyEvent): Prom
     const prisma = getPrismaClient();
     
     // Get medication ID from path parameters
-    const id = event.pathParameters?.id;
+    const { id } = event.pathParameters || {};
     
     if (!id) {
       return badRequestResponse('Medication ID is required');
@@ -143,7 +147,7 @@ export const updateMedicationHandler = async (event: APIGatewayProxyEvent): Prom
     
     // Parse request body
     const body = JSON.parse(event.body || '{}');
-    const { name, dosage, instructions, isActive } = body;
+    const { name, dosage, instructions, isActive, careRecipientId } = body;
     
     // Check if medication exists
     const existingMedication = await prisma.medication.findUnique({
@@ -158,14 +162,14 @@ export const updateMedicationHandler = async (event: APIGatewayProxyEvent): Prom
     const medication = await prisma.medication.update({
       where: { id },
       data: {
-        name,
-        dosage,
-        instructions,
-        isActive
+        name: name !== undefined ? name : undefined,
+        dosage: dosage !== undefined ? dosage : undefined,
+        instructions: instructions !== undefined ? instructions : undefined,
+        isActive: isActive !== undefined ? isActive : undefined,
+        careRecipientId: careRecipientId !== undefined ? careRecipientId : undefined
       },
       include: {
-        careRecipient: true,
-        schedules: true
+        careRecipient: true
       }
     });
     
@@ -186,7 +190,7 @@ export const deleteMedicationHandler = async (event: APIGatewayProxyEvent): Prom
     const prisma = getPrismaClient();
     
     // Get medication ID from path parameters
-    const id = event.pathParameters?.id;
+    const { id } = event.pathParameters || {};
     
     if (!id) {
       return badRequestResponse('Medication ID is required');
@@ -201,7 +205,7 @@ export const deleteMedicationHandler = async (event: APIGatewayProxyEvent): Prom
       return notFoundResponse('Medication not found');
     }
     
-    // Delete medication (this will cascade delete schedules and doses due to Prisma relations)
+    // Delete medication
     await prisma.medication.delete({
       where: { id }
     });

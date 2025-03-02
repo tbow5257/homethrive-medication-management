@@ -11,6 +11,7 @@
     "test": "jest"
   },
   "dependencies": {
+    "@medication-management/shared-types": "1.0.0",
     "@tanstack/react-query": "^5.28.4",
     "@tanstack/react-query-devtools": "^5.28.4",
     "antd": "^5.15.0",
