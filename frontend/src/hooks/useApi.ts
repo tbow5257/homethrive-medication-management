@@ -1,7 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { mockApi } from '../services/mockApi';
 import { realApi } from '../services/api';
-import { CareRecipient, Medication, Schedule, Dose } from '../types';
+import { CareRecipient, Medication, Schedule, Dose, ApiResponse, DashboardStats } from '../types';
 
 // API Configuration - Change this to switch between mock and real API
 export const USE_MOCK_API = false; // Set to false to use the real API
@@ -206,14 +206,14 @@ export const useUpdateDoseStatus = () => {
 
 // Dashboard hooks
 export const useDashboardStats = () => {
-  return useQuery({
+  return useQuery<ApiResponse<DashboardStats>>({
     queryKey: ['dashboard', 'stats'],
     queryFn: () => currentApi.getDashboardStats(),
   });
 };
 
 export const useUpcomingDoses = (limit = 5) => {
-  return useQuery({
+  return useQuery<ApiResponse<Dose[]>>({
     queryKey: ['dashboard', 'upcomingDoses', limit],
     queryFn: () => currentApi.getUpcomingDoses(limit),
   });

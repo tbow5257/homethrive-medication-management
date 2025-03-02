@@ -5,13 +5,15 @@ import { useNavigate } from 'react-router-dom';
 import { format } from 'date-fns';
 import { useDashboardStats, useUpcomingDoses } from '../hooks/useApi';
 import { useUpdateDoseStatus } from '../hooks/useApi';
+import { ApiResponse, DashboardStats } from '../types';
 
 const Dashboard: React.FC = () => {
   const navigate = useNavigate();
   const { data: stats, isLoading: statsLoading } = useDashboardStats();
   const { data: upcomingDoses, isLoading: dosesLoading } = useUpcomingDoses(5);
   const updateDoseStatus = useUpdateDoseStatus();
-
+  console.log('stats', stats);
+  console.log('upcomingDoses', upcomingDoses);
   const markAsTaken = async (doseId: string) => {
     try {
       await updateDoseStatus.mutateAsync({ id: doseId, status: 'taken' });
@@ -48,7 +50,7 @@ const Dashboard: React.FC = () => {
           <Card hoverable onClick={() => navigate('/recipients')}>
             <Statistic 
               title="Care Recipients" 
-              value={stats?.totalRecipients || 0} 
+              value={stats?.data?.totalRecipients || 0} 
               prefix={<Users size={20} className="mr-2 text-blue-500" />} 
             />
           </Card>
@@ -57,7 +59,7 @@ const Dashboard: React.FC = () => {
           <Card hoverable onClick={() => navigate('/medications')}>
             <Statistic 
               title="Medications" 
-              value={stats?.totalMedications || 0} 
+              value={stats?.data?.totalMedications || 0} 
               prefix={<Pill size={20} className="mr-2 text-green-500" />} 
             />
           </Card>
@@ -66,7 +68,7 @@ const Dashboard: React.FC = () => {
           <Card hoverable onClick={() => navigate('/schedules')}>
             <Statistic 
               title="Schedules" 
-              value={stats?.totalSchedules || 0} 
+              value={stats?.data?.totalSchedules || 0} 
               prefix={<Calendar size={20} className="mr-2 text-purple-500" />} 
             />
           </Card>
@@ -75,7 +77,7 @@ const Dashboard: React.FC = () => {
           <Card hoverable onClick={() => navigate('/doses')}>
             <Statistic 
               title="Upcoming Doses" 
-              value={stats?.upcomingDoses || 0} 
+              value={stats?.data?.upcomingDoses || 0} 
               prefix={<Clock size={20} className="mr-2 text-orange-500" />} 
             />
           </Card>
@@ -83,9 +85,9 @@ const Dashboard: React.FC = () => {
       </Row>
       
       <Card title="Upcoming Doses" className="mt-6">
-        {upcomingDoses && upcomingDoses.length > 0 ? (
+        {upcomingDoses?.data && upcomingDoses.data.length > 0 ? (
           <List
-            dataSource={upcomingDoses}
+            dataSource={upcomingDoses.data}
             renderItem={item => (
               <List.Item
                 actions={[
@@ -108,7 +110,7 @@ const Dashboard: React.FC = () => {
                       {getStatusTag(item.status)}
                     </div>
                   }
-                  description={`For ${item.careRecipient.name} at ${format(new Date(item.scheduledTime), 'h:mm a, MMM d')}`}
+                  description={`For ${item.medication.careRecipient.firstName} at ${format(new Date(item.scheduledFor), 'h:mm a, MMM d')}`}
                 />
               </List.Item>
             )}

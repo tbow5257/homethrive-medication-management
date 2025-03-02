@@ -1,4 +1,4 @@
-import { User, CareRecipient, Medication, Schedule, Dose } from '../types';
+import { User, CareRecipient, Medication, Schedule, Dose, ApiResponse, DashboardStats } from '../types';
 import { format, addDays, subDays, setHours, setMinutes } from 'date-fns';
 
 // Mock user data
@@ -451,47 +451,50 @@ export const mockApi = {
   },
   
   // Dashboard data
-  getDashboardStats: async () => {
+  getDashboardStats: async (): Promise<ApiResponse<DashboardStats>> => {
     await new Promise(resolve => setTimeout(resolve, 400));
     
     return {
-      totalRecipients: mockRecipients.length,
-      totalMedications: mockMedications.length,
-      totalSchedules: mockSchedules.length,
-      upcomingDoses: mockDoses.filter(d => 
-        new Date(d.scheduledTime) > new Date() && 
-        d.status === 'scheduled'
-      ).length,
+      success: true,
+      data: {
+        totalRecipients: mockRecipients.length,
+        totalMedications: mockMedications.length,
+        totalSchedules: mockSchedules.length,
+        upcomingDoses: mockDoses.filter(d => {
+          const scheduledDate = new Date(d.scheduledTime);
+          const today = new Date();
+          return scheduledDate.getDate() === today.getDate() &&
+                 scheduledDate.getMonth() === today.getMonth() &&
+                 scheduledDate.getFullYear() === today.getFullYear();
+        }).length,
+        takenDoses: mockDoses.filter(d => d.status === 'taken').length,
+        missedDoses: mockDoses.filter(d => d.status === 'missed').length
+      }
     };
   },
   
-  getUpcomingDoses: async (limit = 5) => {
+  getUpcomingDoses: async (limit = 5): Promise<ApiResponse<Dose[]>> => {
     await new Promise(resolve => setTimeout(resolve, 300));
     
-    const now = new Date();
     const upcomingDoses = mockDoses
-      .filter(d => new Date(d.scheduledTime) > now && d.status === 'scheduled')
+      .filter(d => new Date(d.scheduledTime) > new Date() && d.status === 'scheduled')
       .sort((a, b) => new Date(a.scheduledTime).getTime() - new Date(b.scheduledTime).getTime())
       .slice(0, limit)
       .map(dose => {
+        // Add medication and care recipient details
         const medication = mockMedications.find(m => m.id === dose.medicationId);
-        const recipient = mockRecipients.find(r => r.id === medication?.careRecipientId);
+        const careRecipient = mockRecipients.find(r => medication && r.id === medication.careRecipientId);
         
         return {
-          id: dose.id,
-          medication: {
-            id: medication?.id || '',
-            name: medication?.name || 'Unknown Medication',
-          },
-          careRecipient: {
-            id: recipient?.id || '',
-            name: recipient?.name || 'Unknown Recipient',
-          },
-          scheduledTime: dose.scheduledTime,
-          status: dose.status,
+          ...dose,
+          medication: medication ? { id: medication.id, name: medication.name } : undefined,
+          careRecipient: careRecipient ? { id: careRecipient.id, name: careRecipient.name } : undefined,
         };
       });
     
-    return upcomingDoses;
+    return {
+      success: true,
+      data: upcomingDoses
+    };
   },
 };

@@ -13,6 +13,7 @@
     "build:frontend": "cd frontend && npm run build",
     "build:backend": "cd backend/medication-management-api/api && npm run build",
     "build": "npm run generate-types && npm run build:types && npm run build:frontend && npm run build:backend",
+    "build:sam": "cd backend/medication-management-api && sam build && cd ../..",
     "dev:frontend": "cd frontend && npm run dev",
     "dev:backend": "cd backend/medication-management-api/api && npm run dev:sam",
     "dev": "concurrently \"npm run dev:frontend\" \"npm run dev:backend\""
@@ -20,4 +21,4 @@
   "devDependencies": {
     "concurrently": "^8.2.2"
   }
-} 
+}

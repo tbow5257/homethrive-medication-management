@@ -1,6 +1,6 @@
 import axios from 'axios';
 import { login as authLogin, setToken } from './authService';
-import { CareRecipient, Medication, Schedule, Dose } from '../types';
+import { CareRecipient, Medication, Schedule, Dose, ApiResponse, DashboardStats } from '../types';
 import { LoginCredentials } from '../types/auth';
 
 const api = axios.create({
@@ -155,12 +155,12 @@ export const realApi = {
   },
   
   // Dashboard
-  getDashboardStats: async () => {
+  getDashboardStats: async (): Promise<ApiResponse<DashboardStats>> => {
     const response = await api.get('/dashboard/stats');
     return response.data;
   },
   
-  getUpcomingDoses: async (limit = 5) => {
+  getUpcomingDoses: async (limit = 5): Promise<ApiResponse<Dose[]>> => {
     const response = await api.get(`/dashboard/upcoming-doses?limit=${limit}`);
     return response.data;
   }

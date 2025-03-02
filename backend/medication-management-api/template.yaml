@@ -221,6 +221,84 @@ Resources:
           Properties:
             Path: /medications/{id}
             Method: delete
+        # Dose endpoints
+        GetDoses:
+          Type: Api
+          Properties:
+            Path: /doses
+            Method: get
+        GetDose:
+          Type: Api
+          Properties:
+            Path: /doses/{id}
+            Method: get
+        UpdateDoseStatus:
+          Type: Api
+          Properties:
+            Path: /doses/{id}/status
+            Method: put
+        GetUpcomingDoses:
+          Type: Api
+          Properties:
+            Path: /dashboard/upcoming-doses
+            Method: get
+        GetDashboardStats:
+          Type: Api
+          Properties:
+            Path: /dashboard/stats
+            Method: get
+        # Care Recipient endpoints
+        GetCareRecipients:
+          Type: Api
+          Properties:
+            Path: /care-recipients
+            Method: get
+        CreateCareRecipient:
+          Type: Api
+          Properties:
+            Path: /care-recipients
+            Method: post
+        GetCareRecipient:
+          Type: Api
+          Properties:
+            Path: /care-recipients/{id}
+            Method: get
+        UpdateCareRecipient:
+          Type: Api
+          Properties:
+            Path: /care-recipients/{id}
+            Method: put
+        DeleteCareRecipient:
+          Type: Api
+          Properties:
+            Path: /care-recipients/{id}
+            Method: delete
+        # Schedule endpoints
+        GetSchedules:
+          Type: Api
+          Properties:
+            Path: /schedules
+            Method: get
+        CreateSchedule:
+          Type: Api
+          Properties:
+            Path: /schedules
+            Method: post
+        GetSchedule:
+          Type: Api
+          Properties:
+            Path: /schedules/{id}
+            Method: get
+        UpdateSchedule:
+          Type: Api
+          Properties:
+            Path: /schedules/{id}
+            Method: put
+        DeleteSchedule:
+          Type: Api
+          Properties:
+            Path: /schedules/{id}
+            Method: delete
       Policies:
         - VPCAccessPolicy: {}
         - AWSSecretsManagerGetSecretValuePolicy:
