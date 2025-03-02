@@ -5,14 +5,13 @@
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "scripts": {
-    "build": "tsc",
-    "generate": "tsx scripts/generate-types.ts",
-    "prepare": "npm run generate && npm run build"
+    "generate-client": "tsx scripts/generate-api-client.ts",
+    "build": "npm run generate-client && tsc"
   },
-  "dependencies": {},
   "devDependencies": {
     "@types/node": "^18.19.78",
-    "typescript": "^5.5.3",
-    "tsx": "^4.19.3"
+    "openapi-typescript-codegen": "^0.25.0",
+    "tsx": "^4.19.3",
+    "typescript": "^5.5.3"
   }
-} 
+}

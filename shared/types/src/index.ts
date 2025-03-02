@@ -1,10 +1,47 @@
-// Auto-generated from Prisma schema
+// Generated from OpenAPI/Swagger specification
 // Do not edit directly
 
 /**
  * Shared types for Medication Management application
- * Generated from Prisma schema
+ * Generated from OpenAPI/Swagger
  */
+
+// Export API client generated from OpenAPI/Swagger
+export * from './api-client';
+
+// Legacy types - these will be replaced by the OpenAPI-generated types
+// but keeping them for backward compatibility during transition
+export interface ApiResponse<T> {
+  success: boolean;
+  data?: T;
+  error?: string;
+}
+
+export interface PaginatedResponse<T> {
+  items: T[];
+  total: number;
+  page: number;
+  pageSize: number;
+  totalPages: number;
+}
+
+export type DoseStatus = 'scheduled' | 'taken' | 'missed';
+
+export interface DoseFilters {
+  recipientId?: string;
+  status?: DoseStatus;
+  startDate?: string;
+  endDate?: string;
+}
+
+export interface DashboardStats {
+  totalRecipients: number;
+  totalMedications: number;
+  totalSchedules: number;
+  upcomingDoses: number;
+  takenDoses: number;
+  missedDoses: number;
+}
 
 export interface CareRecipient {
   id?: string;
@@ -65,20 +102,6 @@ export interface User {
   updatedAt: string;
 }
 
-export interface ApiResponse<T> {
-  success: boolean;
-  data?: T;
-  error?: string;
-}
-
-export interface PaginatedResponse<T> {
-  items: T[];
-  total: number;
-  page: number;
-  pageSize: number;
-  totalPages: number;
-}
-
 export interface LoginCredentials {
   email: string;
   password: string;
@@ -87,22 +110,4 @@ export interface LoginCredentials {
 export interface AuthResponse {
   user: User;
   token: string;
-}
-
-export type DoseStatus = 'scheduled' | 'taken' | 'missed';
-
-export interface DoseFilters {
-  recipientId?: string;
-  status?: DoseStatus;
-  startDate?: string;
-  endDate?: string;
-}
-
-export interface DashboardStats {
-  totalRecipients: number;
-  totalMedications: number;
-  totalSchedules: number;
-  upcomingDoses: number;
-  takenDoses: number;
-  missedDoses: number;
 }

@@ -1,0 +1,11 @@
+{
+    "entryFile": "app.ts",
+    "noImplicitAdditionalProperties": "throw-on-extras",
+    "controllerPathGlobs": ["src/controllers/**/*.ts"],
+    "spec": {
+      "outputDirectory": "../../../shared/types/src",
+      "specVersion": 3,
+      "basePath": "/api"
+    }
+  }
+  

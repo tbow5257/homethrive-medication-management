@@ -5,48 +5,35 @@ import {
   notFoundResponse, 
   serverErrorResponse,
   createdResponse,
-  noContentResponse
+  noContentResponse,
+  unauthorizedResponse
 } from '../utils/response';
 import { getPrismaClient, disconnectPrisma } from '../utils/prisma';
 // Import Prisma types directly
 import { CareRecipient } from '@prisma/client';
 import { ApiResponse } from '../types/api';
+import { CareRecipientController } from '../controllers/CareRecipientController';
+import { authenticate } from '../utils/auth';
 
 /**
  * Get all care recipients
  */
 export const getCareRecipientsHandler = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
   try {
-    const prisma = getPrismaClient();
+    // Authenticate user
+    const user = authenticate(event);
+    if (!user) {
+      return unauthorizedResponse();
+    }
+
+    // Use the controller
+    const controller = new CareRecipientController();
+    const result = await controller.getCareRecipients();
     
-    // Build query
-    const query: any = {
-      where: {
-        isActive: true
-      },
-      include: {
-        medications: {
-          where: {
-            isActive: true
-          },
-          select: {
-            id: true,
-            name: true,
-            dosage: true
-          }
-        }
-      }
-    };
-    
-    // Get care recipients
-    const careRecipients = await prisma.careRecipient.findMany(query);
-    
-    return successResponse(careRecipients);
+    return successResponse(result);
   } catch (error) {
     console.error('Error getting care recipients:', error);
     return serverErrorResponse();
-  } finally {
-    await disconnectPrisma();
   }
 };
 
@@ -55,37 +42,32 @@ export const getCareRecipientsHandler = async (event: APIGatewayProxyEvent): Pro
  */
 export const getCareRecipientHandler = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
   try {
-    const prisma = getPrismaClient();
-    
-    // Get care recipient ID from path parameters
-    const { id } = event.pathParameters || {};
-    
+    // Authenticate user
+    const user = authenticate(event);
+    if (!user) {
+      return unauthorizedResponse();
+    }
+
+    const id = event.pathParameters?.id;
     if (!id) {
       return badRequestResponse('Care recipient ID is required');
     }
+
+    // Use the controller
+    const controller = new CareRecipientController();
     
-    // Get care recipient
-    const careRecipient = await prisma.careRecipient.findUnique({
-      where: { id },
-      include: {
-        medications: {
-          where: {
-            isActive: true
-          }
-        }
+    try {
+      const result = await controller.getCareRecipient(id);
+      return successResponse(result);
+    } catch (error: any) {
+      if (error.message === "Care recipient not found") {
+        return notFoundResponse('Care recipient not found');
       }
-    });
-    
-    if (!careRecipient) {
-      return notFoundResponse('Care recipient not found');
+      throw error;
     }
-    
-    return successResponse(careRecipient);
   } catch (error) {
     console.error('Error getting care recipient:', error);
     return serverErrorResponse();
-  } finally {
-    await disconnectPrisma();
   }
 };
 
@@ -94,32 +76,34 @@ export const getCareRecipientHandler = async (event: APIGatewayProxyEvent): Prom
  */
 export const createCareRecipientHandler = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
   try {
-    const prisma = getPrismaClient();
-    
-    // Parse request body
-    const body = JSON.parse(event.body || '{}');
-    const { firstName, lastName, dateOfBirth } = body;
-    
-    // Validate required fields
-    if (!firstName || !lastName || !dateOfBirth) {
-      return badRequestResponse('First name, last name, and date of birth are required');
+    // Authenticate user
+    const user = authenticate(event);
+    if (!user) {
+      return unauthorizedResponse();
     }
     
-    // Create care recipient
-    const careRecipient = await prisma.careRecipient.create({
-      data: {
-        firstName,
-        lastName,
-        dateOfBirth: new Date(dateOfBirth)
-      }
-    });
+    // Parse request body
+    if (!event.body) {
+      return badRequestResponse('Request body is required');
+    }
     
-    return createdResponse(careRecipient);
+    const body = JSON.parse(event.body);
+    
+    // Use the controller
+    const controller = new CareRecipientController();
+    
+    try {
+      const result = await controller.createCareRecipient(body);
+      return createdResponse(result);
+    } catch (error: any) {
+      if (error.message.includes("required")) {
+        return badRequestResponse(error.message);
+      }
+      throw error;
+    }
   } catch (error) {
     console.error('Error creating care recipient:', error);
     return serverErrorResponse();
-  } finally {
-    await disconnectPrisma();
   }
 };
 
@@ -128,45 +112,41 @@ export const createCareRecipientHandler = async (event: APIGatewayProxyEvent): P
  */
 export const updateCareRecipientHandler = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
   try {
-    const prisma = getPrismaClient();
+    // Authenticate user
+    const user = authenticate(event);
+    if (!user) {
+      return unauthorizedResponse();
+    }
     
     // Get care recipient ID from path parameters
-    const { id } = event.pathParameters || {};
+    const id = event.pathParameters?.id;
     
     if (!id) {
       return badRequestResponse('Care recipient ID is required');
     }
     
     // Parse request body
-    const body = JSON.parse(event.body || '{}');
-    const { firstName, lastName, dateOfBirth, isActive } = body;
-    
-    // Check if care recipient exists
-    const existingCareRecipient = await prisma.careRecipient.findUnique({
-      where: { id }
-    });
-    
-    if (!existingCareRecipient) {
-      return notFoundResponse('Care recipient not found');
+    if (!event.body) {
+      return badRequestResponse('Request body is required');
     }
     
-    // Update care recipient
-    const careRecipient = await prisma.careRecipient.update({
-      where: { id },
-      data: {
-        firstName: firstName !== undefined ? firstName : undefined,
-        lastName: lastName !== undefined ? lastName : undefined,
-        dateOfBirth: dateOfBirth !== undefined ? new Date(dateOfBirth) : undefined,
-        isActive: isActive !== undefined ? isActive : undefined
-      }
-    });
+    const body = JSON.parse(event.body);
     
-    return successResponse(careRecipient);
+    // Use the controller
+    const controller = new CareRecipientController();
+    
+    try {
+      const result = await controller.updateCareRecipient(id, body);
+      return successResponse(result);
+    } catch (error: any) {
+      if (error.message === "Care recipient not found") {
+        return notFoundResponse('Care recipient not found');
+      }
+      throw error;
+    }
   } catch (error) {
     console.error('Error updating care recipient:', error);
     return serverErrorResponse();
-  } finally {
-    await disconnectPrisma();
   }
 };
 
@@ -175,37 +155,33 @@ export const updateCareRecipientHandler = async (event: APIGatewayProxyEvent): P
  */
 export const deleteCareRecipientHandler = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
   try {
-    const prisma = getPrismaClient();
+    // Authenticate user
+    const user = authenticate(event);
+    if (!user) {
+      return unauthorizedResponse();
+    }
     
     // Get care recipient ID from path parameters
-    const { id } = event.pathParameters || {};
+    const id = event.pathParameters?.id;
     
     if (!id) {
       return badRequestResponse('Care recipient ID is required');
     }
     
-    // Check if care recipient exists
-    const existingCareRecipient = await prisma.careRecipient.findUnique({
-      where: { id }
-    });
+    // Use the controller
+    const controller = new CareRecipientController();
     
-    if (!existingCareRecipient) {
-      return notFoundResponse('Care recipient not found');
-    }
-    
-    // Instead of deleting, mark as inactive
-    const careRecipient = await prisma.careRecipient.update({
-      where: { id },
-      data: {
-        isActive: false
+    try {
+      await controller.deleteCareRecipient(id);
+      return noContentResponse();
+    } catch (error: any) {
+      if (error.message === "Care recipient not found") {
+        return notFoundResponse('Care recipient not found');
       }
-    });
-    
-    return noContentResponse();
+      throw error;
+    }
   } catch (error) {
     console.error('Error deleting care recipient:', error);
     return serverErrorResponse();
-  } finally {
-    await disconnectPrisma();
   }
 }; 

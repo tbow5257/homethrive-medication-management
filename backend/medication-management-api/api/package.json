@@ -22,7 +22,10 @@
     "build": "npm run prisma:generate && tsc && node copy-prisma-engines.js && npm run sync-schemas && npm run build-layer && cd .. && sam build && cd api",
     "dev:sam": "cd .. && node api/start-sam.js",
     "generate-frontend-types": "node scripts/generate-frontend-types.js",
-    "generate-types": "npm run generate-frontend-types"
+    "generate-types": "npm run generate-frontend-types",
+    "routes": "tsoa routes",
+    "spec": "tsoa spec",
+    "prebuild": "npm run spec"
   },
   "dependencies": {
     "@prisma/client": "^5.10.0",
@@ -31,7 +34,8 @@
     "dotenv": "^16.3.1",
     "esbuild": "^0.14.14",
     "jsonwebtoken": "^9.0.2",
-    "reflect-metadata": "^0.2.2"
+    "reflect-metadata": "^0.2.2",
+    "tsoa": "^6.6.0"
   },
   "devDependencies": {
     "@jest/globals": "^29.2.0",

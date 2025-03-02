@@ -1,0 +1,463 @@
+{
+	"openapi": "3.0.0",
+	"components": {
+		"examples": {},
+		"headers": {},
+		"parameters": {},
+		"requestBodies": {},
+		"responses": {},
+		"schemas": {
+			"DefaultSelection_Prisma._36_CareRecipientPayload_": {
+				"properties": {
+					"updatedAt": {
+						"type": "string",
+						"format": "date-time"
+					},
+					"createdAt": {
+						"type": "string",
+						"format": "date-time"
+					},
+					"isActive": {
+						"type": "boolean"
+					},
+					"dateOfBirth": {
+						"type": "string",
+						"format": "date-time"
+					},
+					"lastName": {
+						"type": "string"
+					},
+					"firstName": {
+						"type": "string"
+					},
+					"id": {
+						"type": "string"
+					}
+				},
+				"required": [
+					"updatedAt",
+					"createdAt",
+					"isActive",
+					"dateOfBirth",
+					"lastName",
+					"firstName",
+					"id"
+				],
+				"type": "object"
+			},
+			"CareRecipient": {
+				"$ref": "#/components/schemas/DefaultSelection_Prisma._36_CareRecipientPayload_",
+				"description": "Model CareRecipient"
+			},
+			"DefaultSelection_Prisma._36_MedicationPayload_": {
+				"properties": {
+					"careRecipientId": {
+						"type": "string"
+					},
+					"instructions": {
+						"type": "string"
+					},
+					"dosage": {
+						"type": "string"
+					},
+					"updatedAt": {
+						"type": "string",
+						"format": "date-time"
+					},
+					"createdAt": {
+						"type": "string",
+						"format": "date-time"
+					},
+					"isActive": {
+						"type": "boolean"
+					},
+					"id": {
+						"type": "string"
+					},
+					"name": {
+						"type": "string"
+					}
+				},
+				"required": [
+					"careRecipientId",
+					"instructions",
+					"dosage",
+					"updatedAt",
+					"createdAt",
+					"isActive",
+					"id",
+					"name"
+				],
+				"type": "object"
+			},
+			"Medication": {
+				"$ref": "#/components/schemas/DefaultSelection_Prisma._36_MedicationPayload_",
+				"description": "Model Medication"
+			},
+			"CareRecipientResponse": {
+				"properties": {
+					"updatedAt": {
+						"type": "string",
+						"format": "date-time"
+					},
+					"createdAt": {
+						"type": "string",
+						"format": "date-time"
+					},
+					"isActive": {
+						"type": "boolean"
+					},
+					"dateOfBirth": {
+						"type": "string",
+						"format": "date-time"
+					},
+					"lastName": {
+						"type": "string"
+					},
+					"firstName": {
+						"type": "string"
+					},
+					"id": {
+						"type": "string"
+					},
+					"medications": {
+						"items": {
+							"$ref": "#/components/schemas/Medication"
+						},
+						"type": "array"
+					}
+				},
+				"required": [
+					"updatedAt",
+					"createdAt",
+					"isActive",
+					"dateOfBirth",
+					"lastName",
+					"firstName",
+					"id"
+				],
+				"type": "object",
+				"additionalProperties": false
+			},
+			"CreateCareRecipientRequest": {
+				"properties": {
+					"firstName": {
+						"type": "string"
+					},
+					"lastName": {
+						"type": "string"
+					},
+					"dateOfBirth": {
+						"type": "string"
+					}
+				},
+				"required": [
+					"firstName",
+					"lastName",
+					"dateOfBirth"
+				],
+				"type": "object",
+				"additionalProperties": false
+			},
+			"UpdateCareRecipientRequest": {
+				"properties": {
+					"firstName": {
+						"type": "string"
+					},
+					"lastName": {
+						"type": "string"
+					},
+					"dateOfBirth": {
+						"type": "string"
+					},
+					"isActive": {
+						"type": "boolean"
+					}
+				},
+				"type": "object",
+				"additionalProperties": false
+			}
+		},
+		"securitySchemes": {}
+	},
+	"info": {
+		"title": "medication_management_api",
+		"version": "1.0.0",
+		"description": "Medication Management API",
+		"license": {
+			"name": "MIT"
+		},
+		"contact": {
+			"name": "Thomas Bowen"
+		}
+	},
+	"paths": {
+		"/care-recipients": {
+			"get": {
+				"operationId": "GetCareRecipients",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {
+									"items": {
+										"$ref": "#/components/schemas/CareRecipient"
+									},
+									"type": "array"
+								}
+							}
+						}
+					}
+				},
+				"description": "Get all care recipients",
+				"tags": [
+					"Care Recipients"
+				],
+				"security": [
+					{
+						"jwt": []
+					}
+				],
+				"parameters": []
+			},
+			"post": {
+				"operationId": "CreateCareRecipient",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/CareRecipient"
+								}
+							}
+						}
+					},
+					"400": {
+						"description": "Bad request",
+						"content": {
+							"application/json": {
+								"schema": {
+									"properties": {
+										"message": {
+											"type": "string"
+										}
+									},
+									"required": [
+										"message"
+									],
+									"type": "object"
+								}
+							}
+						}
+					}
+				},
+				"description": "Create a new care recipient",
+				"tags": [
+					"Care Recipients"
+				],
+				"security": [
+					{
+						"jwt": []
+					}
+				],
+				"parameters": [],
+				"requestBody": {
+					"required": true,
+					"content": {
+						"application/json": {
+							"schema": {
+								"$ref": "#/components/schemas/CreateCareRecipientRequest"
+							}
+						}
+					}
+				}
+			}
+		},
+		"/care-recipients/{id}": {
+			"get": {
+				"operationId": "GetCareRecipient",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/CareRecipientResponse"
+								}
+							}
+						}
+					},
+					"404": {
+						"description": "Care recipient not found",
+						"content": {
+							"application/json": {
+								"schema": {
+									"properties": {
+										"message": {
+											"type": "string"
+										}
+									},
+									"required": [
+										"message"
+									],
+									"type": "object"
+								}
+							}
+						}
+					}
+				},
+				"description": "Get a care recipient by ID",
+				"tags": [
+					"Care Recipients"
+				],
+				"security": [
+					{
+						"jwt": []
+					}
+				],
+				"parameters": [
+					{
+						"in": "path",
+						"name": "id",
+						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					}
+				]
+			},
+			"put": {
+				"operationId": "UpdateCareRecipient",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/CareRecipient"
+								}
+							}
+						}
+					},
+					"400": {
+						"description": "Bad request",
+						"content": {
+							"application/json": {
+								"schema": {
+									"properties": {
+										"message": {
+											"type": "string"
+										}
+									},
+									"required": [
+										"message"
+									],
+									"type": "object"
+								}
+							}
+						}
+					},
+					"404": {
+						"description": "Care recipient not found",
+						"content": {
+							"application/json": {
+								"schema": {
+									"properties": {
+										"message": {
+											"type": "string"
+										}
+									},
+									"required": [
+										"message"
+									],
+									"type": "object"
+								}
+							}
+						}
+					}
+				},
+				"description": "Update a care recipient",
+				"tags": [
+					"Care Recipients"
+				],
+				"security": [
+					{
+						"jwt": []
+					}
+				],
+				"parameters": [
+					{
+						"in": "path",
+						"name": "id",
+						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					}
+				],
+				"requestBody": {
+					"required": true,
+					"content": {
+						"application/json": {
+							"schema": {
+								"$ref": "#/components/schemas/UpdateCareRecipientRequest"
+							}
+						}
+					}
+				}
+			},
+			"delete": {
+				"operationId": "DeleteCareRecipient",
+				"responses": {
+					"204": {
+						"description": "No content"
+					},
+					"404": {
+						"description": "Care recipient not found",
+						"content": {
+							"application/json": {
+								"schema": {
+									"properties": {
+										"message": {
+											"type": "string"
+										}
+									},
+									"required": [
+										"message"
+									],
+									"type": "object"
+								}
+							}
+						}
+					}
+				},
+				"description": "Delete a care recipient (mark as inactive)",
+				"tags": [
+					"Care Recipients"
+				],
+				"security": [
+					{
+						"jwt": []
+					}
+				],
+				"parameters": [
+					{
+						"in": "path",
+						"name": "id",
+						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					}
+				]
+			}
+		}
+	},
+	"servers": [
+		{
+			"url": "/api"
+		}
+	]
+}
