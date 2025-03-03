@@ -21,9 +21,6 @@
     "build-layer": "cd ../layers/prisma && npm run build && cd ../../",
     "build": "npm run prisma:generate && tsc && node copy-prisma-engines.js && npm run sync-schemas && npm run build-layer && cd .. && sam build && cd api",
     "dev:sam": "cd .. && node api/start-sam.js",
-    "generate-frontend-types": "node scripts/generate-frontend-types.js",
-    "generate-types": "npm run generate-frontend-types",
-    "routes": "tsoa routes",
     "spec": "tsoa spec",
     "prebuild": "npm run spec"
   },

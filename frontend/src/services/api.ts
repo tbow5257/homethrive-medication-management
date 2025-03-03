@@ -4,11 +4,10 @@ import {
   CareRecipient, 
   Medication, 
   Schedule, 
-  Dose, 
-  ApiResponse, 
+  DoseResponse, 
   DashboardStats 
 } from '../types';
-import { LoginCredentials } from '../types/auth';
+import { AxiosResponse } from 'axios';
 
 const api = axios.create({
   baseURL: import.meta.env.VITE_API_URL || 'http://localhost:3000',
@@ -42,93 +41,107 @@ api.interceptors.response.use(
   }
 );
 
+// Add these helper functions
+async function get<T>(url: string) {
+  const response = await api.get<T, AxiosResponse<T>>(url);
+  return response.data;
+}
+
+async function post<T>(url: string, data: any) {
+  const response = await api.post<T, AxiosResponse<T>>(url, data);
+  return response.data;
+}
+
+async function put<T>(url: string, data: any) {
+  const response = await api.put<T, AxiosResponse<T>>(url, data);
+  return response.data;
+}
+
+async function patch<T>(url: string, data: any) {
+  const response = await api.patch<T, AxiosResponse<T>>(url, data);
+  return response.data;
+}
+
+async function del<T>(url: string) {
+  const response = await api.delete<T, AxiosResponse<T>>(url);
+  return response.data;
+}
+
 // Real API implementation that matches the mock API interface
 export const realApi = {
   // Auth
   login: async (email: string, password: string) => {
-    const response = await authLogin({ email, password });
-    setToken(response.data.token);
-    return response.data;
+    const { token, user } = await authLogin({ email, password });
+    // Access token from the response structure
+    if (token) {
+      setToken(token);
+    }
+    return { token, user };
   },
   
   // Recipients
   getRecipients: async () => {
-    const response = await api.get('/recipients');
-    return response.data;
+    return await get<CareRecipient[]>('/care-recipients');
   },
   
   getRecipient: async (id: string) => {
-    const response = await api.get(`/recipients/${id}`);
-    return response.data;
+    return await get<CareRecipient>(`/care-recipients/${id}`);
   },
   
   createRecipient: async (data: { name: string }) => {
-    const response = await api.post('/recipients', data);
-    return response.data;
+    return await post<CareRecipient>('/care-recipients', data);
   },
   
   updateRecipient: async (id: string, data: { name: string }) => {
-    const response = await api.put(`/recipients/${id}`, data);
-    return response.data;
+    return await put<CareRecipient>(`/care-recipients/${id}`, data);
   },
   
   deleteRecipient: async (id: string) => {
-    const response = await api.delete(`/recipients/${id}`);
-    return response.data;
+    return await del<void>(`/care-recipients/${id}`);
   },
   
   // Medications
   getMedications: async (recipientId?: string) => {
     const url = recipientId ? `/medications?recipientId=${recipientId}` : '/medications';
-    const response = await api.get(url);
-    return response.data;
+    return await get<Medication[]>(url);
   },
   
   getMedication: async (id: string) => {
-    const response = await api.get(`/medications/${id}`);
-    return response.data;
+    return await get<Medication>(`/medications/${id}`);
   },
   
   createMedication: async (data: Omit<Medication, 'id' | 'createdAt' | 'updatedAt'>) => {
-    const response = await api.post('/medications', data);
-    return response.data;
+    return await post<Medication>('/medications', data);
   },
   
   updateMedication: async (id: string, data: Partial<Omit<Medication, 'id' | 'createdAt' | 'updatedAt'>>) => {
-    const response = await api.put(`/medications/${id}`, data);
-    return response.data;
+    return await put<Medication>(`/medications/${id}`, data);
   },
   
   deleteMedication: async (id: string) => {
-    const response = await api.delete(`/medications/${id}`);
-    return response.data;
+    return await del<void>(`/medications/${id}`);
   },
   
   // Schedules
   getSchedules: async (medicationId?: string) => {
     const url = medicationId ? `/schedules?medicationId=${medicationId}` : '/schedules';
-    const response = await api.get(url);
-    return response.data;
+    return await get<Schedule[]>(url);
   },
   
   getSchedule: async (id: string) => {
-    const response = await api.get(`/schedules/${id}`);
-    return response.data;
+    return await get<Schedule>(`/schedules/${id}`);
   },
   
   createSchedule: async (data: Omit<Schedule, 'id' | 'createdAt' | 'updatedAt'>) => {
-    const response = await api.post('/schedules', data);
-    return response.data;
+    return await post<Schedule>('/schedules', data);
   },
   
   updateSchedule: async (id: string, data: Partial<Omit<Schedule, 'id' | 'createdAt' | 'updatedAt'>>) => {
-    const response = await api.put(`/schedules/${id}`, data);
-    return response.data;
+    return await put<Schedule>(`/schedules/${id}`, data);
   },
   
   deleteSchedule: async (id: string) => {
-    const response = await api.delete(`/schedules/${id}`);
-    return response.data;
+    return await del<void>(`/schedules/${id}`);
   },
   
   // Doses
@@ -147,29 +160,24 @@ export const realApi = {
     }
     
     const url = queryParams.toString() ? `/doses?${queryParams.toString()}` : '/doses';
-    const response = await api.get(url);
-    return response.data;
+    return await get<DoseResponse[]>(url);
   },
   
   getDose: async (id: string) => {
-    const response = await api.get(`/doses/${id}`);
-    return response.data;
+    return await get<DoseResponse>(`/doses/${id}`);
   },
   
   updateDoseStatus: async (id: string, status: 'taken' | 'missed') => {
-    const response = await api.patch(`/doses/${id}/status`, { status });
-    return response.data;
+    return await patch<DoseResponse>(`/doses/${id}/status`, { status });
   },
   
   // Dashboard
-  getDashboardStats: async (): Promise<ApiResponse<DashboardStats>> => {
-    const response = await api.get('/dashboard/stats');
-    return response.data;
+  getDashboardStats: async () => {
+    return await get<DashboardStats>('/dashboard/stats');
   },
   
-  getUpcomingDoses: async (limit = 5): Promise<ApiResponse<Dose[]>> => {
-    const response = await api.get(`/dashboard/upcoming-doses?limit=${limit}`);
-    return response.data;
+  getUpcomingDoses: async (limit = 5) => {
+    return await get<DoseResponse[]>(`/dashboard/upcoming-doses?limit=${limit}`);
   }
 };
 

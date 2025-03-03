@@ -6,12 +6,12 @@
 import type { Medication } from './Medication';
 
 export type CareRecipientResponse = {
-    updatedAt: string;
-    createdAt: string;
-    isActive: boolean;
     dateOfBirth: string;
     lastName: string;
     firstName: string;
+    updatedAt: string;
+    createdAt: string;
+    isActive: boolean;
     id: string;
     medications?: Array<Medication>;
 };

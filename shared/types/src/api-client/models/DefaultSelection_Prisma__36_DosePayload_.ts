@@ -3,13 +3,13 @@
 /* tslint:disable */
 /* eslint-disable */
 
-export type DefaultSelection_Prisma__36_CareRecipientPayload_ = {
-    dateOfBirth: string;
-    lastName: string;
-    firstName: string;
+export type DefaultSelection_Prisma__36_DosePayload_ = {
+    status: string;
+    scheduledFor: string;
+    takenAt: string;
     updatedAt: string;
     createdAt: string;
-    isActive: boolean;
+    medicationId: string;
     id: string;
 };
 

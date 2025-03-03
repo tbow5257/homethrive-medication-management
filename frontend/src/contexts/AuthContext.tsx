@@ -82,7 +82,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const login = async (email: string, password: string) => {
     try {
       setLoading(true);
-      const { token, user } = await realApi.login(email, password);
+      const {  token, user } = await realApi.login(email, password);
       
       // Store token in localStorage
       localStorage.setItem('token', token);

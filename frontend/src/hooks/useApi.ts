@@ -4,7 +4,7 @@ import {
   CareRecipient, 
   Medication, 
   Schedule, 
-  Dose, 
+  DoseResponse, 
   ApiResponse, 
   DashboardStats 
 } from '../types';
@@ -209,14 +209,14 @@ export const useUpdateDoseStatus = () => {
 
 // Dashboard hooks
 export const useDashboardStats = () => {
-  return useQuery<ApiResponse<DashboardStats>>({
+  return useQuery({
     queryKey: ['dashboard', 'stats'],
     queryFn: () => realApi.getDashboardStats(),
   });
 };
 
 export const useUpcomingDoses = (limit = 5) => {
-  return useQuery<ApiResponse<Dose[]>>({
+  return useQuery({
     queryKey: ['dashboard', 'upcomingDoses', limit],
     queryFn: () => realApi.getUpcomingDoses(limit),
   });

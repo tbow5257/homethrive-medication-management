@@ -30,7 +30,7 @@ export const successResponse = (
   data: Record<string, any> | any[],
   headers: Record<string, string> = {}
 ): APIGatewayProxyResult => {
-  return createResponse(200, { success: true, data }, headers);
+  return createResponse(200, data, headers);
 };
 
 /**
@@ -40,7 +40,7 @@ export const createdResponse = (
   data: Record<string, any>,
   headers: Record<string, string> = {}
 ): APIGatewayProxyResult => {
-  return createResponse(201, { success: true, data }, headers);
+  return createResponse(201, data, headers);
 };
 
 /**
@@ -67,7 +67,7 @@ export const badRequestResponse = (
   message = 'Bad request',
   headers: Record<string, string> = {}
 ): APIGatewayProxyResult => {
-  return createResponse(400, { success: false, error: message }, headers);
+  return createResponse(400, { message }, headers);
 };
 
 /**
@@ -77,7 +77,7 @@ export const unauthorizedResponse = (
   message = 'Unauthorized',
   headers: Record<string, string> = {}
 ): APIGatewayProxyResult => {
-  return createResponse(401, { success: false, error: message }, headers);
+  return createResponse(401, { message }, headers);
 };
 
 /**
@@ -87,7 +87,7 @@ export const forbiddenResponse = (
   message = 'Forbidden',
   headers: Record<string, string> = {}
 ): APIGatewayProxyResult => {
-  return createResponse(403, { success: false, error: message }, headers);
+  return createResponse(403, { message }, headers);
 };
 
 /**
@@ -97,7 +97,7 @@ export const notFoundResponse = (
   message = 'Resource not found',
   headers: Record<string, string> = {}
 ): APIGatewayProxyResult => {
-  return createResponse(404, { success: false, error: message }, headers);
+  return createResponse(404, { message }, headers);
 };
 
 /**
@@ -107,5 +107,5 @@ export const serverErrorResponse = (
   message = 'Internal server error',
   headers: Record<string, string> = {}
 ): APIGatewayProxyResult => {
-  return createResponse(500, { success: false, error: message }, headers);
+  return createResponse(500, { message }, headers);
 }; 

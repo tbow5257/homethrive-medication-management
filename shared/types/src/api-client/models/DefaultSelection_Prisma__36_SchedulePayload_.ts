@@ -3,13 +3,13 @@
 /* tslint:disable */
 /* eslint-disable */
 
-export type DefaultSelection_Prisma__36_CareRecipientPayload_ = {
-    dateOfBirth: string;
-    lastName: string;
-    firstName: string;
+export type DefaultSelection_Prisma__36_SchedulePayload_ = {
     updatedAt: string;
     createdAt: string;
+    medicationId: string;
     isActive: boolean;
+    daysOfWeek: Array<string>;
+    time: string;
     id: string;
 };
 

@@ -1,4 +1,4 @@
-import { Route, Post, Get, Body, Response, Tags, Security } from 'tsoa';
+import { Route, Post, Get, Body, Response, Tags, Security, Path } from 'tsoa';
 import { getPrismaClient } from '../utils/prisma';
 import { User } from '@prisma/client';
 import { hashPassword, comparePassword, generateToken } from '../utils/auth';
@@ -129,10 +129,10 @@ export class AuthController {
   /**
    * Get current user profile
    */
-  @Get("profile")
+  @Get("profile/{userId}")
   @Security('jwt')
   @Response<{ message: string }>(401, "Unauthorized")
-  public async getProfile(userId: string): Promise<UserProfile> {
+  public async getProfile(@Path('userId') userId: string): Promise<UserProfile> {
     const prisma = getPrismaClient();
     
     // Get fresh user data
@@ -149,4 +149,4 @@ export class AuthController {
     
     return { user: userProfile };
   }
-} 
+}

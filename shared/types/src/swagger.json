@@ -7,48 +7,6 @@
 		"requestBodies": {},
 		"responses": {},
 		"schemas": {
-			"DefaultSelection_Prisma._36_CareRecipientPayload_": {
-				"properties": {
-					"updatedAt": {
-						"type": "string",
-						"format": "date-time"
-					},
-					"createdAt": {
-						"type": "string",
-						"format": "date-time"
-					},
-					"isActive": {
-						"type": "boolean"
-					},
-					"dateOfBirth": {
-						"type": "string",
-						"format": "date-time"
-					},
-					"lastName": {
-						"type": "string"
-					},
-					"firstName": {
-						"type": "string"
-					},
-					"id": {
-						"type": "string"
-					}
-				},
-				"required": [
-					"updatedAt",
-					"createdAt",
-					"isActive",
-					"dateOfBirth",
-					"lastName",
-					"firstName",
-					"id"
-				],
-				"type": "object"
-			},
-			"CareRecipient": {
-				"$ref": "#/components/schemas/DefaultSelection_Prisma._36_CareRecipientPayload_",
-				"description": "Model CareRecipient"
-			},
 			"DefaultSelection_Prisma._36_MedicationPayload_": {
 				"properties": {
 					"careRecipientId": {
@@ -94,8 +52,146 @@
 				"$ref": "#/components/schemas/DefaultSelection_Prisma._36_MedicationPayload_",
 				"description": "Model Medication"
 			},
-			"CareRecipientResponse": {
+			"DefaultSelection_Prisma._36_SchedulePayload_": {
 				"properties": {
+					"updatedAt": {
+						"type": "string",
+						"format": "date-time"
+					},
+					"createdAt": {
+						"type": "string",
+						"format": "date-time"
+					},
+					"medicationId": {
+						"type": "string"
+					},
+					"isActive": {
+						"type": "boolean"
+					},
+					"daysOfWeek": {
+						"items": {
+							"type": "string"
+						},
+						"type": "array"
+					},
+					"time": {
+						"type": "string"
+					},
+					"id": {
+						"type": "string"
+					}
+				},
+				"required": [
+					"updatedAt",
+					"createdAt",
+					"medicationId",
+					"isActive",
+					"daysOfWeek",
+					"time",
+					"id"
+				],
+				"type": "object"
+			},
+			"ScheduleResponse": {
+				"properties": {
+					"updatedAt": {
+						"type": "string",
+						"format": "date-time"
+					},
+					"createdAt": {
+						"type": "string",
+						"format": "date-time"
+					},
+					"medicationId": {
+						"type": "string"
+					},
+					"isActive": {
+						"type": "boolean"
+					},
+					"daysOfWeek": {
+						"items": {
+							"type": "string"
+						},
+						"type": "array"
+					},
+					"time": {
+						"type": "string"
+					},
+					"id": {
+						"type": "string"
+					},
+					"medication": {
+						"$ref": "#/components/schemas/Medication"
+					}
+				},
+				"required": [
+					"updatedAt",
+					"createdAt",
+					"medicationId",
+					"isActive",
+					"daysOfWeek",
+					"time",
+					"id"
+				],
+				"type": "object",
+				"additionalProperties": false
+			},
+			"CreateScheduleRequest": {
+				"properties": {
+					"time": {
+						"type": "string"
+					},
+					"daysOfWeek": {
+						"items": {
+							"type": "string"
+						},
+						"type": "array"
+					},
+					"medicationId": {
+						"type": "string"
+					}
+				},
+				"required": [
+					"time",
+					"daysOfWeek",
+					"medicationId"
+				],
+				"type": "object",
+				"additionalProperties": false
+			},
+			"UpdateScheduleRequest": {
+				"properties": {
+					"time": {
+						"type": "string"
+					},
+					"daysOfWeek": {
+						"items": {
+							"type": "string"
+						},
+						"type": "array"
+					},
+					"isActive": {
+						"type": "boolean"
+					},
+					"medicationId": {
+						"type": "string"
+					}
+				},
+				"type": "object",
+				"additionalProperties": false
+			},
+			"DefaultSelection_Prisma._36_CareRecipientPayload_": {
+				"properties": {
+					"dateOfBirth": {
+						"type": "string",
+						"format": "date-time"
+					},
+					"lastName": {
+						"type": "string"
+					},
+					"firstName": {
+						"type": "string"
+					},
 					"updatedAt": {
 						"type": "string",
 						"format": "date-time"
@@ -107,6 +203,282 @@
 					"isActive": {
 						"type": "boolean"
 					},
+					"id": {
+						"type": "string"
+					}
+				},
+				"required": [
+					"dateOfBirth",
+					"lastName",
+					"firstName",
+					"updatedAt",
+					"createdAt",
+					"isActive",
+					"id"
+				],
+				"type": "object"
+			},
+			"CareRecipient": {
+				"$ref": "#/components/schemas/DefaultSelection_Prisma._36_CareRecipientPayload_",
+				"description": "Model CareRecipient"
+			},
+			"Schedule": {
+				"$ref": "#/components/schemas/DefaultSelection_Prisma._36_SchedulePayload_",
+				"description": "Model Schedule"
+			},
+			"MedicationResponse": {
+				"properties": {
+					"careRecipientId": {
+						"type": "string"
+					},
+					"instructions": {
+						"type": "string"
+					},
+					"dosage": {
+						"type": "string"
+					},
+					"updatedAt": {
+						"type": "string",
+						"format": "date-time"
+					},
+					"createdAt": {
+						"type": "string",
+						"format": "date-time"
+					},
+					"isActive": {
+						"type": "boolean"
+					},
+					"id": {
+						"type": "string"
+					},
+					"name": {
+						"type": "string"
+					},
+					"careRecipient": {
+						"$ref": "#/components/schemas/CareRecipient"
+					},
+					"schedules": {
+						"items": {
+							"$ref": "#/components/schemas/Schedule"
+						},
+						"type": "array"
+					}
+				},
+				"required": [
+					"careRecipientId",
+					"instructions",
+					"dosage",
+					"updatedAt",
+					"createdAt",
+					"isActive",
+					"id",
+					"name"
+				],
+				"type": "object",
+				"additionalProperties": false
+			},
+			"CreateMedicationRequest": {
+				"properties": {
+					"name": {
+						"type": "string"
+					},
+					"dosage": {
+						"type": "string"
+					},
+					"instructions": {
+						"type": "string"
+					},
+					"careRecipientId": {
+						"type": "string"
+					}
+				},
+				"required": [
+					"name",
+					"dosage",
+					"instructions",
+					"careRecipientId"
+				],
+				"type": "object",
+				"additionalProperties": false
+			},
+			"UpdateMedicationRequest": {
+				"properties": {
+					"name": {
+						"type": "string"
+					},
+					"dosage": {
+						"type": "string"
+					},
+					"instructions": {
+						"type": "string"
+					},
+					"isActive": {
+						"type": "boolean"
+					},
+					"careRecipientId": {
+						"type": "string"
+					}
+				},
+				"type": "object",
+				"additionalProperties": false
+			},
+			"DefaultSelection_Prisma._36_DosePayload_": {
+				"properties": {
+					"status": {
+						"type": "string"
+					},
+					"scheduledFor": {
+						"type": "string",
+						"format": "date-time"
+					},
+					"takenAt": {
+						"type": "string",
+						"format": "date-time"
+					},
+					"updatedAt": {
+						"type": "string",
+						"format": "date-time"
+					},
+					"createdAt": {
+						"type": "string",
+						"format": "date-time"
+					},
+					"medicationId": {
+						"type": "string"
+					},
+					"id": {
+						"type": "string"
+					}
+				},
+				"required": [
+					"status",
+					"scheduledFor",
+					"takenAt",
+					"updatedAt",
+					"createdAt",
+					"medicationId",
+					"id"
+				],
+				"type": "object"
+			},
+			"DoseResponse": {
+				"properties": {
+					"status": {
+						"type": "string"
+					},
+					"scheduledFor": {
+						"type": "string",
+						"format": "date-time"
+					},
+					"takenAt": {
+						"type": "string",
+						"format": "date-time"
+					},
+					"updatedAt": {
+						"type": "string",
+						"format": "date-time"
+					},
+					"createdAt": {
+						"type": "string",
+						"format": "date-time"
+					},
+					"medicationId": {
+						"type": "string"
+					},
+					"id": {
+						"type": "string"
+					},
+					"medication": {
+						"allOf": [
+							{
+								"$ref": "#/components/schemas/Medication"
+							},
+							{
+								"properties": {
+									"careRecipient": {
+										"$ref": "#/components/schemas/CareRecipient"
+									}
+								},
+								"type": "object"
+							}
+						]
+					}
+				},
+				"required": [
+					"status",
+					"scheduledFor",
+					"takenAt",
+					"updatedAt",
+					"createdAt",
+					"medicationId",
+					"id"
+				],
+				"type": "object",
+				"additionalProperties": false
+			},
+			"UpdateDoseStatusRequest": {
+				"properties": {
+					"status": {
+						"type": "string",
+						"enum": [
+							"scheduled",
+							"taken",
+							"missed",
+							"skipped"
+						]
+					}
+				},
+				"required": [
+					"status"
+				],
+				"type": "object",
+				"additionalProperties": false
+			},
+			"DashboardStats": {
+				"properties": {
+					"totalRecipients": {
+						"type": "number",
+						"format": "double"
+					},
+					"totalMedications": {
+						"type": "number",
+						"format": "double"
+					},
+					"totalSchedules": {
+						"type": "number",
+						"format": "double"
+					},
+					"todayDoses": {
+						"type": "number",
+						"format": "double"
+					},
+					"takenDoses": {
+						"type": "number",
+						"format": "double"
+					},
+					"missedDoses": {
+						"type": "number",
+						"format": "double"
+					},
+					"complianceRate": {
+						"type": "number",
+						"format": "double"
+					}
+				},
+				"required": [
+					"totalRecipients",
+					"totalMedications",
+					"totalSchedules",
+					"todayDoses",
+					"takenDoses",
+					"missedDoses",
+					"complianceRate"
+				],
+				"type": "object",
+				"additionalProperties": false
+			},
+			"CareRecipientResponse": {
+				"properties": {
 					"dateOfBirth": {
 						"type": "string",
 						"format": "date-time"
@@ -116,6 +488,17 @@
 					},
 					"firstName": {
 						"type": "string"
+					},
+					"updatedAt": {
+						"type": "string",
+						"format": "date-time"
+					},
+					"createdAt": {
+						"type": "string",
+						"format": "date-time"
+					},
+					"isActive": {
+						"type": "boolean"
 					},
 					"id": {
 						"type": "string"
@@ -128,12 +511,12 @@
 					}
 				},
 				"required": [
-					"updatedAt",
-					"createdAt",
-					"isActive",
 					"dateOfBirth",
 					"lastName",
 					"firstName",
+					"updatedAt",
+					"createdAt",
+					"isActive",
 					"id"
 				],
 				"type": "object",
@@ -176,6 +559,127 @@
 				},
 				"type": "object",
 				"additionalProperties": false
+			},
+			"Pick_User.Exclude_keyofUser.password__": {
+				"properties": {
+					"id": {
+						"type": "string"
+					},
+					"isActive": {
+						"type": "boolean"
+					},
+					"createdAt": {
+						"type": "string",
+						"format": "date-time"
+					},
+					"updatedAt": {
+						"type": "string",
+						"format": "date-time"
+					},
+					"firstName": {
+						"type": "string"
+					},
+					"lastName": {
+						"type": "string"
+					},
+					"email": {
+						"type": "string"
+					},
+					"role": {
+						"type": "string"
+					}
+				},
+				"required": [
+					"id",
+					"isActive",
+					"createdAt",
+					"updatedAt",
+					"firstName",
+					"lastName",
+					"email",
+					"role"
+				],
+				"type": "object",
+				"description": "From T, pick a set of properties whose keys are in the union K"
+			},
+			"Omit_User.password_": {
+				"$ref": "#/components/schemas/Pick_User.Exclude_keyofUser.password__",
+				"description": "Construct a type with the properties of T except for those in type K."
+			},
+			"AuthResponse": {
+				"properties": {
+					"user": {
+						"$ref": "#/components/schemas/Omit_User.password_"
+					},
+					"token": {
+						"type": "string"
+					}
+				},
+				"required": [
+					"user",
+					"token"
+				],
+				"type": "object",
+				"additionalProperties": false
+			},
+			"RegisterRequest": {
+				"properties": {
+					"email": {
+						"type": "string"
+					},
+					"password": {
+						"type": "string"
+					},
+					"firstName": {
+						"type": "string"
+					},
+					"lastName": {
+						"type": "string"
+					},
+					"role": {
+						"type": "string",
+						"enum": [
+							"admin",
+							"caregiver"
+						]
+					}
+				},
+				"required": [
+					"email",
+					"password",
+					"firstName",
+					"lastName"
+				],
+				"type": "object",
+				"additionalProperties": false
+			},
+			"LoginRequest": {
+				"properties": {
+					"email": {
+						"type": "string"
+					},
+					"password": {
+						"type": "string"
+					}
+				},
+				"required": [
+					"email",
+					"password"
+				],
+				"type": "object",
+				"additionalProperties": false
+			},
+			"UserProfile": {
+				"properties": {
+					"user": {
+						"$ref": "#/components/schemas/Omit_User.password_"
+					}
+				},
+				"required": [
+					"user"
+				],
+				"type": "object",
+				"additionalProperties": false
 			}
 		},
 		"securitySchemes": {}
@@ -192,6 +696,815 @@
 		}
 	},
 	"paths": {
+		"/schedules": {
+			"get": {
+				"operationId": "GetSchedules",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {
+									"items": {
+										"$ref": "#/components/schemas/ScheduleResponse"
+									},
+									"type": "array"
+								}
+							}
+						}
+					}
+				},
+				"description": "Get all schedules with optional filtering by medication",
+				"tags": [
+					"Schedules"
+				],
+				"security": [
+					{
+						"jwt": []
+					}
+				],
+				"parameters": [
+					{
+						"in": "query",
+						"name": "medicationId",
+						"required": false,
+						"schema": {
+							"type": "string"
+						}
+					}
+				]
+			},
+			"post": {
+				"operationId": "CreateSchedule",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/ScheduleResponse"
+								}
+							}
+						}
+					},
+					"400": {
+						"description": "Bad request",
+						"content": {
+							"application/json": {
+								"schema": {
+									"properties": {
+										"message": {
+											"type": "string"
+										}
+									},
+									"required": [
+										"message"
+									],
+									"type": "object"
+								}
+							}
+						}
+					}
+				},
+				"description": "Create a new schedule",
+				"tags": [
+					"Schedules"
+				],
+				"security": [
+					{
+						"jwt": []
+					}
+				],
+				"parameters": [],
+				"requestBody": {
+					"required": true,
+					"content": {
+						"application/json": {
+							"schema": {
+								"$ref": "#/components/schemas/CreateScheduleRequest"
+							}
+						}
+					}
+				}
+			}
+		},
+		"/schedules/{id}": {
+			"get": {
+				"operationId": "GetSchedule",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/ScheduleResponse"
+								}
+							}
+						}
+					},
+					"404": {
+						"description": "Schedule not found",
+						"content": {
+							"application/json": {
+								"schema": {
+									"properties": {
+										"message": {
+											"type": "string"
+										}
+									},
+									"required": [
+										"message"
+									],
+									"type": "object"
+								}
+							}
+						}
+					}
+				},
+				"description": "Get a schedule by ID",
+				"tags": [
+					"Schedules"
+				],
+				"security": [
+					{
+						"jwt": []
+					}
+				],
+				"parameters": [
+					{
+						"in": "path",
+						"name": "id",
+						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					}
+				]
+			},
+			"put": {
+				"operationId": "UpdateSchedule",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/ScheduleResponse"
+								}
+							}
+						}
+					},
+					"400": {
+						"description": "Bad request",
+						"content": {
+							"application/json": {
+								"schema": {
+									"properties": {
+										"message": {
+											"type": "string"
+										}
+									},
+									"required": [
+										"message"
+									],
+									"type": "object"
+								}
+							}
+						}
+					},
+					"404": {
+						"description": "Schedule not found",
+						"content": {
+							"application/json": {
+								"schema": {
+									"properties": {
+										"message": {
+											"type": "string"
+										}
+									},
+									"required": [
+										"message"
+									],
+									"type": "object"
+								}
+							}
+						}
+					}
+				},
+				"description": "Update a schedule",
+				"tags": [
+					"Schedules"
+				],
+				"security": [
+					{
+						"jwt": []
+					}
+				],
+				"parameters": [
+					{
+						"in": "path",
+						"name": "id",
+						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					}
+				],
+				"requestBody": {
+					"required": true,
+					"content": {
+						"application/json": {
+							"schema": {
+								"$ref": "#/components/schemas/UpdateScheduleRequest"
+							}
+						}
+					}
+				}
+			},
+			"delete": {
+				"operationId": "DeleteSchedule",
+				"responses": {
+					"204": {
+						"description": "No content"
+					},
+					"404": {
+						"description": "Schedule not found",
+						"content": {
+							"application/json": {
+								"schema": {
+									"properties": {
+										"message": {
+											"type": "string"
+										}
+									},
+									"required": [
+										"message"
+									],
+									"type": "object"
+								}
+							}
+						}
+					}
+				},
+				"description": "Delete a schedule (mark as inactive)",
+				"tags": [
+					"Schedules"
+				],
+				"security": [
+					{
+						"jwt": []
+					}
+				],
+				"parameters": [
+					{
+						"in": "path",
+						"name": "id",
+						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					}
+				]
+			}
+		},
+		"/medications": {
+			"get": {
+				"operationId": "GetMedications",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {
+									"items": {
+										"$ref": "#/components/schemas/MedicationResponse"
+									},
+									"type": "array"
+								}
+							}
+						}
+					}
+				},
+				"description": "Get all medications with optional filtering by care recipient",
+				"tags": [
+					"Medications"
+				],
+				"security": [
+					{
+						"jwt": []
+					}
+				],
+				"parameters": [
+					{
+						"in": "query",
+						"name": "careRecipientId",
+						"required": false,
+						"schema": {
+							"type": "string"
+						}
+					}
+				]
+			},
+			"post": {
+				"operationId": "CreateMedication",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/MedicationResponse"
+								}
+							}
+						}
+					},
+					"400": {
+						"description": "Bad request",
+						"content": {
+							"application/json": {
+								"schema": {
+									"properties": {
+										"message": {
+											"type": "string"
+										}
+									},
+									"required": [
+										"message"
+									],
+									"type": "object"
+								}
+							}
+						}
+					}
+				},
+				"description": "Create a new medication",
+				"tags": [
+					"Medications"
+				],
+				"security": [
+					{
+						"jwt": []
+					}
+				],
+				"parameters": [],
+				"requestBody": {
+					"required": true,
+					"content": {
+						"application/json": {
+							"schema": {
+								"$ref": "#/components/schemas/CreateMedicationRequest"
+							}
+						}
+					}
+				}
+			}
+		},
+		"/medications/{id}": {
+			"get": {
+				"operationId": "GetMedication",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/MedicationResponse"
+								}
+							}
+						}
+					},
+					"404": {
+						"description": "Medication not found",
+						"content": {
+							"application/json": {
+								"schema": {
+									"properties": {
+										"message": {
+											"type": "string"
+										}
+									},
+									"required": [
+										"message"
+									],
+									"type": "object"
+								}
+							}
+						}
+					}
+				},
+				"description": "Get a medication by ID",
+				"tags": [
+					"Medications"
+				],
+				"security": [
+					{
+						"jwt": []
+					}
+				],
+				"parameters": [
+					{
+						"in": "path",
+						"name": "id",
+						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					}
+				]
+			},
+			"put": {
+				"operationId": "UpdateMedication",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/MedicationResponse"
+								}
+							}
+						}
+					},
+					"400": {
+						"description": "Bad request",
+						"content": {
+							"application/json": {
+								"schema": {
+									"properties": {
+										"message": {
+											"type": "string"
+										}
+									},
+									"required": [
+										"message"
+									],
+									"type": "object"
+								}
+							}
+						}
+					},
+					"404": {
+						"description": "Medication not found",
+						"content": {
+							"application/json": {
+								"schema": {
+									"properties": {
+										"message": {
+											"type": "string"
+										}
+									},
+									"required": [
+										"message"
+									],
+									"type": "object"
+								}
+							}
+						}
+					}
+				},
+				"description": "Update a medication",
+				"tags": [
+					"Medications"
+				],
+				"security": [
+					{
+						"jwt": []
+					}
+				],
+				"parameters": [
+					{
+						"in": "path",
+						"name": "id",
+						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					}
+				],
+				"requestBody": {
+					"required": true,
+					"content": {
+						"application/json": {
+							"schema": {
+								"$ref": "#/components/schemas/UpdateMedicationRequest"
+							}
+						}
+					}
+				}
+			},
+			"delete": {
+				"operationId": "DeleteMedication",
+				"responses": {
+					"204": {
+						"description": "No content"
+					},
+					"404": {
+						"description": "Medication not found",
+						"content": {
+							"application/json": {
+								"schema": {
+									"properties": {
+										"message": {
+											"type": "string"
+										}
+									},
+									"required": [
+										"message"
+									],
+									"type": "object"
+								}
+							}
+						}
+					}
+				},
+				"description": "Delete a medication",
+				"tags": [
+					"Medications"
+				],
+				"security": [
+					{
+						"jwt": []
+					}
+				],
+				"parameters": [
+					{
+						"in": "path",
+						"name": "id",
+						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					}
+				]
+			}
+		},
+		"/doses": {
+			"get": {
+				"operationId": "GetDoses",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {
+									"items": {
+										"$ref": "#/components/schemas/DoseResponse"
+									},
+									"type": "array"
+								}
+							}
+						}
+					}
+				},
+				"description": "Get all doses with optional filtering",
+				"tags": [
+					"Doses"
+				],
+				"security": [
+					{
+						"jwt": []
+					}
+				],
+				"parameters": [
+					{
+						"in": "query",
+						"name": "recipientId",
+						"required": false,
+						"schema": {
+							"type": "string"
+						}
+					},
+					{
+						"in": "query",
+						"name": "status",
+						"required": false,
+						"schema": {
+							"type": "string"
+						}
+					},
+					{
+						"in": "query",
+						"name": "startDate",
+						"required": false,
+						"schema": {
+							"type": "string"
+						}
+					},
+					{
+						"in": "query",
+						"name": "endDate",
+						"required": false,
+						"schema": {
+							"type": "string"
+						}
+					}
+				]
+			}
+		},
+		"/doses/{id}": {
+			"get": {
+				"operationId": "GetDose",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/DoseResponse"
+								}
+							}
+						}
+					},
+					"404": {
+						"description": "Dose not found",
+						"content": {
+							"application/json": {
+								"schema": {
+									"properties": {
+										"message": {
+											"type": "string"
+										}
+									},
+									"required": [
+										"message"
+									],
+									"type": "object"
+								}
+							}
+						}
+					}
+				},
+				"description": "Get a dose by ID",
+				"tags": [
+					"Doses"
+				],
+				"security": [
+					{
+						"jwt": []
+					}
+				],
+				"parameters": [
+					{
+						"in": "path",
+						"name": "id",
+						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					}
+				]
+			}
+		},
+		"/doses/{id}/status": {
+			"put": {
+				"operationId": "UpdateDoseStatus",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/DoseResponse"
+								}
+							}
+						}
+					},
+					"400": {
+						"description": "Bad request",
+						"content": {
+							"application/json": {
+								"schema": {
+									"properties": {
+										"message": {
+											"type": "string"
+										}
+									},
+									"required": [
+										"message"
+									],
+									"type": "object"
+								}
+							}
+						}
+					},
+					"404": {
+						"description": "Dose not found",
+						"content": {
+							"application/json": {
+								"schema": {
+									"properties": {
+										"message": {
+											"type": "string"
+										}
+									},
+									"required": [
+										"message"
+									],
+									"type": "object"
+								}
+							}
+						}
+					}
+				},
+				"description": "Update a dose status",
+				"tags": [
+					"Doses"
+				],
+				"security": [
+					{
+						"jwt": []
+					}
+				],
+				"parameters": [
+					{
+						"in": "path",
+						"name": "id",
+						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					}
+				],
+				"requestBody": {
+					"required": true,
+					"content": {
+						"application/json": {
+							"schema": {
+								"$ref": "#/components/schemas/UpdateDoseStatusRequest"
+							}
+						}
+					}
+				}
+			}
+		},
+		"/doses/upcoming": {
+			"get": {
+				"operationId": "GetUpcomingDoses",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {
+									"items": {
+										"$ref": "#/components/schemas/DoseResponse"
+									},
+									"type": "array"
+								}
+							}
+						}
+					}
+				},
+				"description": "Get upcoming doses",
+				"tags": [
+					"Doses"
+				],
+				"security": [
+					{
+						"jwt": []
+					}
+				],
+				"parameters": [
+					{
+						"in": "query",
+						"name": "limit",
+						"required": false,
+						"schema": {
+							"default": 5,
+							"format": "double",
+							"type": "number"
+						}
+					}
+				]
+			}
+		},
+		"/doses/dashboard/stats": {
+			"get": {
+				"operationId": "GetDashboardStats",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/DashboardStats"
+								}
+							}
+						}
+					}
+				},
+				"description": "Get dashboard statistics",
+				"tags": [
+					"Doses"
+				],
+				"security": [
+					{
+						"jwt": []
+					}
+				],
+				"parameters": []
+			}
+		},
 		"/care-recipients": {
 			"get": {
 				"operationId": "GetCareRecipients",
@@ -446,6 +1759,180 @@
 					{
 						"in": "path",
 						"name": "id",
+						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					}
+				]
+			}
+		},
+		"/auth/register": {
+			"post": {
+				"operationId": "Register",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/AuthResponse"
+								}
+							}
+						}
+					},
+					"400": {
+						"description": "Bad request",
+						"content": {
+							"application/json": {
+								"schema": {
+									"properties": {
+										"message": {
+											"type": "string"
+										}
+									},
+									"required": [
+										"message"
+									],
+									"type": "object"
+								}
+							}
+						}
+					}
+				},
+				"description": "Register a new user",
+				"tags": [
+					"Authentication"
+				],
+				"security": [],
+				"parameters": [],
+				"requestBody": {
+					"required": true,
+					"content": {
+						"application/json": {
+							"schema": {
+								"$ref": "#/components/schemas/RegisterRequest"
+							}
+						}
+					}
+				}
+			}
+		},
+		"/auth/login": {
+			"post": {
+				"operationId": "Login",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/AuthResponse"
+								}
+							}
+						}
+					},
+					"400": {
+						"description": "Bad request",
+						"content": {
+							"application/json": {
+								"schema": {
+									"properties": {
+										"message": {
+											"type": "string"
+										}
+									},
+									"required": [
+										"message"
+									],
+									"type": "object"
+								}
+							}
+						}
+					},
+					"401": {
+						"description": "Unauthorized",
+						"content": {
+							"application/json": {
+								"schema": {
+									"properties": {
+										"message": {
+											"type": "string"
+										}
+									},
+									"required": [
+										"message"
+									],
+									"type": "object"
+								}
+							}
+						}
+					}
+				},
+				"description": "Login a user",
+				"tags": [
+					"Authentication"
+				],
+				"security": [],
+				"parameters": [],
+				"requestBody": {
+					"required": true,
+					"content": {
+						"application/json": {
+							"schema": {
+								"$ref": "#/components/schemas/LoginRequest"
+							}
+						}
+					}
+				}
+			}
+		},
+		"/auth/profile/{userId}": {
+			"get": {
+				"operationId": "GetProfile",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/UserProfile"
+								}
+							}
+						}
+					},
+					"401": {
+						"description": "Unauthorized",
+						"content": {
+							"application/json": {
+								"schema": {
+									"properties": {
+										"message": {
+											"type": "string"
+										}
+									},
+									"required": [
+										"message"
+									],
+									"type": "object"
+								}
+							}
+						}
+					}
+				},
+				"description": "Get current user profile",
+				"tags": [
+					"Authentication"
+				],
+				"security": [
+					{
+						"jwt": []
+					}
+				],
+				"parameters": [
+					{
+						"in": "path",
+						"name": "userId",
 						"required": true,
 						"schema": {
 							"type": "string"

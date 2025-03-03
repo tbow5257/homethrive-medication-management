@@ -18,7 +18,7 @@ const Recipients: React.FC = () => {
   const createRecipient = useCreateRecipient();
   const updateRecipient = useUpdateRecipient();
   const deleteRecipient = useDeleteRecipient();
-
+  
   const handleAdd = () => {
     setEditingId(null);
     form.resetFields();
@@ -26,14 +26,18 @@ const Recipients: React.FC = () => {
   };
 
   const handleEdit = (record: CareRecipient) => {
-    setEditingId(record.id);
+    setEditingId(record.id || null);
     form.setFieldsValue({
-      name: record.name,
+      firstName: record.firstName,
+      lastName: record.lastName,
+      dateOfBirth: record.dateOfBirth ? record.dateOfBirth.split('T')[0] : '',
     });
     setModalVisible(true);
   };
 
-  const handleDelete = async (id: string) => {
+  const handleDelete = async (id: string | undefined) => {
+    if (!id) return;
+    
     try {
       await deleteRecipient.mutateAsync(id);
       message.success('Care recipient deleted successfully');
@@ -63,18 +67,30 @@ const Recipients: React.FC = () => {
 
   const columns = [
     {
-      title: 'Name',
-      dataIndex: 'name',
-      key: 'name',
-      sorter: (a: CareRecipient, b: CareRecipient) => a.name.localeCompare(b.name),
+      title: 'First Name',
+      dataIndex: 'firstName',
+      key: 'firstName',
+      sorter: (a: CareRecipient, b: CareRecipient) => a.firstName.localeCompare(b.firstName),
+    },
+    {
+      title: 'Last Name',
+      dataIndex: 'lastName',
+      key: 'lastName',
+      sorter: (a: CareRecipient, b: CareRecipient) => a.lastName.localeCompare(b.lastName),
+    },
+    {
+      title: 'Date of Birth',
+      dataIndex: 'dateOfBirth',
+      key: 'dateOfBirth',
+      render: (dateOfBirth: string | undefined) => dateOfBirth ? new Date(dateOfBirth).toLocaleDateString() : 'N/A',
     },
     {
       title: 'Created At',
       dataIndex: 'createdAt',
       key: 'createdAt',
-      render: (text: string) => new Date(text).toLocaleDateString(),
+      render: (createdAt: string | undefined) => createdAt ? new Date(createdAt).toLocaleDateString() : 'N/A',
       sorter: (a: CareRecipient, b: CareRecipient) => 
-        new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime(),
+        new Date(a.createdAt || '').getTime() - new Date(b.createdAt || '').getTime(),
     },
     {
       title: 'Actions',
@@ -147,11 +163,25 @@ const Recipients: React.FC = () => {
           requiredMark={false}
         >
           <Form.Item
-            name="name"
-            label="Name"
-            rules={[{ required: true, message: 'Please enter the recipient name' }]}
+            name="firstName"
+            label="First Name"
+            rules={[{ required: true, message: 'Please enter the first name' }]}
           >
-            <Input placeholder="Enter recipient name" />
+            <Input placeholder="Enter first name" />
+          </Form.Item>
+          <Form.Item
+            name="lastName"
+            label="Last Name"
+            rules={[{ required: true, message: 'Please enter the last name' }]}
+          >
+            <Input placeholder="Enter last name" />
+          </Form.Item>
+          <Form.Item
+            name="dateOfBirth"
+            label="Date of Birth"
+            rules={[{ required: true, message: 'Please enter the date of birth' }]}
+          >
+            <Input type="date" />
           </Form.Item>
         </Form>
       </Modal>

@@ -1,4 +1,6 @@
-import { LoginCredentials, RegisterData, AuthResponse, User } from '../types/auth';
+import { LoginCredentials, RegisterData, AuthResponse,  } from '../types/auth';
+// User
+// import { jwtDecode } from 'jwt-decode';
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000';
 
@@ -41,17 +43,26 @@ export const register = async (userData: RegisterData): Promise<AuthResponse> =>
 };
 
 // Get user profile
-export const getProfile = async (token: string): Promise<{ success: boolean; data: User }> => {
-  const response = await fetch(`${API_URL}/auth/profile`, {
-    method: 'GET',
-    headers: {
-      'Content-Type': 'application/json',
-      'Authorization': `Bearer ${token}`,
-    },
-  });
+// export const getProfile = async (decodedToken: any): Promise<{ success: boolean; data: User }> => {
+//   console.log('decodedToken', decodedToken);
+//   if (!decodedToken && !decodedToken.userId) {
+//     throw new Error('Invalid token');
+//   }
+
+//   if (!decoded && !decoded.userId) {
+//     throw new Error('Invalid token');
+//   }
+
+//   const response = await fetch(`${API_URL}/profile/${decoded.userId}`, {
+//     method: 'GET',
+//     headers: {
+//       'Content-Type': 'application/json',
+//       'Authorization': `Bearer ${token}`,
+//     },
+//   });
   
-  return handleResponse(response);
-};
+//   return handleResponse(response);
+// };
 
 // Store token in localStorage
 export const setToken = (token: string): void => {

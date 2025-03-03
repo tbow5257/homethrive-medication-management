@@ -5,13 +5,13 @@ import type {
   DashboardStats,
   DoseStatus,
   PaginatedResponse,
-  Dose,
   Schedule,
   Medication,
   CareRecipient,
   CareRecipientResponse,
   CreateCareRecipientRequest,
   UpdateCareRecipientRequest,
+  DoseResponse,
   
   // Import API services
   CareRecipientsService,
@@ -22,8 +22,6 @@ import type {
   OpenAPI,
   
   // Import auth-related types
-  User as SharedUser,
-  LoginCredentials as SharedLoginCredentials
 } from '@medication-management/shared-types';
 
 // Re-export shared types
@@ -37,7 +35,7 @@ export type {
   
   // Re-export Swagger-generated models
   CareRecipient,
-  Dose,
+  DoseResponse,
   Medication,
   Schedule,
   CareRecipientResponse,
@@ -53,8 +51,6 @@ export type {
   OpenAPI,
   
   // Re-export auth-related types
-  SharedUser,
-  SharedLoginCredentials
 };
 
 // Re-export frontend-specific auth types

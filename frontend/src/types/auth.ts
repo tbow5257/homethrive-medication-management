@@ -1,32 +1,17 @@
 import type {
-  User as SharedUser,
-  LoginCredentials as SharedLoginCredentials,
-  AuthResponse as SharedAuthResponse
+  AuthResponse as SharedAuthResponse,
+  RegisterRequest,
+  LoginRequest,
 } from '@medication-management/shared-types';
 
-// Re-export shared types with frontend-specific adaptations
-export type User = Required<Omit<SharedUser, 'password'>> & {
-  id: string;
-  email: string;
-  firstName: string;
-  lastName: string;
-  role: string;
-  isActive: boolean;
-  createdAt: string;
-  updatedAt: string;
-};
+// export RegisterRequest as RegisterData
+export type RegisterData = RegisterRequest;
 
-export type LoginCredentials = SharedLoginCredentials;
+// export LoginRequest as LoginCredentials
+export type LoginCredentials = LoginRequest;
 
-export interface RegisterData extends LoginCredentials {
-  firstName: string;
-  lastName: string;
-  role?: string;
-}
-
-// Frontend-specific state management type
 export interface AuthState {
-  user: User | null;
+  // user: User | null;
   token: string | null;
   isAuthenticated: boolean;
   isLoading: boolean;
@@ -34,7 +19,4 @@ export interface AuthState {
 }
 
 // Adapt the shared AuthResponse to match frontend expectations
-export interface AuthResponse {
-  success: boolean;
-  data: SharedAuthResponse;
-} 
+export type AuthResponse = SharedAuthResponse;
