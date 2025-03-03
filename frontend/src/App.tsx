@@ -12,7 +12,11 @@ import Layout from './components/Layout';
 
 // Protected route component
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, loading } = useAuth();
+  
+  if (loading) {
+    return null; // Or a loading spinner
+  }
   
   if (!isAuthenticated) {
     return <Navigate to="/login" replace />;

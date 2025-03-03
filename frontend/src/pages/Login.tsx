@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Form, Input, Button, Card, Typography, Alert } from 'antd';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
@@ -9,8 +9,14 @@ const { Title } = Typography;
 const Login: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
-  const { login } = useAuth();
+  const { login, isAuthenticated, loading: authLoading } = useAuth();
   const navigate = useNavigate();
+
+  useEffect(() => {
+    if (isAuthenticated && !authLoading) {
+      navigate('/');
+    }
+  }, [isAuthenticated, authLoading, navigate]);
 
   const onFinish = async (values: { email: string; password: string }) => {
     try {
@@ -53,7 +59,6 @@ const Login: React.FC = () => {
           onFinish={onFinish}
           autoComplete="off"
           requiredMark={false}
-          initialValues={{ email: 'demo@example.com', password: 'password123' }}
         >
           <Form.Item
             label="Email"
@@ -86,10 +91,6 @@ const Login: React.FC = () => {
             </Button>
           </Form.Item>
         </Form>
-        
-        <div className="mt-4 text-center text-sm text-gray-500">
-          <p>Demo credentials are pre-filled. Just click Login.</p>
-        </div>
       </Card>
     </div>
   );

@@ -1,4 +1,3 @@
-// Import types from shared package
 import type {
   // Import utility types
   ApiResponse,
