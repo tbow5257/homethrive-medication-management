@@ -5,33 +5,23 @@ import { useNavigate } from 'react-router-dom';
 import { format } from 'date-fns';
 import { useDashboardStats, useUpcomingDoses } from '../hooks/useApi';
 import { useUpdateDoseStatus } from '../hooks/useApi';
+import type { UpcomingMedication } from '../types';
 
 const Dashboard: React.FC = () => {
   const navigate = useNavigate();
   const { data: stats, isLoading: statsLoading } = useDashboardStats();
-  const { data: upcomingDoses, isLoading: dosesLoading } = useUpcomingDoses(5);
+  const { data: upcomingMedications, isLoading: medicationsLoading } = useUpcomingDoses(5);
   const updateDoseStatus = useUpdateDoseStatus();
 
-  const markAsTaken = async (doseId: string) => {
+  const markAsTaken = async (scheduleId: string) => {
     try {
-      await updateDoseStatus.mutateAsync({ id: doseId, status: 'taken' });
+      await updateDoseStatus.mutateAsync({ id: scheduleId, status: 'taken' });
     } catch (error) {
-      console.error('Error marking dose as taken:', error);
+      console.error('Error marking medication as taken:', error);
     }
   };
 
-  const getStatusTag = (status: string) => {
-    switch (status) {
-      case 'taken':
-        return <Tag color="success" icon={<CheckCircle size={14} />}>Taken</Tag>;
-      case 'missed':
-        return <Tag color="error" icon={<AlertCircle size={14} />}>Missed</Tag>;
-      default:
-        return <Tag color="processing" icon={<Clock size={14} />}>Scheduled</Tag>;
-    }
-  };
-
-  if (statsLoading || dosesLoading) {
+  if (statsLoading || medicationsLoading) {
     return (
       <div className="flex justify-center items-center h-64">
         <Spin size="large" />
@@ -74,47 +64,55 @@ const Dashboard: React.FC = () => {
         <Col xs={24} sm={12} lg={6}>
           <Card hoverable onClick={() => navigate('/doses')}>
             <Statistic 
-              title="Upcoming Doses" 
-              value={stats?.upcomingDoses || 0} 
+              title="Today's Doses" 
+              value={stats?.takenDoses || 0} 
               prefix={<Clock size={20} className="mr-2 text-orange-500" />} 
             />
           </Card>
         </Col>
       </Row>
       
-      <Card title="Upcoming Doses" className="mt-6">
-        {upcomingDoses && upcomingDoses.length > 0 ? (
+      <Card title="Upcoming Medications" className="mt-6">
+        {upcomingMedications && upcomingMedications.length > 0 ? (
           <List
-            dataSource={upcomingDoses}
-            renderItem={item => (
+            dataSource={upcomingMedications}
+            renderItem={(item: UpcomingMedication) => (
               <List.Item
                 actions={[
-                  item.status === 'scheduled' && (
-                    <Button 
-                      type="primary" 
-                      size="small" 
-                      onClick={() => markAsTaken(item.id || '')}
-                      loading={updateDoseStatus.isPending && updateDoseStatus.variables?.id === item.id}
-                    >
-                      Mark as Taken
-                    </Button>
-                  )
+                  <Button 
+                    type="primary" 
+                    size="small" 
+                    onClick={() => markAsTaken(item.scheduleId)}
+                    loading={updateDoseStatus.isPending && updateDoseStatus.variables?.id === item.scheduleId}
+                  >
+                    Mark as Taken
+                  </Button>
                 ]}
               >
                 <List.Item.Meta
                   title={
                     <div className="flex items-center">
-                      <span className="mr-2">{item.medication?.name}</span>
-                      {getStatusTag(item.status || '')}
+                      <span className="mr-2">{item.medicationName}</span>
+                      <Tag color="blue">{item.dosage}</Tag>
                     </div>
                   }
-                  description={`For ${item.medication?.careRecipient?.firstName} at ${format(new Date(item.scheduledFor), 'h:mm a, MMM d')}`}
+                  description={
+                    <div>
+                      <div>For {item.recipientName}</div>
+                      <div>Scheduled for {format(new Date(`1970-01-01T${item.scheduledTime}`), 'h:mm a')}</div>
+                      <div className="text-gray-400">
+                        Days: {item.daysOfWeek.map(day => 
+                          ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'][day]
+                        ).join(', ')}
+                      </div>
+                    </div>
+                  }
                 />
               </List.Item>
             )}
           />
         ) : (
-          <Empty description="No upcoming doses" />
+          <Empty description="No upcoming medications" />
         )}
       </Card>
     </div>

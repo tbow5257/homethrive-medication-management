@@ -434,6 +434,50 @@
 				"type": "object",
 				"additionalProperties": false
 			},
+			"UpcomingMedication": {
+				"properties": {
+					"medicationId": {
+						"type": "string"
+					},
+					"medicationName": {
+						"type": "string"
+					},
+					"dosage": {
+						"type": "string"
+					},
+					"recipientId": {
+						"type": "string"
+					},
+					"recipientName": {
+						"type": "string"
+					},
+					"scheduleId": {
+						"type": "string"
+					},
+					"scheduledTime": {
+						"type": "string"
+					},
+					"daysOfWeek": {
+						"items": {
+							"type": "number",
+							"format": "double"
+						},
+						"type": "array"
+					}
+				},
+				"required": [
+					"medicationId",
+					"medicationName",
+					"dosage",
+					"recipientId",
+					"recipientName",
+					"scheduleId",
+					"scheduledTime",
+					"daysOfWeek"
+				],
+				"type": "object",
+				"additionalProperties": false
+			},
 			"DashboardStats": {
 				"properties": {
 					"totalRecipients": {
@@ -1437,7 +1481,7 @@
 				}
 			}
 		},
-		"/doses/upcoming": {
+		"/dashboard/upcoming": {
 			"get": {
 				"operationId": "GetUpcomingDoses",
 				"responses": {
@@ -1447,7 +1491,7 @@
 							"application/json": {
 								"schema": {
 									"items": {
-										"$ref": "#/components/schemas/DoseResponse"
+										"$ref": "#/components/schemas/UpcomingMedication"
 									},
 									"type": "array"
 								}
@@ -1455,9 +1499,9 @@
 						}
 					}
 				},
-				"description": "Get upcoming doses",
+				"description": "Get upcoming medications for next 7 days based on schedules",
 				"tags": [
-					"Doses"
+					"Dashboard"
 				],
 				"security": [
 					{
@@ -1478,7 +1522,7 @@
 				]
 			}
 		},
-		"/doses/dashboard/stats": {
+		"/dashboard/stats": {
 			"get": {
 				"operationId": "GetDashboardStats",
 				"responses": {
@@ -1495,7 +1539,7 @@
 				},
 				"description": "Get dashboard statistics",
 				"tags": [
-					"Doses"
+					"Dashboard"
 				],
 				"security": [
 					{

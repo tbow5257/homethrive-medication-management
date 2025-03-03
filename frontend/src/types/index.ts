@@ -12,6 +12,7 @@ import type {
   CreateCareRecipientRequest,
   UpdateCareRecipientRequest,
   DoseResponse,
+  UpcomingMedication,
   
   // Import API services
   CareRecipientsService,
@@ -41,6 +42,7 @@ export type {
   CareRecipientResponse,
   CreateCareRecipientRequest,
   UpdateCareRecipientRequest,
+  UpcomingMedication,
   
   // Re-export API services
   CareRecipientsService,

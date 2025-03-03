@@ -5,7 +5,8 @@ import {
   Medication, 
   Schedule, 
   DoseResponse, 
-  DashboardStats 
+  DashboardStats,
+  UpcomingMedication
 } from '../types';
 import { AxiosResponse } from 'axios';
 
@@ -177,7 +178,7 @@ export const realApi = {
   },
   
   getUpcomingDoses: async (limit = 5) => {
-    return await get<DoseResponse[]>(`/dashboard/upcoming-doses?limit=${limit}`);
+    return await get<UpcomingMedication[]>(`/dashboard/upcoming-doses?limit=${limit}`);
   }
 };
 

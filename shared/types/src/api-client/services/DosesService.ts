@@ -2,7 +2,6 @@
 /* istanbul ignore file */
 /* tslint:disable */
 /* eslint-disable */
-import type { DashboardStats } from '../models/DashboardStats';
 import type { DoseResponse } from '../models/DoseResponse';
 import type { UpdateDoseStatusRequest } from '../models/UpdateDoseStatusRequest';
 
@@ -83,36 +82,6 @@ export class DosesService {
                 400: `Bad request`,
                 404: `Dose not found`,
             },
-        });
-    }
-
-    /**
-     * Get upcoming doses
-     * @param limit
-     * @returns DoseResponse Ok
-     * @throws ApiError
-     */
-    public static getUpcomingDoses(
-        limit: number = 5,
-    ): CancelablePromise<Array<DoseResponse>> {
-        return __request(OpenAPI, {
-            method: 'GET',
-            url: '/doses/upcoming',
-            query: {
-                'limit': limit,
-            },
-        });
-    }
-
-    /**
-     * Get dashboard statistics
-     * @returns DashboardStats Ok
-     * @throws ApiError
-     */
-    public static getDashboardStats(): CancelablePromise<DashboardStats> {
-        return __request(OpenAPI, {
-            method: 'GET',
-            url: '/doses/dashboard/stats',
         });
     }
 

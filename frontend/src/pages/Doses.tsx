@@ -19,7 +19,8 @@ import {
 import { CheckCircle, AlertCircle, Clock, Calendar, BarChart3 } from 'lucide-react';
 import { format, isToday, parseISO } from 'date-fns';
 import { useDoses, useRecipients, useUpdateDoseStatus } from '../hooks/useApi';
-import { DoseUI as Dose } from '../types';
+import { DoseResponse } from '../types';
+import { ColumnsType } from 'antd/es/table';
 
 const { TabPane } = Tabs;
 
@@ -157,11 +158,11 @@ const Doses: React.FC = () => {
     return filtered;
   };
 
-  const columns = [
+  const columns: ColumnsType<DoseResponse> = [
     {
       title: 'Medication',
       key: 'medicationName',
-      render: (_, record: Dose) => {
+      render: (_, record) => {
         // In a real implementation, we would have the medication name from the API
         // For mock purposes, we'll just use the medication ID
         return record.medicationId === '1' ? 'Lisinopril' : 
@@ -171,7 +172,7 @@ const Doses: React.FC = () => {
     {
       title: 'Care Recipient',
       key: 'careRecipientName',
-      render: (_, record: Dose) => {
+      render: (_, record) => {
         // In a real implementation, we would have the recipient name from the API
         // For mock purposes, we'll determine based on medication ID
         return record.medicationId === '1' || record.medicationId === '3' ? 'John Doe' : 'Jane Smith';
@@ -198,7 +199,7 @@ const Doses: React.FC = () => {
     {
       title: 'Actions',
       key: 'actions',
-      render: (_: any, record: Dose) => {
+      render: (_: any, record: DoseResponse) => {
         if (record.status === 'scheduled') {
           return (
             <Space>
@@ -348,7 +349,7 @@ const Doses: React.FC = () => {
         />
       </Tabs>
       
-      <Table 
+      <Table<DoseResponse>
         dataSource={filterDoses()} 
         columns={columns} 
         rowKey="id"

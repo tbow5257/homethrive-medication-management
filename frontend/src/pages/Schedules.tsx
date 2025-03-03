@@ -49,38 +49,29 @@ const Schedules: React.FC = () => {
 
   const { data: schedules, isLoading: schedulesLoading } = useSchedules(selectedMedication);
   const { data: medications, isLoading: medicationsLoading } = useMedications();
+
   const createSchedule = useCreateSchedule();
   const updateSchedule = useUpdateSchedule();
   const deleteSchedule = useDeleteSchedule();
+  console.log('schedules', schedules);
 
   const handleAdd = () => {
     setEditingId(null);
     form.resetFields();
     setTimes(['08:00']);
-    setRecurrenceType('daily');
     form.setFieldsValue({ 
-      recurrenceType: 'daily',
-      dateRange: [new Date(), null],
+      daysOfWeek: [],
     });
     setModalVisible(true);
   };
 
   const handleEdit = (record: Schedule) => {
     setEditingId(record.id);
-    setRecurrenceType(record.recurrenceType);
-    setTimes(record.recurrencePattern.times);
-    
-    const dateRange = record.endDate 
-      ? [new Date(record.startDate), new Date(record.endDate)]
-      : [new Date(record.startDate), null];
-    
+    setTimes([record.time]);
     form.setFieldsValue({
       medicationId: record.medicationId,
-      recurrenceType: record.recurrenceType,
-      dateRange: dateRange,
-      daysOfWeek: record.recurrencePattern.daysOfWeek,
+      daysOfWeek: record.daysOfWeek,
     });
-    
     setModalVisible(true);
   };
 
@@ -98,33 +89,23 @@ const Schedules: React.FC = () => {
     try {
       const values = await form.validateFields();
       
-      const startDate = values.dateRange[0].toISOString();
-      const endDate = values.dateRange[1] ? values.dateRange[1].toISOString() : null;
-      
-      const recurrencePattern = {
-        times,
-        ...(values.recurrenceType === 'weekly' && { daysOfWeek: values.daysOfWeek }),
-      };
-      
       if (editingId) {
         await updateSchedule.mutateAsync({ 
           id: editingId, 
           data: {
             medicationId: values.medicationId,
-            recurrenceType: values.recurrenceType,
-            recurrencePattern,
-            startDate,
-            endDate,
+            time: times[0],
+            daysOfWeek: values.daysOfWeek,
+            isActive: true,
           }
         });
         message.success('Schedule updated successfully');
       } else {
         await createSchedule.mutateAsync({
           medicationId: values.medicationId,
-          recurrenceType: values.recurrenceType,
-          recurrencePattern,
-          startDate,
-          endDate,
+          time: times[0],
+          daysOfWeek: values.daysOfWeek,
+          isActive: true,
         });
         message.success('Schedule added successfully');
       }
@@ -156,21 +137,16 @@ const Schedules: React.FC = () => {
   };
 
   const formatRecurrencePattern = (schedule: Schedule) => {
-    const { recurrenceType, recurrencePattern } = schedule;
-    
-    if (recurrenceType === 'daily') {
-      return `Daily at ${recurrencePattern.times.map(time => format(new Date(`2000-01-01T${time}`), 'h:mm a')).join(', ')}`;
-    } else {
-      const days = recurrencePattern.daysOfWeek?.map(day => daysOfWeek.find(d => d.value === day)?.label).join(', ');
-      return `Weekly on ${days} at ${recurrencePattern.times.map(time => format(new Date(`2000-01-01T${time}`), 'h:mm a')).join(', ')}`;
-    }
+    const time = format(new Date(`2000-01-01T${schedule.time}`), 'h:mm a');
+    const days = schedule.daysOfWeek.join(', ');
+    return `${days} at ${time}`;
   };
 
   const columns = [
     {
       title: 'Medication',
       key: 'medicationName',
-      render: (_, record: Schedule) => {
+      render: (_: unknown, record: Schedule) => {
         const medication = medications?.find(m => m.id === record.medicationId);
         return medication?.name || 'Unknown';
       },
@@ -183,29 +159,17 @@ const Schedules: React.FC = () => {
     {
       title: 'Care Recipient',
       key: 'careRecipientName',
-      render: (_, record: Schedule) => {
+      render: (_: unknown, record: Schedule) => {
         const medication = medications?.find(m => m.id === record.medicationId);
         if (!medication) return 'Unknown';
         
-        // In a real implementation, we would have the recipient name from the API
-        // For mock purposes, we'll determine based on medication ID
         return medication.id === '1' || medication.id === '3' ? 'John Doe' : 'Jane Smith';
       },
     },
     {
       title: 'Schedule',
       key: 'schedule',
-      render: (_, record: Schedule) => formatRecurrencePattern(record),
-    },
-    {
-      title: 'Date Range',
-      key: 'dateRange',
-      render: (_, record: Schedule) => {
-        const start = format(new Date(record.startDate), 'MMM d, yyyy');
-        return record.endDate 
-          ? `${start} - ${format(new Date(record.endDate), 'MMM d, yyyy')}`
-          : `${start} - Ongoing`;
-      },
+      render: (_: unknown, record: Schedule) => formatRecurrencePattern(record),
     },
     {
       title: 'Actions',
@@ -290,13 +254,7 @@ const Schedules: React.FC = () => {
           layout="vertical"
           requiredMark={false}
           initialValues={{ 
-            recurrenceType: 'daily',
-            dateRange: [new Date(), null],
-          }}
-          onValuesChange={(changedValues) => {
-            if (changedValues.recurrenceType) {
-              setRecurrenceType(changedValues.recurrenceType);
-            }
+            daysOfWeek: [],
           }}
         >
           <Form.Item
@@ -314,44 +272,19 @@ const Schedules: React.FC = () => {
           </Form.Item>
           
           <Form.Item
-            name="dateRange"
-            label="Date Range"
-            rules={[{ required: true, message: 'Please select a date range' }]}
+            name="daysOfWeek"
+            label="Days of Week"
+            rules={[{ 
+              required: true, 
+              message: 'Please select at least one day',
+              type: 'array',
+              min: 1,
+            }]}
           >
-            <RangePicker 
-              style={{ width: '100%' }}
-              allowEmpty={[false, true]}
-              placeholder={['Start Date', 'End Date (Optional)']}
-            />
+            <Checkbox.Group options={daysOfWeek} />
           </Form.Item>
           
-          <Form.Item
-            name="recurrenceType"
-            label="Recurrence Type"
-            rules={[{ required: true, message: 'Please select a recurrence type' }]}
-          >
-            <Select>
-              <Select.Option value="daily">Daily</Select.Option>
-              <Select.Option value="weekly">Weekly</Select.Option>
-            </Select>
-          </Form.Item>
-          
-          {recurrenceType === 'weekly' && (
-            <Form.Item
-              name="daysOfWeek"
-              label="Days of Week"
-              rules={[{ 
-                required: true, 
-                message: 'Please select at least one day',
-                type: 'array',
-                min: 1,
-              }]}
-            >
-              <CheckboxGroup options={daysOfWeek} />
-            </Form.Item>
-          )}
-          
-          <Divider orientation="left">Medication Times</Divider>
+          <Divider orientation="left">Medication Time</Divider>
           
           <Card size="small" className="mb-4">
             {times.map((time, index) => (

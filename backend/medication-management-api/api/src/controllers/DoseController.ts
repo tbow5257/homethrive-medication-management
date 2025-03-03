@@ -12,16 +12,6 @@ interface UpdateDoseStatusRequest {
   status: 'scheduled' | 'taken' | 'missed' | 'skipped';
 }
 
-interface DashboardStats {
-  totalRecipients: number;
-  totalMedications: number;
-  totalSchedules: number;
-  todayDoses: number;
-  takenDoses: number;
-  missedDoses: number;
-  complianceRate: number;
-}
-
 @Route("doses")
 @Tags('Doses')
 export class DoseController {
@@ -157,103 +147,5 @@ export class DoseController {
     });
     
     return dose;
-  }
-
-  /**
-   * Get upcoming doses
-   */
-  @Get("upcoming")
-  @Security('jwt')
-  public async getUpcomingDoses(@Query() limit: number = 5): Promise<DoseResponse[]> {
-    const prisma = getPrismaClient();
-    
-    // Get upcoming doses
-    const doses = await prisma.dose.findMany({
-      where: {
-        status: 'scheduled',
-        scheduledFor: {
-          gte: new Date()
-        }
-      },
-      include: {
-        medication: {
-          include: {
-            careRecipient: true
-          }
-        }
-      },
-      orderBy: {
-        scheduledFor: 'asc'
-      },
-      take: limit
-    });
-    
-    return doses;
-  }
-
-  /**
-   * Get dashboard statistics
-   */
-  @Get("dashboard/stats")
-  @Security('jwt')
-  public async getDashboardStats(): Promise<DashboardStats> {
-    const prisma = getPrismaClient();
-    
-    // Get today's date
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-    
-    const tomorrow = new Date(today);
-    tomorrow.setDate(tomorrow.getDate() + 1);
-    
-    // Get counts
-    const [
-      totalRecipients,
-      totalMedications,
-      totalSchedules,
-      todayDoses,
-      takenDoses,
-      missedDoses
-    ] = await Promise.all([
-      prisma.careRecipient.count({ where: { isActive: true } }),
-      prisma.medication.count({ where: { isActive: true } }),
-      prisma.schedule.count({ where: { isActive: true } }),
-      prisma.dose.count({
-        where: {
-          scheduledFor: {
-            gte: today,
-            lt: tomorrow
-          }
-        }
-      }),
-      prisma.dose.count({
-        where: {
-          status: 'taken',
-          scheduledFor: {
-            gte: today,
-            lt: tomorrow
-          }
-        }
-      }),
-      prisma.dose.count({
-        where: {
-          status: 'missed'
-        }
-      })
-    ]);
-    
-    // Calculate compliance rate
-    const complianceRate = todayDoses > 0 ? (takenDoses / todayDoses) * 100 : 0;
-    
-    // Return stats
-    return {
-      totalRecipients,
-      totalMedications,
-      totalSchedules,
-      todayDoses,
-      takenDoses,
-      missedDoses,
-      complianceRate: Math.round(complianceRate)
-    };
   }
 } 

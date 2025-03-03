@@ -27,6 +27,7 @@ export type { Pick_User_Exclude_keyofUser_password__ } from './models/Pick_User_
 export { RegisterRequest } from './models/RegisterRequest';
 export type { Schedule } from './models/Schedule';
 export type { ScheduleResponse } from './models/ScheduleResponse';
+export type { UpcomingMedication } from './models/UpcomingMedication';
 export type { UpdateCareRecipientRequest } from './models/UpdateCareRecipientRequest';
 export { UpdateDoseStatusRequest } from './models/UpdateDoseStatusRequest';
 export type { UpdateMedicationRequest } from './models/UpdateMedicationRequest';
@@ -35,6 +36,7 @@ export type { UserProfile } from './models/UserProfile';
 
 export { AuthenticationService } from './services/AuthenticationService';
 export { CareRecipientsService } from './services/CareRecipientsService';
+export { DashboardService } from './services/DashboardService';
 export { DosesService } from './services/DosesService';
 export { MedicationsService } from './services/MedicationsService';
 export { SchedulesService } from './services/SchedulesService';

@@ -29,10 +29,12 @@ import {
 import {
   getDosesHandler,
   getDoseHandler,
-  updateDoseStatusHandler,
-  getUpcomingDosesHandler,
-  getDashboardStatsHandler
+  updateDoseStatusHandler
 } from './src/handlers/dose';
+import {
+  getDashboardStatsHandler,
+  getDashboardUpcomingDosesHandler
+} from './src/handlers/dashboard';
 import { successResponse, serverErrorResponse } from './src/utils/response';
 import { requireAuth } from './src/utils/auth';
 
@@ -142,7 +144,7 @@ const router = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResul
   }
   
   if (path.match(/^\/dashboard\/upcoming-doses\/?$/) && httpMethod === 'GET') {
-    return requireAuth(getUpcomingDosesHandler)(event);
+    return requireAuth(getDashboardUpcomingDosesHandler)(event);
   }
   
   // If no route matches, return 404
