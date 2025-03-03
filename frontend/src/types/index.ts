@@ -1,30 +1,73 @@
 // Import types from shared package
-// Note: This import will work once the shared types package is built and linked
-// For now, we'll keep the original types to avoid breaking the application
 import type {
-  User as SharedUser,
-  CareRecipient as SharedCareRecipient,
-  Medication as SharedMedication,
-  Schedule as SharedSchedule,
-  Dose as SharedDose,
-  DoseStatus,
+  // Import utility types
   ApiResponse,
   AuthResponse,
-  DashboardStats
+  DashboardStats,
+  DoseStatus,
+  PaginatedResponse,
+  Dose,
+  Schedule,
+  Medication,
+  CareRecipient,
+  CareRecipientResponse,
+  CreateCareRecipientRequest,
+  UpdateCareRecipientRequest,
+  
+  // Import API services
+  CareRecipientsService,
+  
+  // Import core API utilities
+  ApiError,
+  CancelablePromise,
+  OpenAPI
 } from '@medication-management/shared-types';
 
 // Re-export shared types
 export type {
-  SharedUser,
-  SharedCareRecipient,
-  SharedMedication,
-  SharedSchedule,
-  SharedDose,
-  DoseStatus,
+  // Re-export utility types
   ApiResponse,
   AuthResponse,
-  DashboardStats
+  DashboardStats,
+  DoseStatus,
+  PaginatedResponse,
+  
+  // Re-export Swagger-generated models
+  CareRecipient,
+  Dose,
+  Medication,
+  Schedule,
+  CareRecipientResponse,
+  CreateCareRecipientRequest,
+  UpdateCareRecipientRequest,
+  
+  // Re-export API services
+  CareRecipientsService,
+  
+  // Re-export core API utilities
+  ApiError,
+  CancelablePromise,
+  OpenAPI
 };
+
+/**
+ * TRANSITION GUIDE:
+ * 
+ * We're transitioning from legacy types to Swagger-generated types:
+ * 
+ * 1. Legacy types (User, CareRecipient, Medication, etc.) - Keep for backward compatibility
+ * 2. Shared types (SharedUser, SharedCareRecipient, etc.) - Intermediate types from shared package
+ * 3. API types (ApiCareRecipient, ApiMedication, etc.) - New Swagger-generated types
+ * 
+ * When using API client, use the Api* prefixed types. For new components, prefer Api* types.
+ * Legacy types will be phased out gradually.
+ */
+
+/**
+ * FRONTEND-SPECIFIC TYPES
+ * These types extend or complement the Swagger-generated types
+ * for frontend-specific use cases.
+ */
 
 // Frontend-specific types and extensions
 export interface UserWithName {
@@ -78,105 +121,4 @@ export interface SidebarItem {
 export interface FormMode {
   isEditing: boolean;
   currentId?: string;
-}
-
-// Original types (will be replaced by shared types once the package is built)
-export interface User {
-  id: string;
-  name: string;
-  email: string;
-}
-
-export interface CareRecipient {
-  id: string;
-  name: string;
-  createdAt: string;
-  updatedAt: string;
-}
-
-export interface Medication {
-  id: string;
-  name: string;
-  dosage: string;
-  instructions: string;
-  isActive: boolean;
-  careRecipientId: string;
-  createdAt: string;
-  updatedAt: string;
-}
-
-export interface Schedule {
-  id: string;
-  medicationId: string;
-  recurrenceType: 'daily' | 'weekly';
-  recurrencePattern: {
-    daysOfWeek?: number[];
-    times: string[];
-  };
-  startDate: string;
-  endDate: string | null;
-  createdAt: string;
-  updatedAt: string;
-}
-
-export interface Dose {
-  id: string;
-  scheduleId: string;
-  medicationId: string;
-  scheduledTime: string;
-  status: 'scheduled' | 'taken' | 'missed';
-  takenAt: string | null;
-  createdAt: string;
-  updatedAt: string;
-}
-
-// Keep these interfaces for backward compatibility
-// They will be removed once the migration to shared types is complete
-export interface LegacyUser {
-  id: string;
-  name: string;
-  email: string;
-}
-
-export interface LegacyCareRecipient {
-  id: string;
-  name: string;
-  createdAt: string;
-  updatedAt: string;
-}
-
-export interface LegacyMedication {
-  id: string;
-  name: string;
-  dosage: string;
-  instructions: string;
-  isActive: boolean;
-  careRecipientId: string;
-  createdAt: string;
-  updatedAt: string;
-}
-
-export interface LegacySchedule {
-  id: string;
-  medicationId: string;
-  recurrenceType: 'daily' | 'weekly';
-  recurrencePattern: {
-    daysOfWeek?: number[];
-    times: string[];
-  };
-  startDate: string;
-  endDate: string | null;
-  createdAt: string;
-  updatedAt: string;
-}
-
-export interface LegacyDose {
-  id: string;
-  scheduleId: string;
-  medicationId: string;
-  scheduledTime: string;
-  status: 'scheduled' | 'taken' | 'missed';
-  takenAt: string | null;
-  createdAt: string;
-  updatedAt: string;
 }

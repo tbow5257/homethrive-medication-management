@@ -5,15 +5,13 @@ import { useNavigate } from 'react-router-dom';
 import { format } from 'date-fns';
 import { useDashboardStats, useUpcomingDoses } from '../hooks/useApi';
 import { useUpdateDoseStatus } from '../hooks/useApi';
-import { ApiResponse, DashboardStats } from '../types';
 
 const Dashboard: React.FC = () => {
   const navigate = useNavigate();
   const { data: stats, isLoading: statsLoading } = useDashboardStats();
   const { data: upcomingDoses, isLoading: dosesLoading } = useUpcomingDoses(5);
   const updateDoseStatus = useUpdateDoseStatus();
-  console.log('stats', stats);
-  console.log('upcomingDoses', upcomingDoses);
+
   const markAsTaken = async (doseId: string) => {
     try {
       await updateDoseStatus.mutateAsync({ id: doseId, status: 'taken' });
@@ -95,7 +93,7 @@ const Dashboard: React.FC = () => {
                     <Button 
                       type="primary" 
                       size="small" 
-                      onClick={() => markAsTaken(item.id)}
+                      onClick={() => markAsTaken(item.id || '')}
                       loading={updateDoseStatus.isPending && updateDoseStatus.variables?.id === item.id}
                     >
                       Mark as Taken
@@ -107,7 +105,7 @@ const Dashboard: React.FC = () => {
                   title={
                     <div className="flex items-center">
                       <span className="mr-2">{item.medication.name}</span>
-                      {getStatusTag(item.status)}
+                      {getStatusTag(item.status || '')}
                     </div>
                   }
                   description={`For ${item.medication.careRecipient.firstName} at ${format(new Date(item.scheduledFor), 'h:mm a, MMM d')}`}

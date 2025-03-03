@@ -1,4 +1,12 @@
-import { User, CareRecipient, Medication, Schedule, Dose, ApiResponse, DashboardStats } from '../types';
+import { 
+  CareRecipient, 
+  Medication, 
+  ScheduleUI as Schedule, 
+  Dose, 
+  ApiResponse, 
+  DashboardStats,
+  UserWithName as User
+} from '../types';
 import { format, addDays, subDays, setHours, setMinutes } from 'date-fns';
 
 // Mock user data

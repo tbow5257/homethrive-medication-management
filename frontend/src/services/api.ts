@@ -1,6 +1,13 @@
 import axios from 'axios';
 import { login as authLogin, setToken } from './authService';
-import { CareRecipient, Medication, Schedule, Dose, ApiResponse, DashboardStats } from '../types';
+import { 
+  CareRecipient, 
+  Medication, 
+  Schedule, 
+  Dose, 
+  ApiResponse, 
+  DashboardStats 
+} from '../types';
 import { LoginCredentials } from '../types/auth';
 
 const api = axios.create({

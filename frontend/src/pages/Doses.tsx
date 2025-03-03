@@ -19,7 +19,7 @@ import {
 import { CheckCircle, AlertCircle, Clock, Calendar, BarChart3 } from 'lucide-react';
 import { format, isToday, parseISO } from 'date-fns';
 import { useDoses, useRecipients, useUpdateDoseStatus } from '../hooks/useApi';
-import { Dose } from '../types';
+import { DoseUI as Dose } from '../types';
 
 const { TabPane } = Tabs;
 
