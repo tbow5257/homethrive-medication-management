@@ -1,17 +1,15 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { jwtDecode } from 'jwt-decode';
-import { message } from 'antd';
-import api from '../services/api';
-import { USE_MOCK_API } from '../hooks/useApi';
+import api, { realApi } from '../services/api';
 
-interface User {
+interface UIUser {
   id: string;
   name: string;
   email: string;
 }
 
 interface AuthContextType {
-  user: User | null;
+  user: UIUser | null;
   isAuthenticated: boolean;
   login: (email: string, password: string) => Promise<void>;
   logout: () => void;
@@ -29,32 +27,53 @@ const AuthContext = createContext<AuthContextType>({
 export const useAuth = () => useContext(AuthContext);
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [user, setUser] = useState<User | null>(null);
+  const [user, setUser] = useState<UIUser | null>(null);
   const [loading, setLoading] = useState(true);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
 
   useEffect(() => {
     // Check if user is already logged in
     const token = localStorage.getItem('token');
+    const storedUser = localStorage.getItem('user');
+    
     if (token) {
       try {
-        if (USE_MOCK_API) {
-          // For mock token
-          const decoded = JSON.parse(atob(token));
-          setUser(decoded.user);
+        // For real JWT token
+        const decoded = jwtDecode<{ 
+          userId: string; 
+          email: string; 
+          role: string; 
+          exp?: number;
+          iat?: number;
+        }>(token);
+
+        // Set authorization header
+        api.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+        
+        // Get user info from localStorage if available
+        if (storedUser) {
+          setUser(JSON.parse(storedUser));
+          setIsAuthenticated(true);
         } else {
-          // For real JWT token
-          const decoded = jwtDecode<{ userId: string; email: string; firstName: string; lastName: string }>(token);
+          // Fallback if token exists but user data is missing
           setUser({
             id: decoded.userId,
-            name: `${decoded.firstName} ${decoded.lastName}`,
+            name: 'User', // Generic fallback name
             email: decoded.email
           });
+          setIsAuthenticated(true);
+          
+          // Recreate user in localStorage for future use
+          localStorage.setItem('user', JSON.stringify({
+            id: decoded.userId,
+            name: 'User',
+            email: decoded.email
+          }));
         }
-        
-        api.defaults.headers.common['Authorization'] = `Bearer ${token}`;
       } catch (error) {
         console.error('Invalid token', error);
         localStorage.removeItem('token');
+        localStorage.removeItem('user');
       }
     }
     setLoading(false);
@@ -62,44 +81,82 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const login = async (email: string, password: string) => {
     try {
-      // Import dynamically to avoid circular dependency
-      const { currentApi } = await import('../hooks/useApi');
-      const { token } = await currentApi.login(email, password);
+      setLoading(true);
+      const { token, user } = await realApi.login(email, password);
       
+      // Store token in localStorage
       localStorage.setItem('token', token);
-      api.defaults.headers.common['Authorization'] = `Bearer ${token}`;
       
-      if (USE_MOCK_API) {
-        // For mock token
-        const decoded = JSON.parse(atob(token));
-        setUser(decoded.user);
-      } else {
-        // For real JWT token
-        const decoded = jwtDecode<{ userId: string; email: string; firstName: string; lastName: string }>(token);
-        setUser({
-          id: decoded.userId,
-          name: `${decoded.firstName} ${decoded.lastName}`,
-          email: decoded.email
-        });
-      }
+      // Store user info in localStorage (only non-sensitive data)
+      localStorage.setItem('user', JSON.stringify({
+        id: user.id,
+        name: user.firstName,
+        email: user.email
+      }));
       
-      message.success('Login successful');
+      // Set user in state
+      setUser({
+        id: user.id ?? '',
+        name: user.firstName,
+        email: user.email
+      });
+      
+      setIsAuthenticated(true);
     } catch (error) {
-      console.error('Login failed', error);
-      message.error('Invalid email or password');
+      console.error('Login failed:', error);
       throw error;
+    } finally {
+      setLoading(false);
     }
   };
 
   const logout = () => {
+    // Remove both token and user from localStorage
     localStorage.removeItem('token');
-    delete api.defaults.headers.common['Authorization'];
+    localStorage.removeItem('user');
     setUser(null);
-    message.success('Logged out successfully');
+    setIsAuthenticated(false);
   };
 
+  // Add useEffect to check for stored user on component mount
+  useEffect(() => {
+    const checkAuth = () => {
+      const token = localStorage.getItem('token');
+      const storedUser = localStorage.getItem('user');
+      
+      if (token && storedUser) {
+        try {
+          // Verify token is still valid
+          const decoded = jwtDecode<{ 
+            userId: string; 
+            email: string; 
+            role: string; 
+            exp?: number;
+            iat?: number;
+          }>(token);
+          const currentTime = Date.now() / 1000;
+          
+          if (decoded.exp && decoded.exp > currentTime) {
+            // Token is valid, set user from localStorage
+            setUser(JSON.parse(storedUser));
+            setIsAuthenticated(true);
+          } else {
+            // Token expired
+            logout();
+          }
+        } catch (error) {
+          // Invalid token
+          logout();
+        }
+      }
+      setLoading(false);
+    };
+    
+    checkAuth();
+  }, []);
+
   return (
-    <AuthContext.Provider value={{ user, isAuthenticated: !!user, login, logout, loading }}>
+    <AuthContext.Provider value={{ user, isAuthenticated, login, logout, loading }}>
       {children}
     </AuthContext.Provider>
   );

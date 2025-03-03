@@ -1,7 +1,7 @@
 import type {
   // Import utility types
   ApiResponse,
-  AuthResponse,
+  AuthResponse as SharedAuthResponse,
   DashboardStats,
   DoseStatus,
   PaginatedResponse,
@@ -19,14 +19,18 @@ import type {
   // Import core API utilities
   ApiError,
   CancelablePromise,
-  OpenAPI
+  OpenAPI,
+  
+  // Import auth-related types
+  User as SharedUser,
+  LoginCredentials as SharedLoginCredentials
 } from '@medication-management/shared-types';
 
 // Re-export shared types
 export type {
   // Re-export utility types
   ApiResponse,
-  AuthResponse,
+  SharedAuthResponse,
   DashboardStats,
   DoseStatus,
   PaginatedResponse,
@@ -46,8 +50,15 @@ export type {
   // Re-export core API utilities
   ApiError,
   CancelablePromise,
-  OpenAPI
+  OpenAPI,
+  
+  // Re-export auth-related types
+  SharedUser,
+  SharedLoginCredentials
 };
+
+// Re-export frontend-specific auth types
+export * from './auth';
 
 /**
  * TRANSITION GUIDE:

@@ -48,7 +48,7 @@ export const realApi = {
   login: async (email: string, password: string) => {
     const response = await authLogin({ email, password });
     setToken(response.data.token);
-    return { token: response.data.token };
+    return response.data;
   },
   
   // Recipients
