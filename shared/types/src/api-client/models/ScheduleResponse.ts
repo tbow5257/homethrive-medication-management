@@ -3,6 +3,7 @@
 /* tslint:disable */
 /* eslint-disable */
 
+import type { CareRecipient } from './CareRecipient';
 import type { Medication } from './Medication';
 
 export type ScheduleResponse = {
@@ -13,6 +14,8 @@ export type ScheduleResponse = {
     daysOfWeek: Array<string>;
     time: string;
     id: string;
-    medication?: Medication;
+    medication?: (Medication & {
+        careRecipient?: CareRecipient;
+    });
 };
 

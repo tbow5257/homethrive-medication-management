@@ -14,6 +14,7 @@ export type { CreateCareRecipientRequest } from './models/CreateCareRecipientReq
 export type { CreateMedicationRequest } from './models/CreateMedicationRequest';
 export type { CreateScheduleRequest } from './models/CreateScheduleRequest';
 export type { DashboardStats } from './models/DashboardStats';
+export { DayOfWeek } from './models/DayOfWeek';
 export type { DefaultSelection_Prisma__36_CareRecipientPayload_ } from './models/DefaultSelection_Prisma__36_CareRecipientPayload_';
 export type { DefaultSelection_Prisma__36_DosePayload_ } from './models/DefaultSelection_Prisma__36_DosePayload_';
 export type { DefaultSelection_Prisma__36_MedicationPayload_ } from './models/DefaultSelection_Prisma__36_MedicationPayload_';

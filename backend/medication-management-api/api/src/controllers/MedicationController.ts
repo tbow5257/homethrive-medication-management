@@ -35,9 +35,6 @@ export class MedicationController {
     
     // Build query
     const query: any = {
-      where: {
-        isActive: true
-      },
       include: {
         careRecipient: true
       }

@@ -31,7 +31,12 @@ const Dashboard: React.FC = () => {
 
   return (
     <div>
-      <h1 className="text-2xl font-bold mb-6">Dashboard</h1>
+      <div className="flex justify-between items-center mb-6">
+        <h1 className="text-2xl font-bold">Dashboard</h1>
+        <div className="text-lg text-gray-600 font-medium">
+          {format(new Date(), 'EEEE, MMMM d, yyyy')}
+        </div>
+      </div>
       
       <Row gutter={[16, 16]}>
         <Col xs={24} sm={12} lg={6}>

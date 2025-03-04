@@ -5,7 +5,7 @@ import type {
   DashboardStats,
   DoseStatus,
   PaginatedResponse,
-  Schedule,
+  ScheduleResponse as Schedule,
   Medication,
   CareRecipient,
   CareRecipientResponse,
@@ -13,7 +13,7 @@ import type {
   UpdateCareRecipientRequest,
   DoseResponse,
   UpcomingMedication,
-  
+  DayOfWeek,
   // Import API services
   CareRecipientsService,
   
@@ -54,6 +54,9 @@ export type {
   
   // Re-export auth-related types
 };
+
+// Re-export DayOfWeek enum (not as a type)
+export { DayOfWeek } from '@medication-management/shared-types';
 
 // Re-export frontend-specific auth types
 export * from './auth';

@@ -1,20 +1,23 @@
 import { Route, Get, Post, Put, Delete, Body, Path, Query, Response, Tags, Security } from 'tsoa';
 import { getPrismaClient } from '../utils/prisma';
-import { Schedule, Medication } from '@prisma/client';
+import { Schedule, Medication, CareRecipient } from '@prisma/client';
+import { DayOfWeek } from '../types';
 
 interface ScheduleResponse extends Schedule {
-  medication?: Medication;
+  medication?: Medication & {
+    careRecipient?: CareRecipient;
+  };
 }
 
 interface CreateScheduleRequest {
   time: string;
-  daysOfWeek: string[];
+  daysOfWeek: DayOfWeek[];
   medicationId: string;
 }
 
 interface UpdateScheduleRequest {
   time?: string;
-  daysOfWeek?: string[];
+  daysOfWeek?: DayOfWeek[];
   isActive?: boolean;
   medicationId?: string;
 }
@@ -36,7 +39,11 @@ export class ScheduleController {
         isActive: true
       },
       include: {
-        medication: true
+        medication: {
+          include: {
+            careRecipient: true
+          }
+        }
       }
     };
     
@@ -64,7 +71,11 @@ export class ScheduleController {
     const schedule = await prisma.schedule.findUnique({
       where: { id },
       include: {
-        medication: true
+        medication: {
+          include: {
+            careRecipient: true
+          }
+        }
       }
     });
     
@@ -112,7 +123,11 @@ export class ScheduleController {
         medicationId
       },
       include: {
-        medication: true
+        medication: {
+          include: {
+            careRecipient: true
+          }
+        }
       }
     });
     
@@ -168,7 +183,11 @@ export class ScheduleController {
         medicationId: medicationId !== undefined ? medicationId : undefined
       },
       include: {
-        medication: true
+        medication: {
+          include: {
+            careRecipient: true
+          }
+        }
       }
     });
     

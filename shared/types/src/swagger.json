@@ -52,6 +52,48 @@
 				"$ref": "#/components/schemas/DefaultSelection_Prisma._36_MedicationPayload_",
 				"description": "Model Medication"
 			},
+			"DefaultSelection_Prisma._36_CareRecipientPayload_": {
+				"properties": {
+					"dateOfBirth": {
+						"type": "string",
+						"format": "date-time"
+					},
+					"lastName": {
+						"type": "string"
+					},
+					"firstName": {
+						"type": "string"
+					},
+					"updatedAt": {
+						"type": "string",
+						"format": "date-time"
+					},
+					"createdAt": {
+						"type": "string",
+						"format": "date-time"
+					},
+					"isActive": {
+						"type": "boolean"
+					},
+					"id": {
+						"type": "string"
+					}
+				},
+				"required": [
+					"dateOfBirth",
+					"lastName",
+					"firstName",
+					"updatedAt",
+					"createdAt",
+					"isActive",
+					"id"
+				],
+				"type": "object"
+			},
+			"CareRecipient": {
+				"$ref": "#/components/schemas/DefaultSelection_Prisma._36_CareRecipientPayload_",
+				"description": "Model CareRecipient"
+			},
 			"DefaultSelection_Prisma._36_SchedulePayload_": {
 				"properties": {
 					"updatedAt": {
@@ -121,7 +163,19 @@
 						"type": "string"
 					},
 					"medication": {
-						"$ref": "#/components/schemas/Medication"
+						"allOf": [
+							{
+								"$ref": "#/components/schemas/Medication"
+							},
+							{
+								"properties": {
+									"careRecipient": {
+										"$ref": "#/components/schemas/CareRecipient"
+									}
+								},
+								"type": "object"
+							}
+						]
 					}
 				},
 				"required": [
@@ -136,6 +190,19 @@
 				"type": "object",
 				"additionalProperties": false
 			},
+			"DayOfWeek": {
+				"description": "Enum for days of the week",
+				"enum": [
+					"Sunday",
+					"Monday",
+					"Tuesday",
+					"Wednesday",
+					"Thursday",
+					"Friday",
+					"Saturday"
+				],
+				"type": "string"
+			},
 			"CreateScheduleRequest": {
 				"properties": {
 					"time": {
@@ -143,7 +210,7 @@
 					},
 					"daysOfWeek": {
 						"items": {
-							"type": "string"
+							"$ref": "#/components/schemas/DayOfWeek"
 						},
 						"type": "array"
 					},
@@ -166,7 +233,7 @@
 					},
 					"daysOfWeek": {
 						"items": {
-							"type": "string"
+							"$ref": "#/components/schemas/DayOfWeek"
 						},
 						"type": "array"
 					},
@@ -179,48 +246,6 @@
 				},
 				"type": "object",
 				"additionalProperties": false
-			},
-			"DefaultSelection_Prisma._36_CareRecipientPayload_": {
-				"properties": {
-					"dateOfBirth": {
-						"type": "string",
-						"format": "date-time"
-					},
-					"lastName": {
-						"type": "string"
-					},
-					"firstName": {
-						"type": "string"
-					},
-					"updatedAt": {
-						"type": "string",
-						"format": "date-time"
-					},
-					"createdAt": {
-						"type": "string",
-						"format": "date-time"
-					},
-					"isActive": {
-						"type": "boolean"
-					},
-					"id": {
-						"type": "string"
-					}
-				},
-				"required": [
-					"dateOfBirth",
-					"lastName",
-					"firstName",
-					"updatedAt",
-					"createdAt",
-					"isActive",
-					"id"
-				],
-				"type": "object"
-			},
-			"CareRecipient": {
-				"$ref": "#/components/schemas/DefaultSelection_Prisma._36_CareRecipientPayload_",
-				"description": "Model CareRecipient"
 			},
 			"Schedule": {
 				"$ref": "#/components/schemas/DefaultSelection_Prisma._36_SchedulePayload_",

@@ -17,6 +17,7 @@ import {
 } from 'antd';
 import { PlusCircle, Edit, Trash2 } from 'lucide-react';
 import { format } from 'date-fns';
+import dayjs from 'dayjs';
 import { 
   useSchedules, 
   useMedications,
@@ -24,19 +25,19 @@ import {
   useUpdateSchedule,
   useDeleteSchedule
 } from '../hooks/useApi';
-import { Schedule } from '../types';
+import { Schedule, DayOfWeek } from '../types';
 
 const { RangePicker } = DatePicker;
-const { CheckboxGroup } = Checkbox;
+const CheckboxGroup = Checkbox.Group;
 
 const daysOfWeek = [
-  { label: 'Sun', value: 0 },
-  { label: 'Mon', value: 1 },
-  { label: 'Tue', value: 2 },
-  { label: 'Wed', value: 3 },
-  { label: 'Thu', value: 4 },
-  { label: 'Fri', value: 5 },
-  { label: 'Sat', value: 6 },
+  { label: 'Sun', value: 'Sunday' },
+  { label: 'Mon', value: 'Monday' },
+  { label: 'Tue', value: 'Tuesday' },
+  { label: 'Wed', value: 'Wednesday' },
+  { label: 'Thu', value: 'Thursday' },
+  { label: 'Fri', value: 'Friday' },
+  { label: 'Sat', value: 'Saturday' },
 ];
 
 const Schedules: React.FC = () => {
@@ -47,7 +48,7 @@ const Schedules: React.FC = () => {
   const [times, setTimes] = useState<string[]>(['08:00']);
   const [recurrenceType, setRecurrenceType] = useState<'daily' | 'weekly'>('daily');
 
-  const { data: schedules, isLoading: schedulesLoading } = useSchedules(selectedMedication);
+  const { data: schedules, isLoading: schedulesLoading } = useSchedules(selectedMedication || undefined);
   const { data: medications, isLoading: medicationsLoading } = useMedications();
 
   const createSchedule = useCreateSchedule();
@@ -68,6 +69,9 @@ const Schedules: React.FC = () => {
   const handleEdit = (record: Schedule) => {
     setEditingId(record.id);
     setTimes([record.time]);
+    console.log('record.daysOfWeek', record.daysOfWeek);
+    
+    // No need to convert day names anymore, they're already in the correct format
     form.setFieldsValue({
       medicationId: record.medicationId,
       daysOfWeek: record.daysOfWeek,
@@ -88,6 +92,8 @@ const Schedules: React.FC = () => {
   const handleSubmit = async () => {
     try {
       const values = await form.validateFields();
+      
+      // No need to convert day values anymore, they're already in the correct format
       
       if (editingId) {
         await updateSchedule.mutateAsync({ 
@@ -138,7 +144,23 @@ const Schedules: React.FC = () => {
 
   const formatRecurrencePattern = (schedule: Schedule) => {
     const time = format(new Date(`2000-01-01T${schedule.time}`), 'h:mm a');
-    const days = schedule.daysOfWeek.join(', ');
+    
+    // Map full day names to abbreviated day names
+    const dayAbbreviations: Record<string, string> = {
+      'Sunday': 'Sun',
+      'Monday': 'Mon',
+      'Tuesday': 'Tue',
+      'Wednesday': 'Wed',
+      'Thursday': 'Thu',
+      'Friday': 'Fri',
+      'Saturday': 'Sat',
+    };
+    
+    const dayNames = schedule.daysOfWeek.map((day: string) => 
+      dayAbbreviations[day] || day
+    );
+    
+    const days = dayNames.join(', ');
     return `${days} at ${time}`;
   };
 
@@ -160,10 +182,11 @@ const Schedules: React.FC = () => {
       title: 'Care Recipient',
       key: 'careRecipientName',
       render: (_: unknown, record: Schedule) => {
-        const medication = medications?.find(m => m.id === record.medicationId);
-        if (!medication) return 'Unknown';
+        if (!record.medication?.careRecipient) return 'Unknown';
         
-        return medication.id === '1' || medication.id === '3' ? 'John Doe' : 'Jane Smith';
+        const firstName = record.medication.careRecipient.firstName || '';
+        const lastName = record.medication.careRecipient.lastName || '';
+        return `${firstName} ${lastName}`.trim() || 'Unknown';
       },
     },
     {
@@ -291,8 +314,8 @@ const Schedules: React.FC = () => {
               <div key={index} className="flex items-center mb-2">
                 <TimePicker
                   format="HH:mm"
-                  value={time ? new Date(`2000-01-01T${time}`) : null}
-                  onChange={(_, timeString) => updateTime(index, timeString)}
+                  value={time ? dayjs(`2000-01-01T${time}`) : null}
+                  onChange={(_, timeString) => updateTime(index, typeof timeString === 'string' ? timeString : timeString[0])}
                   className="mr-2"
                 />
                 {times.length > 1 && (
