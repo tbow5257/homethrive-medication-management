@@ -12,6 +12,12 @@ interface CreateMedicationRequest {
   dosage: string;
   instructions: string;
   careRecipientId: string;
+  schedule: {
+    times: string[];
+    daysOfWeek: string[];
+  };
+  isActive?: boolean;
+  daysOfWeek?: string[];
 }
 
 interface UpdateMedicationRequest {
@@ -84,11 +90,26 @@ export class MedicationController {
   @Response<{ message: string }>(400, "Bad request")
   public async createMedication(@Body() requestBody: CreateMedicationRequest): Promise<MedicationResponse> {
     const prisma = getPrismaClient();
-    const { name, dosage, instructions, careRecipientId } = requestBody;
+    const { name, dosage, instructions, careRecipientId, schedule } = requestBody;
     
     // Validate required fields
     if (!name || !dosage || !instructions || !careRecipientId) {
       throw new Error('Name, dosage, instructions, and care recipient ID are required');
+    }
+    
+    // Validate schedule is provided (now required by business rules)
+    if (!schedule || !schedule.times || !schedule.daysOfWeek) {
+      throw new Error('Schedule with times and daysOfWeek is required');
+    }
+    
+    // Validate times
+    if (!Array.isArray(schedule.times) || schedule.times.length === 0) {
+      throw new Error('Times must be a non-empty array');
+    }
+    
+    // Validate days of week
+    if (!Array.isArray(schedule.daysOfWeek) || schedule.daysOfWeek.length === 0) {
+      throw new Error('Days of week must be a non-empty array');
     }
     
     // Check if care recipient exists
@@ -106,12 +127,28 @@ export class MedicationController {
         name,
         dosage,
         instructions,
-        careRecipientId
+        careRecipientId,
+        isActive: requestBody.isActive !== undefined ? requestBody.isActive : true
       },
       include: {
         careRecipient: true
       }
     });
+    
+    // Create schedule
+    try {
+      await prisma.schedule.create({
+        data: {
+          times: schedule.times,
+          daysOfWeek: schedule.daysOfWeek,
+          medicationId: medication.id,
+          isActive: true
+        }
+      });
+    } catch (error: any) {
+      // Now we throw an error since schedule is required
+      throw new Error(`Failed to create required schedule: ${error.message}`);
+    }
     
     return medication;
   }

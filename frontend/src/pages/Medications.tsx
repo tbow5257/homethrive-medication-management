@@ -11,9 +11,14 @@ import {
   message, 
   Spin,
   Tag,
-  Switch
+  Switch,
+  TimePicker,
+  Checkbox,
+  Card,
+  Divider
 } from 'antd';
 import { PlusCircle, Edit, Trash2 } from 'lucide-react';
+import dayjs from 'dayjs';
 import { 
   useMedications, 
   useRecipients,
@@ -23,11 +28,22 @@ import {
 } from '../hooks/useApi';
 import { Medication } from '../types';
 
+const daysOfWeek = [
+  { label: 'Sun', value: 'Sunday' },
+  { label: 'Mon', value: 'Monday' },
+  { label: 'Tue', value: 'Tuesday' },
+  { label: 'Wed', value: 'Wednesday' },
+  { label: 'Thu', value: 'Thursday' },
+  { label: 'Fri', value: 'Friday' },
+  { label: 'Sat', value: 'Saturday' },
+];
+
 const Medications: React.FC = () => {
   const [modalVisible, setModalVisible] = useState(false);
   const [form] = Form.useForm();
   const [editingId, setEditingId] = useState<string | null>(null);
   const [selectedRecipient, setSelectedRecipient] = useState<string | null>(null);
+  const [times, setTimes] = useState<string[]>(['08:00']);
 
   const { data: medications, isLoading: medicationsLoading } = useMedications(selectedRecipient || undefined);
   const { data: recipients, isLoading: recipientsLoading } = useRecipients();
@@ -39,6 +55,7 @@ const Medications: React.FC = () => {
     setEditingId(null);
     form.resetFields();
     form.setFieldsValue({ isActive: true });
+    setTimes(['08:00']);
     setModalVisible(true);
   };
 
@@ -51,6 +68,7 @@ const Medications: React.FC = () => {
       careRecipientId: record.careRecipientId,
       isActive: record.isActive,
     });
+    setTimes(['08:00']);
     setModalVisible(true);
   };
 
@@ -85,14 +103,48 @@ const Medications: React.FC = () => {
         await updateMedication.mutateAsync({ id: editingId, data: values });
         message.success('Medication updated successfully');
       } else {
-        await createMedication.mutateAsync(values);
-        message.success('Medication added successfully');
+        const medicationData = {
+          ...values,
+          schedule: {
+            times: times,
+            daysOfWeek: values.daysOfWeek || [],
+          }
+        };
+        
+        delete medicationData.daysOfWeek;
+        
+        console.log('Submitting medication data:', medicationData);
+        
+        try {
+          const result = await createMedication.mutateAsync(medicationData);
+          console.log('Medication created:', result);
+          message.success('Medication added successfully');
+        } catch (error) {
+          console.error('Error creating medication:', error);
+          message.error('Failed to create medication');
+        }
       }
       
       setModalVisible(false);
     } catch (error) {
       console.error('Form validation failed:', error);
     }
+  };
+
+  const addTime = () => {
+    setTimes([...times, '08:00']);
+  };
+
+  const removeTime = (index: number) => {
+    const newTimes = [...times];
+    newTimes.splice(index, 1);
+    setTimes(newTimes);
+  };
+
+  const updateTime = (index: number, value: string) => {
+    const newTimes = [...times];
+    newTimes[index] = value;
+    setTimes(newTimes);
   };
 
   const handleRecipientFilter = (value: string) => {
@@ -229,6 +281,7 @@ const Medications: React.FC = () => {
         onCancel={() => setModalVisible(false)}
         okText={editingId ? "Update" : "Add"}
         confirmLoading={createMedication.isPending || updateMedication.isPending}
+        width={600}
       >
         <Form
           form={form}
@@ -284,6 +337,59 @@ const Medications: React.FC = () => {
           >
             <Switch checkedChildren="Active" unCheckedChildren="Inactive" />
           </Form.Item>
+
+          {!editingId && (
+            <>
+              <Divider orientation="left">Medication Schedule</Divider>
+              
+              <Form.Item
+                name="daysOfWeek"
+                label="Days of Week"
+                rules={[{ 
+                  required: true, 
+                  message: 'Please select at least one day',
+                  type: 'array',
+                  min: 1,
+                }]}
+              >
+                <Checkbox.Group options={daysOfWeek} />
+              </Form.Item>
+              
+              <Card size="small" className="mb-4">
+                {times.map((time, index) => (
+                  <div key={index} className="flex items-center mb-2">
+                    <TimePicker
+                      format="h:mm A"
+                      use12Hours
+                      value={time ? dayjs(`2000-01-01T${time}`) : null}
+                      onChange={(time) => {
+                        if (time) {
+                          const timeString = time.format('HH:mm');
+                          updateTime(index, timeString);
+                        }
+                      }}
+                      className="mr-2"
+                    />
+                    {times.length > 1 && (
+                      <Button 
+                        type="text" 
+                        danger 
+                        icon={<Trash2 size={16} />} 
+                        onClick={() => removeTime(index)}
+                      />
+                    )}
+                  </div>
+                ))}
+                <Button 
+                  type="dashed" 
+                  onClick={addTime} 
+                  className="w-full mt-2"
+                >
+                  Add Time
+                </Button>
+              </Card>
+            </>
+          )}
         </Form>
       </Modal>
     </div>

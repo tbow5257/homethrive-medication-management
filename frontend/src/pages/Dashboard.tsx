@@ -10,7 +10,7 @@ const Dashboard: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const { data: stats, isLoading: statsLoading, refetch: refetchStats } = useDashboardStats();
-  const { data: upcomingMedications, isLoading: medicationsLoading, refetch: refetchMedications } = useUpcomingDoses(5);
+  const { data: upcomingMedications, isLoading: medicationsLoading, refetch: refetchMedications } = useUpcomingDoses(25);
   const createDose = useCreateDose();
 
   // Refresh data when component mounts or when navigating back to the dashboard

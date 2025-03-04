@@ -8,5 +8,11 @@ export type CreateMedicationRequest = {
     dosage: string;
     instructions: string;
     careRecipientId: string;
+    schedule: {
+        daysOfWeek: Array<string>;
+        times: Array<string>;
+    };
+    isActive?: boolean;
+    daysOfWeek?: Array<string>;
 };
 

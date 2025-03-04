@@ -81,7 +81,7 @@ const Doses: React.FC = () => {
     
     // Sort by scheduled time
     filtered.sort((a, b) => 
-      new Date(a.scheduledFor).getTime() - new Date(b.scheduledFor).getTime()
+      new Date(b.scheduledFor).getTime() - new Date(a.scheduledFor).getTime()
     );
     
     return filtered;

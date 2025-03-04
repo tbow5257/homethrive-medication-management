@@ -327,13 +327,44 @@
 					},
 					"careRecipientId": {
 						"type": "string"
+					},
+					"schedule": {
+						"properties": {
+							"daysOfWeek": {
+								"items": {
+									"type": "string"
+								},
+								"type": "array"
+							},
+							"times": {
+								"items": {
+									"type": "string"
+								},
+								"type": "array"
+							}
+						},
+						"required": [
+							"daysOfWeek",
+							"times"
+						],
+						"type": "object"
+					},
+					"isActive": {
+						"type": "boolean"
+					},
+					"daysOfWeek": {
+						"items": {
+							"type": "string"
+						},
+						"type": "array"
 					}
 				},
 				"required": [
 					"name",
 					"dosage",
 					"instructions",
-					"careRecipientId"
+					"careRecipientId",
+					"schedule"
 				],
 				"type": "object",
 				"additionalProperties": false
