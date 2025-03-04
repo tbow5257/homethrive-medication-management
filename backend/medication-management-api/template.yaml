@@ -152,7 +152,7 @@ Resources:
     Type: AWS::Serverless::Function
     Properties:
       CodeUri: api/
-      Handler: src/auth/authorizer.handler
+      Handler: authorizer.handler
       Runtime: nodejs20.x
       Environment:
         Variables:
