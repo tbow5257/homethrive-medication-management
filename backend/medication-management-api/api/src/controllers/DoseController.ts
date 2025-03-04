@@ -14,6 +14,8 @@ interface UpdateDoseStatusRequest {
 
 interface CreateDoseRequest {
   medicationId: string;
+  scheduleId: string;
+  scheduledTime: string;
   status?: 'taken';
 }
 
@@ -165,7 +167,7 @@ export class DoseController {
     @Body() requestBody: CreateDoseRequest
   ): Promise<DoseResponse> {
     const prisma = getPrismaClient();
-    const { medicationId, status = 'taken' } = requestBody;
+    const { medicationId, scheduleId, scheduledTime, status = 'taken' } = requestBody;
     
     // Validate status - only allow 'taken' for now
     if (status !== 'taken') {
@@ -180,14 +182,38 @@ export class DoseController {
     if (!medication) {
       throw new Error("Medication not found");
     }
+
+    // Check if schedule exists
+    const schedule = await prisma.schedule.findUnique({
+      where: { id: scheduleId }
+    });
+    
+    if (!schedule) {
+      throw new Error("Schedule not found");
+    }
+    
+    // Validate that scheduledTime exists in the schedule's times
+    if (!schedule.times.includes(scheduledTime)) {
+      throw new Error("Scheduled time not found in the schedule");
+    }
+    
+    // Parse the time to create a proper scheduled date
+    const [hours, minutes] = scheduledTime.split(':').map(Number);
+    const now = new Date();
+    const scheduledDate = new Date(now);
+    scheduledDate.setHours(hours, minutes, 0, 0);
+    
+    // If the scheduled time is in the future today, use today's date
+    // If it's in the past, assume it was for today
+    const takenAt = now;
     
     // Create dose
     const dose = await prisma.dose.create({
       data: {
         medicationId,
         status,
-        scheduledFor: new Date(), // Use current date/time
-        takenAt: new Date(),
+        scheduledFor: scheduledDate,
+        takenAt: takenAt,
       },
       include: {
         medication: {

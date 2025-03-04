@@ -5,6 +5,8 @@
 
 export type CreateDoseRequest = {
     medicationId: string;
+    scheduleId: string;
+    scheduledTime: string;
     status?: CreateDoseRequest.status;
 };
 

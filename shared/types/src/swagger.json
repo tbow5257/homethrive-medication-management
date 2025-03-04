@@ -116,8 +116,11 @@
 						},
 						"type": "array"
 					},
-					"time": {
-						"type": "string"
+					"times": {
+						"items": {
+							"type": "string"
+						},
+						"type": "array"
 					},
 					"id": {
 						"type": "string"
@@ -129,7 +132,7 @@
 					"medicationId",
 					"isActive",
 					"daysOfWeek",
-					"time",
+					"times",
 					"id"
 				],
 				"type": "object"
@@ -156,8 +159,11 @@
 						},
 						"type": "array"
 					},
-					"time": {
-						"type": "string"
+					"times": {
+						"items": {
+							"type": "string"
+						},
+						"type": "array"
 					},
 					"id": {
 						"type": "string"
@@ -184,7 +190,7 @@
 					"medicationId",
 					"isActive",
 					"daysOfWeek",
-					"time",
+					"times",
 					"id"
 				],
 				"type": "object",
@@ -205,8 +211,11 @@
 			},
 			"CreateScheduleRequest": {
 				"properties": {
-					"time": {
-						"type": "string"
+					"times": {
+						"items": {
+							"type": "string"
+						},
+						"type": "array"
 					},
 					"daysOfWeek": {
 						"items": {
@@ -219,7 +228,7 @@
 					}
 				},
 				"required": [
-					"time",
+					"times",
 					"daysOfWeek",
 					"medicationId"
 				],
@@ -228,8 +237,11 @@
 			},
 			"UpdateScheduleRequest": {
 				"properties": {
-					"time": {
-						"type": "string"
+					"times": {
+						"items": {
+							"type": "string"
+						},
+						"type": "array"
 					},
 					"daysOfWeek": {
 						"items": {
@@ -464,6 +476,12 @@
 					"medicationId": {
 						"type": "string"
 					},
+					"scheduleId": {
+						"type": "string"
+					},
+					"scheduledTime": {
+						"type": "string"
+					},
 					"status": {
 						"type": "string",
 						"enum": [
@@ -473,7 +491,9 @@
 					}
 				},
 				"required": [
-					"medicationId"
+					"medicationId",
+					"scheduleId",
+					"scheduledTime"
 				],
 				"type": "object",
 				"additionalProperties": false

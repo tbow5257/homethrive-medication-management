@@ -201,8 +201,17 @@ export const useCreateDose = () => {
   const queryClient = useQueryClient();
   
   return useMutation({
-    mutationFn: ({ medicationId, status = 'taken' }: { medicationId: string; status?: 'taken' }) => 
-      realApi.createDose(medicationId, status),
+    mutationFn: ({ 
+      medicationId, 
+      scheduleId, 
+      scheduledTime, 
+      status = 'taken' 
+    }: { 
+      medicationId: string; 
+      scheduleId: string;
+      scheduledTime: string;
+      status?: 'taken' 
+    }) => realApi.createDose(medicationId, scheduleId, scheduledTime, status),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['doses'] });
       queryClient.invalidateQueries({ queryKey: ['dashboard'] });

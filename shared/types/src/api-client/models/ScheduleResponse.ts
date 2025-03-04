@@ -12,7 +12,7 @@ export type ScheduleResponse = {
     medicationId: string;
     isActive: boolean;
     daysOfWeek: Array<string>;
-    time: string;
+    times: Array<string>;
     id: string;
     medication?: (Medication & {
         careRecipient?: CareRecipient;

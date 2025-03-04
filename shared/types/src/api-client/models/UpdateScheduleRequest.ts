@@ -6,7 +6,7 @@
 import type { DayOfWeek } from './DayOfWeek';
 
 export type UpdateScheduleRequest = {
-    time?: string;
+    times?: Array<string>;
     daysOfWeek?: Array<DayOfWeek>;
     isActive?: boolean;
     medicationId?: string;

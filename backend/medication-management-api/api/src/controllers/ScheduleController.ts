@@ -10,13 +10,13 @@ interface ScheduleResponse extends Schedule {
 }
 
 interface CreateScheduleRequest {
-  time: string;
+  times: string[];
   daysOfWeek: DayOfWeek[];
   medicationId: string;
 }
 
 interface UpdateScheduleRequest {
-  time?: string;
+  times?: string[];
   daysOfWeek?: DayOfWeek[];
   isActive?: boolean;
   medicationId?: string;
@@ -94,11 +94,16 @@ export class ScheduleController {
   @Response<{ message: string }>(400, "Bad request")
   public async createSchedule(@Body() requestBody: CreateScheduleRequest): Promise<ScheduleResponse> {
     const prisma = getPrismaClient();
-    const { time, daysOfWeek, medicationId } = requestBody;
+    const { times, daysOfWeek, medicationId } = requestBody;
     
     // Validate required fields
-    if (!time || !daysOfWeek || !medicationId) {
-      throw new Error('Time, days of week, and medication ID are required');
+    if (!times || !daysOfWeek || !medicationId) {
+      throw new Error('Times, days of week, and medication ID are required');
+    }
+    
+    // Validate times
+    if (!Array.isArray(times) || times.length === 0) {
+      throw new Error('Times must be a non-empty array');
     }
     
     // Validate days of week
@@ -118,7 +123,7 @@ export class ScheduleController {
     // Create schedule
     const schedule = await prisma.schedule.create({
       data: {
-        time,
+        times,
         daysOfWeek,
         medicationId
       },
@@ -146,7 +151,7 @@ export class ScheduleController {
     @Body() requestBody: UpdateScheduleRequest
   ): Promise<ScheduleResponse> {
     const prisma = getPrismaClient();
-    const { time, daysOfWeek, isActive, medicationId } = requestBody;
+    const { times, daysOfWeek, isActive, medicationId } = requestBody;
     
     // Check if schedule exists
     const existingSchedule = await prisma.schedule.findUnique({
@@ -155,6 +160,11 @@ export class ScheduleController {
     
     if (!existingSchedule) {
       throw new Error("Schedule not found");
+    }
+    
+    // Validate times if provided
+    if (times !== undefined && (!Array.isArray(times) || times.length === 0)) {
+      throw new Error('Times must be a non-empty array');
     }
     
     // Validate days of week if provided
@@ -177,7 +187,7 @@ export class ScheduleController {
     const schedule = await prisma.schedule.update({
       where: { id },
       data: {
-        time: time !== undefined ? time : undefined,
+        times: times !== undefined ? times : undefined,
         daysOfWeek: daysOfWeek !== undefined ? daysOfWeek : undefined,
         isActive: isActive !== undefined ? isActive : undefined,
         medicationId: medicationId !== undefined ? medicationId : undefined

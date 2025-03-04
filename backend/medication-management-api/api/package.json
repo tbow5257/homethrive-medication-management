@@ -11,6 +11,7 @@
     "compile": "tsc",
     "test": "npm run compile && npm run unit",
     "prisma:generate": "prisma generate",
+    "prisma:makemigrations": "prisma migrate dev --name migration",
     "prisma:migrate:dev": "prisma migrate dev",
     "prisma:migrate:deploy": "prisma migrate deploy",
     "prisma:studio": "prisma studio",

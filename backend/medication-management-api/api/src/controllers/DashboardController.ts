@@ -36,8 +36,6 @@ export class DashboardController {
     const prisma = getPrismaClient();
     
     const now = new Date();
-    const sevenDaysFromNow = new Date(now);
-    sevenDaysFromNow.setDate(now.getDate() + 7);
     
     // Get active schedules with their medications and recipients
     const schedules = await prisma.schedule.findMany({
@@ -56,13 +54,10 @@ export class DashboardController {
             careRecipient: true
           }
         }
-      },
-      orderBy: {
-        time: 'asc'
       }
     });
-
-    // Get today's taken doses to check if medications have been taken today
+    console.log("schedules", JSON.stringify(schedules, null, 2));
+    // Get today's taken doses to count how many doses have been taken for each medication
     const today = new Date();
     today.setHours(0, 0, 0, 0);
     const tomorrow = new Date(today);
@@ -81,36 +76,57 @@ export class DashboardController {
       }
     });
     
-    // Create a Set of medication IDs that have been taken today for quick lookup
-    const takenMedicationIds = new Set(takenDosesToday.map(dose => dose.medicationId));
-
+    // Count doses taken per medication today
+    const dosesTakenByMedication = takenDosesToday.reduce((acc, dose) => {
+      acc[dose.medicationId] = (acc[dose.medicationId] || 0) + 1;
+      return acc;
+    }, {} as Record<string, number>);
+    
     // Transform schedules into upcoming medications
-    const upcomingMedications: UpcomingMedication[] = schedules.flatMap(schedule => {
+    const upcomingMedications: UpcomingMedication[] = [];
+    
+    // Flatten schedules with multiple times into individual entries
+    for (const schedule of schedules) {
       // Use days of week directly as strings
       const daysOfWeek = schedule.daysOfWeek as string[];
+      
+      // Skip if today is not in the schedule's days of week
+      const todayName = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'][now.getDay()];
+      if (!daysOfWeek.includes(todayName)) {
+        continue;
+      }
       
       // Construct recipient name from firstName and lastName
       const recipientName = schedule.medication?.careRecipient ? 
         `${schedule.medication.careRecipient.firstName} ${schedule.medication.careRecipient.lastName}`.trim() : 
         '';
       
-      // Check if this medication has been taken today
-      const takenToday = takenMedicationIds.has(schedule.medicationId);
+      // Get total doses taken for this medication today
+      const dosesTaken = dosesTakenByMedication[schedule.medicationId] || 0;
       
-      return {
-        medicationId: schedule.medicationId,
-        medicationName: schedule.medication?.name || '',
-        dosage: schedule.medication?.dosage || '',
-        recipientId: schedule.medication?.careRecipientId || '',
-        recipientName,
-        scheduleId: schedule.id,
-        scheduledTime: schedule.time,
-        daysOfWeek,
-        takenToday
-      };
-    });
+      // Create an entry for each time in the schedule
+      for (let i = 0; i < schedule.times.length; i++) {
+        const time = schedule.times[i];
+        
+        // Mark as taken if this dose's position is less than the number of doses taken
+        // This assumes doses are taken in order of scheduled times
+        const takenToday = i < dosesTaken;
+        
+        upcomingMedications.push({
+          medicationId: schedule.medicationId,
+          medicationName: schedule.medication?.name || '',
+          dosage: schedule.medication?.dosage || '',
+          recipientId: schedule.medication?.careRecipientId || '',
+          recipientName,
+          scheduleId: schedule.id,
+          scheduledTime: time,
+          daysOfWeek,
+          takenToday
+        });
+      }
+    }
 
-    // Sort by next occurrence and limit results
+    // Sort by time
     const sortedMedications = upcomingMedications.sort((a, b) => {
       const aTime = new Date(`1970-01-01T${a.scheduledTime}`);
       const bTime = new Date(`1970-01-01T${b.scheduledTime}`);

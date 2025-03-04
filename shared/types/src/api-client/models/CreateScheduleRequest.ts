@@ -6,7 +6,7 @@
 import type { DayOfWeek } from './DayOfWeek';
 
 export type CreateScheduleRequest = {
-    time: string;
+    times: Array<string>;
     daysOfWeek: Array<DayOfWeek>;
     medicationId: string;
 };

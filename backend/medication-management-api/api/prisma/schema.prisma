@@ -42,7 +42,7 @@ model Medication {
 
 model Schedule {
   id           String     @id @default(uuid())
-  time         String
+  times        String[]   @map("times")
   daysOfWeek   String[]   @map("days_of_week")
   isActive     Boolean    @default(true) @map("is_active")
   medicationId String     @map("medication_id")

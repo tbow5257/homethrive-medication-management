@@ -168,8 +168,8 @@ export const realApi = {
     return await get<DoseResponse>(`/doses/${id}`);
   },
   
-  createDose: async (medicationId: string, status: 'taken' = 'taken') => {
-    return await post<DoseResponse>(`/doses`, { medicationId, status });
+  createDose: async (medicationId: string, scheduleId: string, scheduledTime: string, status: 'taken' = 'taken') => {
+    return await post<DoseResponse>(`/doses`, { medicationId, scheduleId, scheduledTime, status });
   },
   
   // Dashboard

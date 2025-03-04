@@ -9,7 +9,7 @@ export type DefaultSelection_Prisma__36_SchedulePayload_ = {
     medicationId: string;
     isActive: boolean;
     daysOfWeek: Array<string>;
-    time: string;
+    times: Array<string>;
     id: string;
 };
 

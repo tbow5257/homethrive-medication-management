@@ -49,7 +49,6 @@ const Schedules: React.FC = () => {
   const createSchedule = useCreateSchedule();
   const updateSchedule = useUpdateSchedule();
   const deleteSchedule = useDeleteSchedule();
-  console.log('schedules', schedules);
 
   const handleAdd = () => {
     setEditingId(null);
@@ -63,8 +62,7 @@ const Schedules: React.FC = () => {
 
   const handleEdit = (record: Schedule) => {
     setEditingId(record.id);
-    setTimes([record.time]);
-    console.log('record.daysOfWeek', record.daysOfWeek);
+    setTimes(record.times || ['08:00']);
     
     // No need to convert day names anymore, they're already in the correct format
     form.setFieldsValue({
@@ -93,7 +91,7 @@ const Schedules: React.FC = () => {
           id: editingId, 
           data: {
             medicationId: values.medicationId,
-            time: times[0],
+            times: times,
             daysOfWeek: values.daysOfWeek,
             isActive: true,
           }
@@ -102,7 +100,7 @@ const Schedules: React.FC = () => {
       } else {
         await createSchedule.mutateAsync({
           medicationId: values.medicationId,
-          time: times[0],
+          times: times,
           daysOfWeek: values.daysOfWeek,
           isActive: true,
         });
@@ -136,7 +134,10 @@ const Schedules: React.FC = () => {
   };
 
   const formatRecurrencePattern = (schedule: Schedule) => {
-    const time = format(new Date(`2000-01-01T${schedule.time}`), 'h:mm a');
+    // Format all times in the schedule
+    const formattedTimes = schedule.times?.map(time => 
+      format(new Date(`2000-01-01T${time}`), 'h:mm a')
+    ).join(', ') || '';
     
     // Map full day names to abbreviated day names
     const dayAbbreviations: Record<string, string> = {
@@ -154,7 +155,7 @@ const Schedules: React.FC = () => {
     );
     
     const days = dayNames.join(', ');
-    return `${days} at ${time}`;
+    return `${days} at ${formattedTimes}`;
   };
 
   const columns = [
@@ -281,7 +282,9 @@ const Schedules: React.FC = () => {
             <Select placeholder="Select medication">
               {medications?.map(medication => (
                 <Select.Option key={medication.id} value={medication.id}>
-                  {medication.name}
+                  {medication.name} - {medication.dosage} 
+                  {medication.careRecipient && 
+                    ` (${medication.careRecipient.firstName} ${medication.careRecipient.lastName})`}
                 </Select.Option>
               ))}
             </Select>
