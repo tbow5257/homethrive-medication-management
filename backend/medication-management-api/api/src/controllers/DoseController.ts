@@ -1,4 +1,4 @@
-import { Route, Get, Put, Body, Path, Query, Response, Tags, Security } from 'tsoa';
+import { Route, Get, Put, Body, Path, Query, Response, Tags, Security, Post } from 'tsoa';
 import { getPrismaClient } from '../utils/prisma';
 import { Dose, Medication, CareRecipient } from '@prisma/client';
 
@@ -10,6 +10,11 @@ interface DoseResponse extends Dose {
 
 interface UpdateDoseStatusRequest {
   status: 'scheduled' | 'taken' | 'missed' | 'skipped';
+}
+
+interface CreateDoseRequest {
+  medicationId: string;
+  status?: 'taken';
 }
 
 @Route("doses")
@@ -136,6 +141,53 @@ export class DoseController {
       data: {
         status,
         takenAt: status === 'taken' ? new Date() : existingDose.takenAt
+      },
+      include: {
+        medication: {
+          include: {
+            careRecipient: true
+          }
+        }
+      }
+    });
+    
+    return dose;
+  }
+
+  /**
+   * Create a new dose record
+   */
+  @Post()
+  @Security('jwt')
+  @Response<{ message: string }>(400, "Bad request")
+  @Response<{ message: string }>(404, "Medication not found")
+  public async createDose(
+    @Body() requestBody: CreateDoseRequest
+  ): Promise<DoseResponse> {
+    const prisma = getPrismaClient();
+    const { medicationId, status = 'taken' } = requestBody;
+    
+    // Validate status - only allow 'taken' for now
+    if (status !== 'taken') {
+      throw new Error('Only taken status is allowed for new doses');
+    }
+    
+    // Check if medication exists
+    const medication = await prisma.medication.findUnique({
+      where: { id: medicationId }
+    });
+    
+    if (!medication) {
+      throw new Error("Medication not found");
+    }
+    
+    // Create dose
+    const dose = await prisma.dose.create({
+      data: {
+        medicationId,
+        status,
+        scheduledFor: new Date(), // Use current date/time
+        takenAt: new Date(),
       },
       include: {
         medication: {

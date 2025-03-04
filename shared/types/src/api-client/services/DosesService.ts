@@ -2,6 +2,7 @@
 /* istanbul ignore file */
 /* tslint:disable */
 /* eslint-disable */
+import type { CreateDoseRequest } from '../models/CreateDoseRequest';
 import type { DoseResponse } from '../models/DoseResponse';
 import type { UpdateDoseStatusRequest } from '../models/UpdateDoseStatusRequest';
 
@@ -34,6 +35,27 @@ export class DosesService {
                 'status': status,
                 'startDate': startDate,
                 'endDate': endDate,
+            },
+        });
+    }
+
+    /**
+     * Create a new dose record
+     * @param requestBody
+     * @returns DoseResponse Ok
+     * @throws ApiError
+     */
+    public static createDose(
+        requestBody: CreateDoseRequest,
+    ): CancelablePromise<DoseResponse> {
+        return __request(OpenAPI, {
+            method: 'POST',
+            url: '/doses',
+            body: requestBody,
+            mediaType: 'application/json',
+            errors: {
+                400: `Bad request`,
+                404: `Medication not found`,
             },
         });
     }

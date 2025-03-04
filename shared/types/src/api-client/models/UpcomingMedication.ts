@@ -12,5 +12,6 @@ export type UpcomingMedication = {
     scheduleId: string;
     scheduledTime: string;
     daysOfWeek: Array<string>;
+    takenToday: boolean;
 };
 

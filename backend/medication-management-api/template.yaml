@@ -299,6 +299,13 @@ Resources:
             Method: put
             Auth:
               Authorizer: JWTAuthorizerFunction
+        CreateDose:
+          Type: Api
+          Properties:
+            Path: /doses
+            Method: post
+            Auth:
+              Authorizer: JWTAuthorizerFunction
 
         # Dashboard endpoints
         GetUpcomingDoses:

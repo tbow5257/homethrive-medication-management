@@ -459,6 +459,25 @@
 				"type": "object",
 				"additionalProperties": false
 			},
+			"CreateDoseRequest": {
+				"properties": {
+					"medicationId": {
+						"type": "string"
+					},
+					"status": {
+						"type": "string",
+						"enum": [
+							"taken"
+						],
+						"nullable": false
+					}
+				},
+				"required": [
+					"medicationId"
+				],
+				"type": "object",
+				"additionalProperties": false
+			},
 			"UpcomingMedication": {
 				"properties": {
 					"medicationId": {
@@ -487,6 +506,9 @@
 							"type": "string"
 						},
 						"type": "array"
+					},
+					"takenToday": {
+						"type": "boolean"
 					}
 				},
 				"required": [
@@ -497,7 +519,8 @@
 					"recipientName",
 					"scheduleId",
 					"scheduledTime",
-					"daysOfWeek"
+					"daysOfWeek",
+					"takenToday"
 				],
 				"type": "object",
 				"additionalProperties": false
@@ -1367,6 +1390,77 @@
 						}
 					}
 				]
+			},
+			"post": {
+				"operationId": "CreateDose",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/DoseResponse"
+								}
+							}
+						}
+					},
+					"400": {
+						"description": "Bad request",
+						"content": {
+							"application/json": {
+								"schema": {
+									"properties": {
+										"message": {
+											"type": "string"
+										}
+									},
+									"required": [
+										"message"
+									],
+									"type": "object"
+								}
+							}
+						}
+					},
+					"404": {
+						"description": "Medication not found",
+						"content": {
+							"application/json": {
+								"schema": {
+									"properties": {
+										"message": {
+											"type": "string"
+										}
+									},
+									"required": [
+										"message"
+									],
+									"type": "object"
+								}
+							}
+						}
+					}
+				},
+				"description": "Create a new dose record",
+				"tags": [
+					"Doses"
+				],
+				"security": [
+					{
+						"jwt": []
+					}
+				],
+				"parameters": [],
+				"requestBody": {
+					"required": true,
+					"content": {
+						"application/json": {
+							"schema": {
+								"$ref": "#/components/schemas/CreateDoseRequest"
+							}
+						}
+					}
+				}
 			}
 		},
 		"/doses/{id}": {

@@ -29,7 +29,8 @@ import {
 import {
   getDosesHandler,
   getDoseHandler,
-  updateDoseStatusHandler
+  updateDoseStatusHandler,
+  createDoseHandler
 } from './src/handlers/dose';
 import {
   getDashboardStatsHandler,
@@ -136,6 +137,10 @@ const router = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResul
   
   if (path.match(/^\/doses\/[a-zA-Z0-9-]+\/status\/?$/) && httpMethod === 'PUT') {
     return requireAuth(updateDoseStatusHandler)(event);
+  }
+  
+  if (path.match(/^\/doses\/?$/) && httpMethod === 'POST') {
+    return requireAuth(createDoseHandler)(event);
   }
   
   // Dashboard endpoints - protected with authentication

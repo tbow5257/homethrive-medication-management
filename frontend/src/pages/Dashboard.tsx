@@ -3,19 +3,18 @@ import { Row, Col, Card, Statistic, List, Tag, Button, Spin, Empty } from 'antd'
 import { Users, Pill, Calendar, Clock } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { format } from 'date-fns';
-import { useDashboardStats, useUpcomingDoses } from '../hooks/useApi';
-import { useUpdateDoseStatus } from '../hooks/useApi';
+import { useDashboardStats, useUpcomingDoses, useCreateDose } from '../hooks/useApi';
 import type { UpcomingMedication } from '../types';
 
 const Dashboard: React.FC = () => {
   const navigate = useNavigate();
   const { data: stats, isLoading: statsLoading } = useDashboardStats();
   const { data: upcomingMedications, isLoading: medicationsLoading } = useUpcomingDoses(5);
-  const updateDoseStatus = useUpdateDoseStatus();
+  const createDose = useCreateDose();
 
-  const markAsTaken = async (scheduleId: string) => {
+  const markAsTaken = async (medicationId: string) => {
     try {
-      await updateDoseStatus.mutateAsync({ id: scheduleId, status: 'taken' });
+      await createDose.mutateAsync({ medicationId });
     } catch (error) {
       console.error('Error marking medication as taken:', error);
     }
@@ -84,14 +83,18 @@ const Dashboard: React.FC = () => {
             renderItem={(item: UpcomingMedication) => (
               <List.Item
                 actions={[
-                  <Button 
-                    type="primary" 
-                    size="small" 
-                    onClick={() => markAsTaken(item.scheduleId)}
-                    loading={updateDoseStatus.isPending && updateDoseStatus.variables?.id === item.scheduleId}
-                  >
-                    Mark as Taken
-                  </Button>
+                  item.takenToday ? (
+                    <Tag color="success">Taken Today</Tag>
+                  ) : (
+                    <Button 
+                      type="primary" 
+                      size="small" 
+                      onClick={() => markAsTaken(item.medicationId)}
+                      loading={createDose.isPending && createDose.variables?.medicationId === item.medicationId}
+                    >
+                      Mark as Taken
+                    </Button>
+                  )
                 ]}
               >
                 <List.Item.Meta

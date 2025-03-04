@@ -197,15 +197,14 @@ export const useDose = (id: string) => {
   });
 };
 
-export const useUpdateDoseStatus = () => {
+export const useCreateDose = () => {
   const queryClient = useQueryClient();
   
   return useMutation({
-    mutationFn: ({ id, status }: { id: string; status: 'taken' | 'missed' }) => 
-      realApi.updateDoseStatus(id, status),
-    onSuccess: (data) => {
+    mutationFn: ({ medicationId, status = 'taken' }: { medicationId: string; status?: 'taken' }) => 
+      realApi.createDose(medicationId, status),
+    onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['doses'] });
-      queryClient.invalidateQueries({ queryKey: ['doses', data.id] });
       queryClient.invalidateQueries({ queryKey: ['dashboard'] });
     },
   });

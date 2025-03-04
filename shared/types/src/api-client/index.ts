@@ -11,6 +11,7 @@ export type { AuthResponse } from './models/AuthResponse';
 export type { CareRecipient } from './models/CareRecipient';
 export type { CareRecipientResponse } from './models/CareRecipientResponse';
 export type { CreateCareRecipientRequest } from './models/CreateCareRecipientRequest';
+export { CreateDoseRequest } from './models/CreateDoseRequest';
 export type { CreateMedicationRequest } from './models/CreateMedicationRequest';
 export type { CreateScheduleRequest } from './models/CreateScheduleRequest';
 export type { DashboardStats } from './models/DashboardStats';

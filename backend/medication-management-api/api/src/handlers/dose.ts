@@ -129,4 +129,50 @@ export const updateDoseStatusHandler = async (event: APIGatewayProxyEvent): Prom
   } finally {
     await disconnectPrisma();
   }
+};
+
+/**
+ * Create a new dose record
+ */
+export const createDoseHandler = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
+  try {
+    // Authenticate user
+    const user = authenticate(event);
+    if (!user) {
+      return unauthorizedResponse();
+    }
+    
+    // Parse request body
+    if (!event.body) {
+      return badRequestResponse('Request body is required');
+    }
+    
+    const body = JSON.parse(event.body);
+    
+    // Validate required fields
+    if (!body.medicationId) {
+      return badRequestResponse('Medication ID is required');
+    }
+    
+    // Use the controller
+    const controller = new DoseController();
+    
+    try {
+      const result = await controller.createDose(body);
+      return successResponse(result);
+    } catch (error: any) {
+      if (error.message === "Medication not found") {
+        return notFoundResponse('Medication not found');
+      }
+      if (error.message.includes("Only taken status is allowed")) {
+        return badRequestResponse(error.message);
+      }
+      throw error;
+    }
+  } catch (error) {
+    console.error('Error creating dose:', error);
+    return serverErrorResponse();
+  } finally {
+    await disconnectPrisma();
+  }
 }; 

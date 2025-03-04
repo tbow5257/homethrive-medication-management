@@ -168,8 +168,8 @@ export const realApi = {
     return await get<DoseResponse>(`/doses/${id}`);
   },
   
-  updateDoseStatus: async (id: string, status: 'taken' | 'missed') => {
-    return await patch<DoseResponse>(`/doses/${id}/status`, { status });
+  createDose: async (medicationId: string, status: 'taken' = 'taken') => {
+    return await post<DoseResponse>(`/doses`, { medicationId, status });
   },
   
   // Dashboard

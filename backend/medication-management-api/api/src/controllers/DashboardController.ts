@@ -11,6 +11,7 @@ interface UpcomingMedication {
   scheduleId: string;
   scheduledTime: string; // HH:mm format
   daysOfWeek: string[]; // Day names as strings
+  takenToday: boolean; // Flag to indicate if the medication has been taken today
 }
 
 interface DashboardStats {
@@ -61,6 +62,28 @@ export class DashboardController {
       }
     });
 
+    // Get today's taken doses to check if medications have been taken today
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const tomorrow = new Date(today);
+    tomorrow.setDate(tomorrow.getDate() + 1);
+    
+    const takenDosesToday = await prisma.dose.findMany({
+      where: {
+        status: 'taken',
+        takenAt: {
+          gte: today,
+          lt: tomorrow
+        }
+      },
+      select: {
+        medicationId: true
+      }
+    });
+    
+    // Create a Set of medication IDs that have been taken today for quick lookup
+    const takenMedicationIds = new Set(takenDosesToday.map(dose => dose.medicationId));
+
     // Transform schedules into upcoming medications
     const upcomingMedications: UpcomingMedication[] = schedules.flatMap(schedule => {
       // Use days of week directly as strings
@@ -71,6 +94,9 @@ export class DashboardController {
         `${schedule.medication.careRecipient.firstName} ${schedule.medication.careRecipient.lastName}`.trim() : 
         '';
       
+      // Check if this medication has been taken today
+      const takenToday = takenMedicationIds.has(schedule.medicationId);
+      
       return {
         medicationId: schedule.medicationId,
         medicationName: schedule.medication?.name || '',
@@ -79,7 +105,8 @@ export class DashboardController {
         recipientName,
         scheduleId: schedule.id,
         scheduledTime: schedule.time,
-        daysOfWeek
+        daysOfWeek,
+        takenToday
       };
     });
 
