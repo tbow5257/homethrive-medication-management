@@ -9,7 +9,6 @@ import {
   Popconfirm, 
   message, 
   Spin,
-  DatePicker,
   TimePicker,
   Checkbox,
   Card,
@@ -25,10 +24,7 @@ import {
   useUpdateSchedule,
   useDeleteSchedule
 } from '../hooks/useApi';
-import { Schedule, DayOfWeek } from '../types';
-
-const { RangePicker } = DatePicker;
-const CheckboxGroup = Checkbox.Group;
+import { Schedule } from '../types';
 
 const daysOfWeek = [
   { label: 'Sun', value: 'Sunday' },
@@ -46,7 +42,6 @@ const Schedules: React.FC = () => {
   const [editingId, setEditingId] = useState<string | null>(null);
   const [selectedMedication, setSelectedMedication] = useState<string | null>(null);
   const [times, setTimes] = useState<string[]>(['08:00']);
-  const [recurrenceType, setRecurrenceType] = useState<'daily' | 'weekly'>('daily');
 
   const { data: schedules, isLoading: schedulesLoading } = useSchedules(selectedMedication || undefined);
   const { data: medications, isLoading: medicationsLoading } = useMedications();
@@ -92,9 +87,7 @@ const Schedules: React.FC = () => {
   const handleSubmit = async () => {
     try {
       const values = await form.validateFields();
-      
-      // No need to convert day values anymore, they're already in the correct format
-      
+
       if (editingId) {
         await updateSchedule.mutateAsync({ 
           id: editingId, 
@@ -313,9 +306,16 @@ const Schedules: React.FC = () => {
             {times.map((time, index) => (
               <div key={index} className="flex items-center mb-2">
                 <TimePicker
-                  format="HH:mm"
+                  format="h:mm A"
+                  use12Hours
                   value={time ? dayjs(`2000-01-01T${time}`) : null}
-                  onChange={(_, timeString) => updateTime(index, typeof timeString === 'string' ? timeString : timeString[0])}
+                  onChange={(time) => {
+                    if (time) {
+                      // Convert to 24-hour format for storage
+                      const timeString = time.format('HH:mm');
+                      updateTime(index, timeString);
+                    }
+                  }}
                   className="mr-2"
                 />
                 {times.length > 1 && (

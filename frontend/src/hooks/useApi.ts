@@ -100,6 +100,8 @@ export const useUpdateMedication = () => {
     onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: ['medications'] });
       queryClient.invalidateQueries({ queryKey: ['medications', data.id] });
+      queryClient.invalidateQueries({ queryKey: ['dashboard'] });
+      queryClient.invalidateQueries({ queryKey: ['dashboard', 'upcomingDoses'] });
     },
   });
 };
@@ -111,6 +113,8 @@ export const useDeleteMedication = () => {
     mutationFn: (id: string) => realApi.deleteMedication(id),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['medications'] });
+      queryClient.invalidateQueries({ queryKey: ['dashboard'] });
+      queryClient.invalidateQueries({ queryKey: ['dashboard', 'upcomingDoses'] });
     },
   });
 };

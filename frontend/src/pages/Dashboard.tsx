@@ -1,6 +1,6 @@
 import React from 'react';
 import { Row, Col, Card, Statistic, List, Tag, Button, Spin, Empty } from 'antd';
-import { Users, Pill, Calendar, Clock, CheckCircle, AlertCircle } from 'lucide-react';
+import { Users, Pill, Calendar, Clock } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { format } from 'date-fns';
 import { useDashboardStats, useUpcomingDoses } from '../hooks/useApi';

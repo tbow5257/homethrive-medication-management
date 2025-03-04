@@ -29,7 +29,7 @@ const Medications: React.FC = () => {
   const [editingId, setEditingId] = useState<string | null>(null);
   const [selectedRecipient, setSelectedRecipient] = useState<string | null>(null);
 
-  const { data: medications, isLoading: medicationsLoading } = useMedications(selectedRecipient);
+  const { data: medications, isLoading: medicationsLoading } = useMedications(selectedRecipient || undefined);
   const { data: recipients, isLoading: recipientsLoading } = useRecipients();
   const createMedication = useCreateMedication();
   const updateMedication = useUpdateMedication();
@@ -120,13 +120,13 @@ const Medications: React.FC = () => {
     {
       title: 'Care Recipient',
       key: 'careRecipientName',
-      render: (_, record: Medication) => {
+      render: (_: any, record: Medication) => {
         const recipient = recipients?.find(r => r.id === record.careRecipientId);
-        return recipient?.name || 'Unknown';
+        return recipient?.firstName + ' ' + recipient?.lastName || 'Unknown';
       },
       sorter: (a: Medication, b: Medication) => {
-        const recipientA = recipients?.find(r => r.id === a.careRecipientId)?.name || '';
-        const recipientB = recipients?.find(r => r.id === b.careRecipientId)?.name || '';
+        const recipientA = recipients?.find(r => r.id === a.careRecipientId)?.firstName + ' ' + recipients?.find(r => r.id === a.careRecipientId)?.lastName || '';
+        const recipientB = recipients?.find(r => r.id === b.careRecipientId)?.firstName + ' ' + recipients?.find(r => r.id === b.careRecipientId)?.lastName || '';
         return recipientA.localeCompare(recipientB);
       },
     },
@@ -143,7 +143,7 @@ const Medications: React.FC = () => {
         { text: 'Active', value: true },
         { text: 'Inactive', value: false },
       ],
-      onFilter: (value: boolean, record: Medication) => record.isActive === value,
+      onFilter: (value: boolean | React.Key, record: Medication) => record.isActive === !!value,
     },
     {
       title: 'Actions',
@@ -202,7 +202,7 @@ const Medications: React.FC = () => {
             onChange={handleRecipientFilter}
             options={recipients?.map(recipient => ({
               value: recipient.id,
-              label: recipient.name,
+              label: recipient.firstName + ' ' + recipient.lastName,
             }))}
           />
           <Button 
@@ -215,7 +215,7 @@ const Medications: React.FC = () => {
         </Space>
       </div>
       
-      <Table 
+      <Table<Medication> 
         dataSource={medications} 
         columns={columns} 
         rowKey="id"
@@ -271,7 +271,7 @@ const Medications: React.FC = () => {
             <Select placeholder="Select care recipient">
               {recipients?.map(recipient => (
                 <Select.Option key={recipient.id} value={recipient.id}>
-                  {recipient.name}
+                  {recipient.firstName + ' ' + recipient.lastName}
                 </Select.Option>
               ))}
             </Select>
