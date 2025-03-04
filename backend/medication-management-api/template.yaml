@@ -22,6 +22,13 @@ Globals:
       AllowMethods: "'GET,POST,PUT,DELETE,OPTIONS'"
       AllowHeaders: "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token'"
       AllowOrigin: "'*'"
+    Auth:
+      Authorizers:
+        JWTAuthorizerFunction:
+          FunctionArn: !GetAtt JWTAuthorizerFunction.Arn
+          Identity:
+            Header: Authorization
+            ValidationExpression: ^Bearer [-0-9a-zA-Z\._]+$
 
 Parameters:
   Environment:
@@ -32,6 +39,9 @@ Parameters:
       - staging
       - prod
     Description: Environment name
+  DatabaseHost:
+    Type: String
+    Description: RDS Database Host
 
 Resources:
   # Database resources
@@ -65,7 +75,7 @@ Resources:
     Properties:
       DBName: medication_management
       Engine: postgres
-      EngineVersion: 14.5
+      EngineVersion: 14.15
       DBInstanceClass: db.t3.micro
       AllocatedStorage: 20
       StorageType: gp2
@@ -154,9 +164,23 @@ Resources:
       CodeUri: api/
       Handler: authorizer.handler
       Runtime: nodejs20.x
+      VpcConfig:
+        SecurityGroupIds:
+          - !Ref LambdaSecurityGroup
+        SubnetIds:
+          - !Ref PrivateSubnet1
+          - !Ref PrivateSubnet2
       Environment:
         Variables:
           JWT_SECRET: !Sub '{{resolve:secretsmanager:${JwtSecret}:SecretString:secret}}'
+    Metadata:
+      BuildMethod: esbuild
+      BuildProperties:
+        Minify: true
+        Target: "es2020"
+        Sourcemap: true
+        EntryPoints:
+          - authorizer.ts
 
   MedicationManagementFunction:
     Type: AWS::Serverless::Function
@@ -413,6 +437,28 @@ Resources:
       CompatibleRuntimes:
         - nodejs20.x
       RetentionPolicy: Retain
+
+  DatabaseMigrationFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: api/
+      Handler: src/scripts/migrations.handler
+      Runtime: nodejs20.x
+      Environment:
+        Variables:
+          DATABASE_URL: !Sub 'postgresql://postgres:{{resolve:secretsmanager:${DatabaseSecret}:SecretString:password}}@${DatabaseHost}:5432/medication_management'
+      VpcConfig:
+        SecurityGroupIds: 
+          - !Ref LambdaSecurityGroup
+        SubnetIds:
+          - !Ref PrivateSubnet1
+          - !Ref PrivateSubnet2
+
+  DatabaseMigration:
+    Type: AWS::CloudFormation::CustomResource
+    Properties:
+      ServiceToken: !GetAtt DatabaseMigrationFunction.Arn
+      DatabaseHost: !Ref DatabaseHost
 
 Outputs:
   MedicationManagementApi:

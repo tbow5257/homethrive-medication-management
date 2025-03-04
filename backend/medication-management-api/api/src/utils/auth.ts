@@ -5,6 +5,7 @@ import { User } from '@prisma/client';
 
 // JWT secret from environment variables
 const JWT_SECRET = process.env.JWT_SECRET || 'dev-secret';
+
 const TOKEN_EXPIRY = '24h';
 
 /**
