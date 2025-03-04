@@ -42,6 +42,9 @@ Parameters:
   DatabaseHost:
     Type: String
     Description: RDS Database Host
+  RdsSecretArn:
+    Type: String
+    Description: ARN of the RDS Secret in Secrets Manager (not used, kept for backward compatibility)
 
 Resources:
   # Database resources
@@ -200,12 +203,15 @@ Resources:
           - !Ref PrivateSubnet2
       Environment:
         Variables:
-          DATABASE_URL: !Sub 
-            - 'postgresql://postgres:{{resolve:secretsmanager:${SecretId}:SecretString:password}}@${DatabaseHost}:5432/medication_management'
-            - SecretId: !Ref DatabaseSecret
-              DatabaseHost: !Ref DatabaseHost
-          JWT_SECRET: !Sub '{{resolve:secretsmanager:${JwtSecret}:SecretString:secret}}'
-          IS_LOCAL: 'false'
+          DATABASE_URL: !If 
+            - IsLocalEnvironment
+            - "postgresql://postgres:postgres@host.docker.internal:5432/medication_management?schema=public"
+            - !Sub 'postgresql://postgres:{{resolve:secretsmanager:${DatabaseSecret}:SecretString:password}}@${DatabaseHost}:5432/medication_management'
+          JWT_SECRET: !If
+            - IsLocalEnvironment
+            - "local-development-secret-key"
+            - !Sub '{{resolve:secretsmanager:${JwtSecret}:SecretString:secret}}'
+          IS_LOCAL: !If [IsLocalEnvironment, 'true', 'false']
           NODE_ENV: !Ref Environment
       Events:
         # Public endpoints (no auth)
@@ -444,6 +450,9 @@ Resources:
       CodeUri: api/
       Handler: src/scripts/migrations.handler
       Runtime: nodejs20.x
+      Timeout: 300
+      Layers:
+        - !Ref PrismaLayer
       Environment:
         Variables:
           DATABASE_URL: !Sub 'postgresql://postgres:{{resolve:secretsmanager:${DatabaseSecret}:SecretString:password}}@${DatabaseHost}:5432/medication_management'
@@ -453,6 +462,16 @@ Resources:
         SubnetIds:
           - !Ref PrivateSubnet1
           - !Ref PrivateSubnet2
+    Metadata:
+      BuildMethod: esbuild
+      BuildProperties:
+        Minify: false
+        Target: "es2020"
+        Sourcemap: true
+        EntryPoints:
+          - src/scripts/migrations.ts
+        External:
+          - "@prisma/client"
 
   DatabaseMigration:
     Type: AWS::CloudFormation::CustomResource
@@ -476,3 +495,6 @@ Outputs:
   DatabaseEndpoint:
     Description: RDS Database Endpoint
     Value: !GetAtt DatabaseInstance.Endpoint.Address
+
+Conditions:
+  IsLocalEnvironment: !Equals [!Ref Environment, 'local']
