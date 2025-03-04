@@ -459,8 +459,7 @@
 					},
 					"daysOfWeek": {
 						"items": {
-							"type": "number",
-							"format": "double"
+							"type": "string"
 						},
 						"type": "array"
 					}

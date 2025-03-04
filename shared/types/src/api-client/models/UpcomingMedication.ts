@@ -11,6 +11,6 @@ export type UpcomingMedication = {
     recipientName: string;
     scheduleId: string;
     scheduledTime: string;
-    daysOfWeek: Array<number>;
+    daysOfWeek: Array<string>;
 };
 

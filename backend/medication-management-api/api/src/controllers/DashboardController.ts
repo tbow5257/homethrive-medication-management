@@ -10,7 +10,7 @@ interface UpcomingMedication {
   recipientName: string;
   scheduleId: string;
   scheduledTime: string; // HH:mm format
-  daysOfWeek: number[]; // 0-6 for Sunday-Saturday
+  daysOfWeek: string[]; // Day names as strings
 }
 
 interface DashboardStats {
@@ -63,8 +63,8 @@ export class DashboardController {
 
     // Transform schedules into upcoming medications
     const upcomingMedications: UpcomingMedication[] = schedules.flatMap(schedule => {
-      // Convert string array to number array
-      const daysOfWeek = (schedule.daysOfWeek as string[]).map(day => parseInt(day, 10));
+      // Use days of week directly as strings
+      const daysOfWeek = schedule.daysOfWeek as string[];
       
       // Construct recipient name from firstName and lastName
       const recipientName = schedule.medication?.careRecipient ? 

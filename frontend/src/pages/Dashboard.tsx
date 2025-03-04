@@ -102,7 +102,7 @@ const Dashboard: React.FC = () => {
                       <div>Scheduled for {format(new Date(`1970-01-01T${item.scheduledTime}`), 'h:mm a')}</div>
                       <div className="text-gray-400">
                         Days: {item.daysOfWeek.map(day => 
-                          ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'][day]
+                          day.substring(0, 3)
                         ).join(', ')}
                       </div>
                     </div>
