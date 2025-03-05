@@ -34,7 +34,7 @@ For local development, you can copy the example environment files:
 
 ```bash
 # Copy root API environment file
-cp backend/medication-management-api/.env.example backend/medication-management-api/.env
+cp backend/medication-management-api/env.example.json backend/medication-management-api/env.json
 
 # Copy API environment file
 cp backend/medication-management-api/api/.env.example backend/medication-management-api/api/.env
@@ -72,18 +72,6 @@ cd backend/medication-management-api/api && npm run seed
 > This creates a test admin user (email: admin@example.com, password: Admin123!) and sample data.
 
 ## Development
-
-### Start Frontend Development Server
-
-```bash
-npm run dev:frontend
-```
-
-### Start Backend Development Server
-
-```bash
-npm run dev:backend
-```
 
 ### Start Both Frontend and Backend
 
