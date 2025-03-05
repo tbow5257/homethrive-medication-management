@@ -1,6 +1,6 @@
 # Medication Management Monorepo
 
-This is a monorepo for the Medication Management application, containing both the frontend and backend code, as well as shared types.
+Welcome Homethrivers! 👋 is a monorepo for the Medication Management application, containing both the frontend and backend code, as well as shared types.
 
 ## Project Structure
 
