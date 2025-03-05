@@ -6,6 +6,7 @@
   "author": "Thomas Bowen",
   "license": "MIT",
   "scripts": {
+    "init-db": "tsx src/scripts/init-db.ts",
     "unit": "jest",
     "lint": "eslint '*.ts' --quiet --fix",
     "compile": "tsc",
@@ -20,10 +21,11 @@
     "build-with-prisma": "prisma generate && tsc && node copy-prisma-engines.js",
     "sync-schemas": "node sync-prisma-schemas.js",
     "build-layer": "cd ../layers/prisma && npm run build && cd ../../",
-    "build": "npm run prisma:generate && tsc && node copy-prisma-engines.js && npm run sync-schemas && npm run build-layer && cd .. && sam build && cd api",
+    "build": "tsx src/scripts/build.ts",
     "dev:sam": "cd .. && node api/start-sam.js",
     "spec": "tsoa spec",
-    "prebuild": "npm run spec"
+    "prebuild": "npm run spec",
+    "build:original": "npm run prisma:generate && tsc && node copy-prisma-engines.js && npm run sync-schemas && npm run build-layer && cd .. && sam build && cd api"
   },
   "dependencies": {
     "@prisma/client": "^5.10.0",

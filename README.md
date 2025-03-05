@@ -23,17 +23,28 @@ medication-management/
 npm install
 ```
 
-2. Generate shared types from Prisma schema:
+2. Initialize the database (requires Docker):
 
 ```bash
-npm run generate-types
+npm run initialize-db-container
 ```
+> This starts a PostgreSQL container and runs migrations.
 
-3. Build shared types:
+3. Build the application:
 
 ```bash
-npm run build:types
+npm run build
 ```
+> This builds the Prisma layer, shared types, frontend, and backend.
+> 
+> The Prisma layer is a Lambda layer that contains the Prisma engine binaries, allowing the Lambda function to use Prisma ORM in AWS.
+
+4. (Optional) Seed the database with test data:
+
+```bash
+cd backend/medication-management-api/api && npm run seed
+```
+> This creates a test admin user (email: admin@example.com, password: Admin123!) and sample data.
 
 ## Development
 
@@ -55,6 +66,22 @@ npm run dev:backend
 npm run dev
 ```
 
+## Environment Variables
+
+Make sure you have properly defined environment variables before running the application. For local development, the defaults in `env.json` should work.
+
+## Technical Details
+
+### Prisma Setup
+
+The project uses a custom setup for Prisma in AWS Lambda:
+
+1. **Prisma Layer**: Contains the Prisma engine binaries in a Lambda layer to avoid packaging issues
+2. **copy-prisma-engines.js**: Copies Prisma engine binaries to the correct locations for deployment
+3. **sync-prisma-schemas.js**: Ensures the Prisma schema is available in both the API and the layer
+
+These solutions address common issues with running Prisma in AWS Lambda environments.
+
 ## Building for Production
 
 ```bash
@@ -69,15 +96,20 @@ This will:
 
 ## Shared Types
 
-The shared types package automatically generates TypeScript interfaces from the Prisma schema in the backend. This ensures type consistency between the frontend and backend.
+The shared types package generates TypeScript interfaces from the API controllers using TSOA. These controllers define business-specific data structures that extend the base Prisma models to meet application requirements.
 
-When you make changes to the Prisma schema, run:
+The type generation process:
+1. TSOA scans the controller files in `backend/medication-management-api/api/src/controllers`
+2. It generates an OpenAPI specification based on the controller interfaces and decorators
+3. The shared types package uses this specification to create TypeScript interfaces and API client code
+
+When you make changes to the controllers or Prisma schema, run:
 
 ```bash
 npm run generate-types
 ```
 
-This will update the shared types based on the latest Prisma schema.
+This ensures type consistency between frontend and backend.
 
 ## Benefits of This Setup
 
