@@ -56,7 +56,7 @@ export class DashboardController {
         }
       }
     });
-    console.log("schedules", JSON.stringify(schedules, null, 2));
+    
     // Get today's taken doses to count how many doses have been taken for each medication
     const today = new Date();
     today.setHours(0, 0, 0, 0);
