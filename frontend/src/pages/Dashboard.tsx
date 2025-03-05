@@ -1,6 +1,6 @@
 import React, { useMemo, useEffect } from 'react';
-import { Row, Col, Card, Statistic, List, Tag, Button, Spin, Empty, Divider } from 'antd';
-import { Users, Pill, Calendar, Clock } from 'lucide-react';
+import { Row, Col, Card, Statistic, List, Tag, Button, Spin, Empty, Divider, Collapse, Badge } from 'antd';
+import { Users, Pill, Calendar, Clock, ChevronRight } from 'lucide-react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { format } from 'date-fns';
 import { useDashboardStats, useUpcomingDoses, useCreateDose } from '../hooks/useApi';
@@ -27,7 +27,7 @@ const Dashboard: React.FC = () => {
     }
   };
 
-  // Group medications by recipient
+  // Group medications by recipient with dose statistics
   const medicationsByRecipient = useMemo(() => {
     if (!upcomingMedications) return {};
     
@@ -36,12 +36,23 @@ const Dashboard: React.FC = () => {
       if (!acc[recipientId]) {
         acc[recipientId] = {
           recipientName,
-          medications: []
+          medications: [],
+          totalDoses: 0,
+          takenDoses: 0
         };
       }
       acc[recipientId].medications.push(medication);
+      acc[recipientId].totalDoses += 1;
+      if (medication.takenToday) {
+        acc[recipientId].takenDoses += 1;
+      }
       return acc;
-    }, {} as Record<string, { recipientName: string; medications: UpcomingMedication[] }>);
+    }, {} as Record<string, { 
+      recipientName: string; 
+      medications: UpcomingMedication[]; 
+      totalDoses: number;
+      takenDoses: number;
+    }>);
   }, [upcomingMedications]);
 
   if (statsLoading || medicationsLoading) {
@@ -102,12 +113,40 @@ const Dashboard: React.FC = () => {
       
       <Card title="Today's Medications" className="mt-6">
         {upcomingMedications && upcomingMedications.length > 0 ? (
-          <div>
-            {Object.entries(medicationsByRecipient).map(([recipientId, { recipientName, medications }]) => (
-              <div key={recipientId} className="mb-6">
-                <Divider orientation="left" orientationMargin="0">
-                  <span className="text-lg font-medium">{recipientName}</span>
-                </Divider>
+          <Collapse 
+            className="medication-collapse"
+            expandIcon={({ isActive }) => (
+              <ChevronRight 
+                size={16} 
+                className={`transform transition-transform ${isActive ? 'rotate-90' : ''}`} 
+              />
+            )}
+          >
+            {Object.entries(medicationsByRecipient).map(([recipientId, { recipientName, medications, totalDoses, takenDoses }]) => (
+              <Collapse.Panel 
+                key={recipientId} 
+                header={
+                  <div className="flex justify-between items-center w-full">
+                    <span className="text-lg font-medium">{recipientName}</span>
+                    <div className="flex items-center">
+                      <Badge 
+                        count={takenDoses} 
+                        className="mr-2" 
+                        style={{ backgroundColor: '#52c41a' }} 
+                        overflowCount={99}
+                        showZero
+                      />
+                      <span className="text-gray-500 mr-1">of</span>
+                      <Badge 
+                        count={totalDoses} 
+                        style={{ backgroundColor: '#1890ff' }} 
+                        overflowCount={99}
+                        showZero
+                      />
+                    </div>
+                  </div>
+                }
+              >
                 <List
                   dataSource={medications}
                   renderItem={(item: UpcomingMedication) => (
@@ -149,9 +188,9 @@ const Dashboard: React.FC = () => {
                     </List.Item>
                   )}
                 />
-              </div>
+              </Collapse.Panel>
             ))}
-          </div>
+          </Collapse>
         ) : (
           <Empty description="No upcoming medications" />
         )}
