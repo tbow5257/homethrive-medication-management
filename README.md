@@ -15,6 +15,31 @@ medication-management/
     └── types/                    # Shared TypeScript types
 ```
 
+## Prerequisites
+
+Before you begin, please ensure you have the following installed:
+
+- **AWS CLI** - For AWS resource management
+- **AWS SAM CLI** - For local Lambda development
+- **Docker** - For local database and Lambda emulation
+
+### Environment Files
+
+You'll need to set up environment files in the following locations:
+
+1. `backend/medication-management-api/.env`
+2. `backend/medication-management-api/api/.env`
+
+For local development, you can copy the example environment files:
+
+```bash
+# Copy root API environment file
+cp backend/medication-management-api/.env.example backend/medication-management-api/.env
+
+# Copy API environment file
+cp backend/medication-management-api/api/.env.example backend/medication-management-api/api/.env
+```
+
 ## Setup
 
 1. Install dependencies for all packages:
@@ -26,7 +51,7 @@ npm install
 2. Initialize the database (requires Docker):
 
 ```bash
-npm run initialize-db-container
+npm run init-db-container
 ```
 > This starts a PostgreSQL container and runs migrations.
 

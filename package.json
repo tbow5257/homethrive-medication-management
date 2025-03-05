@@ -8,7 +8,7 @@
     "shared/types"
   ],
   "scripts": {
-    "initialize-db-container": "cd backend/medication-management-api/api && npm run init-db",
+    "init-db-container": "cd backend/medication-management-api/api && npm run init-db",
     "generate-types": "cd shared/types && npm run generate",
     "build:types": "node scripts/build-types.js",
     "build:frontend": "cd frontend && npm run build",
