@@ -37,13 +37,11 @@ lerna-debug.log*
 
 # Prisma
 .prisma/
-prisma/migrations/
 prisma/dev.db
 prisma/dev.db-journal
 
 # AWS SAM
 .aws-sam/
-samconfig.toml
 
 # IDE - VSCode
 .vscode/*
