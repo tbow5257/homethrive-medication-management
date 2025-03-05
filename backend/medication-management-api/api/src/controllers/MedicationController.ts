@@ -2,9 +2,28 @@ import { Route, Get, Post, Put, Delete, Body, Path, Query, Response, Tags, Secur
 import { getPrismaClient } from '../utils/prisma';
 import { Medication, CareRecipient, Schedule } from '@prisma/client';
 
+// Original nested response type (kept for reference)
 interface MedicationResponse extends Medication {
   careRecipient?: CareRecipient;
   schedules?: Schedule[];
+}
+
+// New flattened response type
+interface FlattenedMedicationResponse {
+  id: string;
+  name: string;
+  dosage: string;
+  instructions: string;
+  isActive: boolean;
+  createdAt: string;
+  updatedAt: string;
+  careRecipientId: string;
+  careRecipientFirstName?: string;
+  careRecipientLastName?: string;
+  careRecipientFullName?: string;
+  scheduleIds?: string[];
+  scheduleTimes?: string[][];
+  scheduleDaysOfWeek?: string[][];
 }
 
 interface CreateMedicationRequest {
@@ -28,6 +47,39 @@ interface UpdateMedicationRequest {
   careRecipientId?: string;
 }
 
+// Helper function to flatten medication data
+function flattenMedication(
+  medication: MedicationResponse
+): FlattenedMedicationResponse {
+  const flattenedMedication: FlattenedMedicationResponse = {
+    id: medication.id,
+    name: medication.name,
+    dosage: medication.dosage,
+    instructions: medication.instructions,
+    isActive: medication.isActive,
+    createdAt: medication.createdAt.toISOString(),
+    updatedAt: medication.updatedAt.toISOString(),
+    careRecipientId: medication.careRecipientId,
+  };
+
+  // Add care recipient data if available
+  if (medication.careRecipient) {
+    flattenedMedication.careRecipientFirstName = medication.careRecipient.firstName;
+    flattenedMedication.careRecipientLastName = medication.careRecipient.lastName;
+    flattenedMedication.careRecipientFullName = 
+      `${medication.careRecipient.firstName} ${medication.careRecipient.lastName}`;
+  }
+
+  // Add schedule data if available
+  if (medication.schedules && medication.schedules.length > 0) {
+    flattenedMedication.scheduleIds = medication.schedules.map(s => s.id);
+    flattenedMedication.scheduleTimes = medication.schedules.map(s => s.times);
+    flattenedMedication.scheduleDaysOfWeek = medication.schedules.map(s => s.daysOfWeek);
+  }
+
+  return flattenedMedication;
+}
+
 @Route("medications")
 @Tags('Medications')
 export class MedicationController {
@@ -36,25 +88,27 @@ export class MedicationController {
    */
   @Get()
   @Security('jwt')
-  public async getMedications(@Query() careRecipientId?: string): Promise<MedicationResponse[]> {
+  public async getMedications(@Query() careRecipientId?: string): Promise<FlattenedMedicationResponse[]> {
     const prisma = getPrismaClient();
     
     // Build query
     const query: any = {
       include: {
-        careRecipient: true
+        careRecipient: true,
+        schedules: true
       }
     };
     
     // Filter by care recipient if provided
     if (careRecipientId) {
-      query.where.careRecipientId = careRecipientId;
+      query.where = { careRecipientId };
     }
     
     // Get medications
     const medications = await prisma.medication.findMany(query);
     
-    return medications;
+    // Flatten the response
+    return medications.map(flattenMedication);
   }
 
   /**
@@ -63,7 +117,7 @@ export class MedicationController {
   @Get("{id}")
   @Security('jwt')
   @Response<{ message: string }>(404, "Medication not found")
-  public async getMedication(@Path() id: string): Promise<MedicationResponse> {
+  public async getMedication(@Path() id: string): Promise<FlattenedMedicationResponse> {
     const prisma = getPrismaClient();
     
     // Get medication
@@ -79,7 +133,8 @@ export class MedicationController {
       throw new Error("Medication not found");
     }
     
-    return medication;
+    // Flatten the response
+    return flattenMedication(medication);
   }
 
   /**
@@ -88,7 +143,7 @@ export class MedicationController {
   @Post()
   @Security('jwt')
   @Response<{ message: string }>(400, "Bad request")
-  public async createMedication(@Body() requestBody: CreateMedicationRequest): Promise<MedicationResponse> {
+  public async createMedication(@Body() requestBody: CreateMedicationRequest): Promise<FlattenedMedicationResponse> {
     const prisma = getPrismaClient();
     const { name, dosage, instructions, careRecipientId, schedule } = requestBody;
     
@@ -137,7 +192,7 @@ export class MedicationController {
     
     // Create schedule
     try {
-      await prisma.schedule.create({
+      const createdSchedule = await prisma.schedule.create({
         data: {
           times: schedule.times,
           daysOfWeek: schedule.daysOfWeek,
@@ -145,12 +200,16 @@ export class MedicationController {
           isActive: true
         }
       });
+      
+      // Return flattened response with schedule data
+      return flattenMedication({
+        ...medication,
+        schedules: [createdSchedule]
+      });
     } catch (error: any) {
       // Now we throw an error since schedule is required
       throw new Error(`Failed to create required schedule: ${error.message}`);
     }
-    
-    return medication;
   }
 
   /**
@@ -163,7 +222,7 @@ export class MedicationController {
   public async updateMedication(
     @Path() id: string,
     @Body() requestBody: UpdateMedicationRequest
-  ): Promise<MedicationResponse> {
+  ): Promise<FlattenedMedicationResponse> {
     const prisma = getPrismaClient();
     const { name, dosage, instructions, isActive, careRecipientId } = requestBody;
     
@@ -187,11 +246,13 @@ export class MedicationController {
         careRecipientId: careRecipientId !== undefined ? careRecipientId : undefined
       },
       include: {
-        careRecipient: true
+        careRecipient: true,
+        schedules: true
       }
     });
     
-    return medication;
+    // Return flattened response
+    return flattenMedication(medication);
   }
 
   /**

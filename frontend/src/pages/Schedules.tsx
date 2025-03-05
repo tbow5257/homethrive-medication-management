@@ -176,10 +176,11 @@ const Schedules: React.FC = () => {
       title: 'Care Recipient',
       key: 'careRecipientName',
       render: (_: unknown, record: Schedule) => {
-        if (!record.medication?.careRecipient) return 'Unknown';
+        if (!record.medication) return 'Unknown';
         
-        const firstName = record.medication.careRecipient.firstName || '';
-        const lastName = record.medication.careRecipient.lastName || '';
+        // Use flattened properties instead of nested careRecipient object
+        const firstName = record.medication.careRecipient?.firstName || '';
+        const lastName = record.medication.careRecipient?.lastName || '';
         return `${firstName} ${lastName}`.trim() || 'Unknown';
       },
     },
@@ -283,8 +284,8 @@ const Schedules: React.FC = () => {
               {medications?.map(medication => (
                 <Select.Option key={medication.id} value={medication.id}>
                   {medication.name} - {medication.dosage} 
-                  {medication.careRecipient && 
-                    ` (${medication.careRecipient.firstName} ${medication.careRecipient.lastName})`}
+                  {(medication.careRecipientFirstName && medication.careRecipientLastName) && 
+                    ` (${medication.careRecipientFirstName} ${medication.careRecipientLastName})`}
                 </Select.Option>
               ))}
             </Select>

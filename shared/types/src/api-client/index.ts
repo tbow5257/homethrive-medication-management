@@ -21,13 +21,12 @@ export type { DefaultSelection_Prisma__36_DosePayload_ } from './models/DefaultS
 export type { DefaultSelection_Prisma__36_MedicationPayload_ } from './models/DefaultSelection_Prisma__36_MedicationPayload_';
 export type { DefaultSelection_Prisma__36_SchedulePayload_ } from './models/DefaultSelection_Prisma__36_SchedulePayload_';
 export type { DoseResponse } from './models/DoseResponse';
+export type { FlattenedMedicationResponse } from './models/FlattenedMedicationResponse';
 export type { LoginRequest } from './models/LoginRequest';
 export type { Medication } from './models/Medication';
-export type { MedicationResponse } from './models/MedicationResponse';
 export type { Omit_User_password_ } from './models/Omit_User_password_';
 export type { Pick_User_Exclude_keyofUser_password__ } from './models/Pick_User_Exclude_keyofUser_password__';
 export { RegisterRequest } from './models/RegisterRequest';
-export type { Schedule } from './models/Schedule';
 export type { ScheduleResponse } from './models/ScheduleResponse';
 export type { UpcomingMedication } from './models/UpcomingMedication';
 export type { UpdateCareRecipientRequest } from './models/UpdateCareRecipientRequest';

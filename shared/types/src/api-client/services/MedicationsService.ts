@@ -3,7 +3,7 @@
 /* tslint:disable */
 /* eslint-disable */
 import type { CreateMedicationRequest } from '../models/CreateMedicationRequest';
-import type { MedicationResponse } from '../models/MedicationResponse';
+import type { FlattenedMedicationResponse } from '../models/FlattenedMedicationResponse';
 import type { UpdateMedicationRequest } from '../models/UpdateMedicationRequest';
 
 import type { CancelablePromise } from '../core/CancelablePromise';
@@ -15,12 +15,12 @@ export class MedicationsService {
     /**
      * Get all medications with optional filtering by care recipient
      * @param careRecipientId
-     * @returns MedicationResponse Ok
+     * @returns FlattenedMedicationResponse Ok
      * @throws ApiError
      */
     public static getMedications(
         careRecipientId?: string,
-    ): CancelablePromise<Array<MedicationResponse>> {
+    ): CancelablePromise<Array<FlattenedMedicationResponse>> {
         return __request(OpenAPI, {
             method: 'GET',
             url: '/medications',
@@ -33,12 +33,12 @@ export class MedicationsService {
     /**
      * Create a new medication
      * @param requestBody
-     * @returns MedicationResponse Ok
+     * @returns FlattenedMedicationResponse Ok
      * @throws ApiError
      */
     public static createMedication(
         requestBody: CreateMedicationRequest,
-    ): CancelablePromise<MedicationResponse> {
+    ): CancelablePromise<FlattenedMedicationResponse> {
         return __request(OpenAPI, {
             method: 'POST',
             url: '/medications',
@@ -53,12 +53,12 @@ export class MedicationsService {
     /**
      * Get a medication by ID
      * @param id
-     * @returns MedicationResponse Ok
+     * @returns FlattenedMedicationResponse Ok
      * @throws ApiError
      */
     public static getMedication(
         id: string,
-    ): CancelablePromise<MedicationResponse> {
+    ): CancelablePromise<FlattenedMedicationResponse> {
         return __request(OpenAPI, {
             method: 'GET',
             url: '/medications/{id}',
@@ -75,13 +75,13 @@ export class MedicationsService {
      * Update a medication
      * @param id
      * @param requestBody
-     * @returns MedicationResponse Ok
+     * @returns FlattenedMedicationResponse Ok
      * @throws ApiError
      */
     public static updateMedication(
         id: string,
         requestBody: UpdateMedicationRequest,
-    ): CancelablePromise<MedicationResponse> {
+    ): CancelablePromise<FlattenedMedicationResponse> {
         return __request(OpenAPI, {
             method: 'PUT',
             url: '/medications/{id}',

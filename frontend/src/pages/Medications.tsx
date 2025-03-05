@@ -172,11 +172,22 @@ const Medications: React.FC = () => {
     {
       title: 'Care Recipient',
       key: 'careRecipientName',
+      dataIndex: 'careRecipientFullName',
       render: (_: any, record: Medication) => {
+        if (record.careRecipientFullName) {
+          return record.careRecipientFullName;
+        }
         const recipient = recipients?.find(r => r.id === record.careRecipientId);
         return recipient?.firstName + ' ' + recipient?.lastName || 'Unknown';
       },
       sorter: (a: Medication, b: Medication) => {
+        const nameA = a.careRecipientFullName || '';
+        const nameB = b.careRecipientFullName || '';
+        
+        if (nameA && nameB) {
+          return nameA.localeCompare(nameB);
+        }
+        
         const recipientA = recipients?.find(r => r.id === a.careRecipientId)?.firstName + ' ' + recipients?.find(r => r.id === a.careRecipientId)?.lastName || '';
         const recipientB = recipients?.find(r => r.id === b.careRecipientId)?.firstName + ' ' + recipients?.find(r => r.id === b.careRecipientId)?.lastName || '';
         return recipientA.localeCompare(recipientB);

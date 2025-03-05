@@ -6,7 +6,7 @@ import type {
   DoseStatus,
   PaginatedResponse,
   ScheduleResponse as Schedule,
-  MedicationResponse as Medication,
+  FlattenedMedicationResponse as Medication,
   CareRecipientResponse as CareRecipient,
   CreateCareRecipientRequest,
   UpdateCareRecipientRequest,

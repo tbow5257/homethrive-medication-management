@@ -259,57 +259,75 @@
 				"type": "object",
 				"additionalProperties": false
 			},
-			"Schedule": {
-				"$ref": "#/components/schemas/DefaultSelection_Prisma._36_SchedulePayload_",
-				"description": "Model Schedule"
-			},
-			"MedicationResponse": {
+			"FlattenedMedicationResponse": {
 				"properties": {
-					"careRecipientId": {
-						"type": "string"
-					},
-					"instructions": {
-						"type": "string"
-					},
-					"dosage": {
-						"type": "string"
-					},
-					"updatedAt": {
-						"type": "string",
-						"format": "date-time"
-					},
-					"createdAt": {
-						"type": "string",
-						"format": "date-time"
-					},
-					"isActive": {
-						"type": "boolean"
-					},
 					"id": {
 						"type": "string"
 					},
 					"name": {
 						"type": "string"
 					},
-					"careRecipient": {
-						"$ref": "#/components/schemas/CareRecipient"
+					"dosage": {
+						"type": "string"
 					},
-					"schedules": {
+					"instructions": {
+						"type": "string"
+					},
+					"isActive": {
+						"type": "boolean"
+					},
+					"createdAt": {
+						"type": "string"
+					},
+					"updatedAt": {
+						"type": "string"
+					},
+					"careRecipientId": {
+						"type": "string"
+					},
+					"careRecipientFirstName": {
+						"type": "string"
+					},
+					"careRecipientLastName": {
+						"type": "string"
+					},
+					"careRecipientFullName": {
+						"type": "string"
+					},
+					"scheduleIds": {
 						"items": {
-							"$ref": "#/components/schemas/Schedule"
+							"type": "string"
+						},
+						"type": "array"
+					},
+					"scheduleTimes": {
+						"items": {
+							"items": {
+								"type": "string"
+							},
+							"type": "array"
+						},
+						"type": "array"
+					},
+					"scheduleDaysOfWeek": {
+						"items": {
+							"items": {
+								"type": "string"
+							},
+							"type": "array"
 						},
 						"type": "array"
 					}
 				},
 				"required": [
-					"careRecipientId",
-					"instructions",
-					"dosage",
-					"updatedAt",
-					"createdAt",
-					"isActive",
 					"id",
-					"name"
+					"name",
+					"dosage",
+					"instructions",
+					"isActive",
+					"createdAt",
+					"updatedAt",
+					"careRecipientId"
 				],
 				"type": "object",
 				"additionalProperties": false
@@ -1119,7 +1137,7 @@
 							"application/json": {
 								"schema": {
 									"items": {
-										"$ref": "#/components/schemas/MedicationResponse"
+										"$ref": "#/components/schemas/FlattenedMedicationResponse"
 									},
 									"type": "array"
 								}
@@ -1155,7 +1173,7 @@
 						"content": {
 							"application/json": {
 								"schema": {
-									"$ref": "#/components/schemas/MedicationResponse"
+									"$ref": "#/components/schemas/FlattenedMedicationResponse"
 								}
 							}
 						}
@@ -1210,7 +1228,7 @@
 						"content": {
 							"application/json": {
 								"schema": {
-									"$ref": "#/components/schemas/MedicationResponse"
+									"$ref": "#/components/schemas/FlattenedMedicationResponse"
 								}
 							}
 						}
@@ -1262,7 +1280,7 @@
 						"content": {
 							"application/json": {
 								"schema": {
-									"$ref": "#/components/schemas/MedicationResponse"
+									"$ref": "#/components/schemas/FlattenedMedicationResponse"
 								}
 							}
 						}
