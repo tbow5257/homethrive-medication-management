@@ -3,7 +3,7 @@
 /* tslint:disable */
 /* eslint-disable */
 import type { CreateDoseRequest } from '../models/CreateDoseRequest';
-import type { DoseResponse } from '../models/DoseResponse';
+import type { FlattenedDoseResponse } from '../models/FlattenedDoseResponse';
 import type { UpdateDoseStatusRequest } from '../models/UpdateDoseStatusRequest';
 
 import type { CancelablePromise } from '../core/CancelablePromise';
@@ -18,7 +18,7 @@ export class DosesService {
      * @param status
      * @param startDate
      * @param endDate
-     * @returns DoseResponse Ok
+     * @returns FlattenedDoseResponse Ok
      * @throws ApiError
      */
     public static getDoses(
@@ -26,7 +26,7 @@ export class DosesService {
         status?: string,
         startDate?: string,
         endDate?: string,
-    ): CancelablePromise<Array<DoseResponse>> {
+    ): CancelablePromise<Array<FlattenedDoseResponse>> {
         return __request(OpenAPI, {
             method: 'GET',
             url: '/doses',
@@ -42,12 +42,12 @@ export class DosesService {
     /**
      * Create a new dose record
      * @param requestBody
-     * @returns DoseResponse Ok
+     * @returns FlattenedDoseResponse Ok
      * @throws ApiError
      */
     public static createDose(
         requestBody: CreateDoseRequest,
-    ): CancelablePromise<DoseResponse> {
+    ): CancelablePromise<FlattenedDoseResponse> {
         return __request(OpenAPI, {
             method: 'POST',
             url: '/doses',
@@ -63,12 +63,12 @@ export class DosesService {
     /**
      * Get a dose by ID
      * @param id
-     * @returns DoseResponse Ok
+     * @returns FlattenedDoseResponse Ok
      * @throws ApiError
      */
     public static getDose(
         id: string,
-    ): CancelablePromise<DoseResponse> {
+    ): CancelablePromise<FlattenedDoseResponse> {
         return __request(OpenAPI, {
             method: 'GET',
             url: '/doses/{id}',
@@ -85,13 +85,13 @@ export class DosesService {
      * Update a dose status
      * @param id
      * @param requestBody
-     * @returns DoseResponse Ok
+     * @returns FlattenedDoseResponse Ok
      * @throws ApiError
      */
     public static updateDoseStatus(
         id: string,
         requestBody: UpdateDoseStatusRequest,
-    ): CancelablePromise<DoseResponse> {
+    ): CancelablePromise<FlattenedDoseResponse> {
         return __request(OpenAPI, {
             method: 'PUT',
             url: '/doses/{id}/status',

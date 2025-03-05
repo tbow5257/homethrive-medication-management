@@ -279,93 +279,6 @@
 				"type": "object",
 				"additionalProperties": false
 			},
-			"DefaultSelection_Prisma._36_MedicationPayload_": {
-				"properties": {
-					"careRecipientId": {
-						"type": "string"
-					},
-					"isActive": {
-						"type": "boolean"
-					},
-					"instructions": {
-						"type": "string"
-					},
-					"dosage": {
-						"type": "string"
-					},
-					"updatedAt": {
-						"type": "string",
-						"format": "date-time"
-					},
-					"createdAt": {
-						"type": "string",
-						"format": "date-time"
-					},
-					"id": {
-						"type": "string"
-					},
-					"name": {
-						"type": "string"
-					}
-				},
-				"required": [
-					"careRecipientId",
-					"isActive",
-					"instructions",
-					"dosage",
-					"updatedAt",
-					"createdAt",
-					"id",
-					"name"
-				],
-				"type": "object"
-			},
-			"Medication": {
-				"$ref": "#/components/schemas/DefaultSelection_Prisma._36_MedicationPayload_",
-				"description": "Model Medication"
-			},
-			"DefaultSelection_Prisma._36_CareRecipientPayload_": {
-				"properties": {
-					"dateOfBirth": {
-						"type": "string",
-						"format": "date-time"
-					},
-					"lastName": {
-						"type": "string"
-					},
-					"firstName": {
-						"type": "string"
-					},
-					"isActive": {
-						"type": "boolean"
-					},
-					"updatedAt": {
-						"type": "string",
-						"format": "date-time"
-					},
-					"createdAt": {
-						"type": "string",
-						"format": "date-time"
-					},
-					"id": {
-						"type": "string"
-					}
-				},
-				"required": [
-					"dateOfBirth",
-					"lastName",
-					"firstName",
-					"isActive",
-					"updatedAt",
-					"createdAt",
-					"id"
-				],
-				"type": "object"
-			},
-			"CareRecipient": {
-				"$ref": "#/components/schemas/DefaultSelection_Prisma._36_CareRecipientPayload_",
-				"description": "Model CareRecipient"
-			},
 			"DefaultSelection_Prisma._36_DosePayload_": {
 				"properties": {
 					"updatedAt": {
@@ -405,7 +318,7 @@
 				],
 				"type": "object"
 			},
-			"DoseResponse": {
+			"FlattenedDoseResponse": {
 				"properties": {
 					"updatedAt": {
 						"type": "string",
@@ -432,20 +345,26 @@
 					"id": {
 						"type": "string"
 					},
-					"medication": {
-						"allOf": [
-							{
-								"$ref": "#/components/schemas/Medication"
-							},
-							{
-								"properties": {
-									"careRecipient": {
-										"$ref": "#/components/schemas/CareRecipient"
-									}
-								},
-								"type": "object"
-							}
-						]
+					"medicationName": {
+						"type": "string"
+					},
+					"medicationDosage": {
+						"type": "string"
+					},
+					"medicationInstructions": {
+						"type": "string"
+					},
+					"careRecipientId": {
+						"type": "string"
+					},
+					"careRecipientFirstName": {
+						"type": "string"
+					},
+					"careRecipientLastName": {
+						"type": "string"
+					},
+					"careRecipientFullName": {
+						"type": "string"
 					}
 				},
 				"required": [
@@ -595,8 +514,11 @@
 				"type": "object",
 				"additionalProperties": false
 			},
-			"CareRecipientResponse": {
+			"DefaultSelection_Prisma._36_CareRecipientPayload_": {
 				"properties": {
+					"isActive": {
+						"type": "boolean"
+					},
 					"dateOfBirth": {
 						"type": "string",
 						"format": "date-time"
@@ -607,8 +529,92 @@
 					"firstName": {
 						"type": "string"
 					},
+					"updatedAt": {
+						"type": "string",
+						"format": "date-time"
+					},
+					"createdAt": {
+						"type": "string",
+						"format": "date-time"
+					},
+					"id": {
+						"type": "string"
+					}
+				},
+				"required": [
+					"isActive",
+					"dateOfBirth",
+					"lastName",
+					"firstName",
+					"updatedAt",
+					"createdAt",
+					"id"
+				],
+				"type": "object"
+			},
+			"CareRecipient": {
+				"$ref": "#/components/schemas/DefaultSelection_Prisma._36_CareRecipientPayload_",
+				"description": "Model CareRecipient"
+			},
+			"DefaultSelection_Prisma._36_MedicationPayload_": {
+				"properties": {
+					"careRecipientId": {
+						"type": "string"
+					},
+					"instructions": {
+						"type": "string"
+					},
+					"dosage": {
+						"type": "string"
+					},
 					"isActive": {
 						"type": "boolean"
+					},
+					"updatedAt": {
+						"type": "string",
+						"format": "date-time"
+					},
+					"createdAt": {
+						"type": "string",
+						"format": "date-time"
+					},
+					"id": {
+						"type": "string"
+					},
+					"name": {
+						"type": "string"
+					}
+				},
+				"required": [
+					"careRecipientId",
+					"instructions",
+					"dosage",
+					"isActive",
+					"updatedAt",
+					"createdAt",
+					"id",
+					"name"
+				],
+				"type": "object"
+			},
+			"Medication": {
+				"$ref": "#/components/schemas/DefaultSelection_Prisma._36_MedicationPayload_",
+				"description": "Model Medication"
+			},
+			"CareRecipientResponse": {
+				"properties": {
+					"isActive": {
+						"type": "boolean"
+					},
+					"dateOfBirth": {
+						"type": "string",
+						"format": "date-time"
+					},
+					"lastName": {
+						"type": "string"
+					},
+					"firstName": {
+						"type": "string"
 					},
 					"updatedAt": {
 						"type": "string",
@@ -629,10 +635,10 @@
 					}
 				},
 				"required": [
+					"isActive",
 					"dateOfBirth",
 					"lastName",
 					"firstName",
-					"isActive",
 					"updatedAt",
 					"createdAt",
 					"id"
@@ -691,14 +697,14 @@
 						"type": "string",
 						"format": "date-time"
 					},
-					"isActive": {
-						"type": "boolean"
-					},
 					"firstName": {
 						"type": "string"
 					},
 					"lastName": {
 						"type": "string"
+					},
+					"isActive": {
+						"type": "boolean"
 					},
 					"email": {
 						"type": "string"
@@ -711,9 +717,9 @@
 					"id",
 					"createdAt",
 					"updatedAt",
-					"isActive",
 					"firstName",
 					"lastName",
+					"isActive",
 					"email",
 					"role"
 				],
@@ -1366,7 +1372,7 @@
 							"application/json": {
 								"schema": {
 									"items": {
-										"$ref": "#/components/schemas/DoseResponse"
+										"$ref": "#/components/schemas/FlattenedDoseResponse"
 									},
 									"type": "array"
 								}
@@ -1426,7 +1432,7 @@
 						"content": {
 							"application/json": {
 								"schema": {
-									"$ref": "#/components/schemas/DoseResponse"
+									"$ref": "#/components/schemas/FlattenedDoseResponse"
 								}
 							}
 						}
@@ -1499,7 +1505,7 @@
 						"content": {
 							"application/json": {
 								"schema": {
-									"$ref": "#/components/schemas/DoseResponse"
+									"$ref": "#/components/schemas/FlattenedDoseResponse"
 								}
 							}
 						}
@@ -1553,7 +1559,7 @@
 						"content": {
 							"application/json": {
 								"schema": {
-									"$ref": "#/components/schemas/DoseResponse"
+									"$ref": "#/components/schemas/FlattenedDoseResponse"
 								}
 							}
 						}

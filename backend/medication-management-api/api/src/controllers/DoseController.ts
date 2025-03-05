@@ -8,6 +8,16 @@ interface DoseResponse extends Dose {
   };
 }
 
+interface FlattenedDoseResponse extends Dose {
+  medicationName?: string;
+  medicationDosage?: string;
+  medicationInstructions?: string;
+  careRecipientId?: string;
+  careRecipientFirstName?: string;
+  careRecipientLastName?: string;
+  careRecipientFullName?: string;
+}
+
 interface UpdateDoseStatusRequest {
   status: 'scheduled' | 'taken' | 'missed' | 'skipped';
 }
@@ -17,6 +27,32 @@ interface CreateDoseRequest {
   scheduleId: string;
   scheduledTime: string;
   status?: 'taken';
+}
+
+/**
+ * Helper function to flatten the dose response
+ */
+function flattenDose(dose: DoseResponse): FlattenedDoseResponse {
+  const flattenedDose: FlattenedDoseResponse = {
+    ...dose,
+    medicationName: dose.medication?.name,
+    medicationDosage: dose.medication?.dosage,
+    medicationInstructions: dose.medication?.instructions,
+    careRecipientId: dose.medication?.careRecipientId,
+    careRecipientFirstName: dose.medication?.careRecipient?.firstName,
+    careRecipientLastName: dose.medication?.careRecipient?.lastName,
+  };
+
+  // Add full name if both first and last name exist
+  if (flattenedDose.careRecipientFirstName && flattenedDose.careRecipientLastName) {
+    flattenedDose.careRecipientFullName = 
+      `${flattenedDose.careRecipientFirstName} ${flattenedDose.careRecipientLastName}`;
+  }
+
+  // Remove the nested objects
+  delete (flattenedDose as any).medication;
+
+  return flattenedDose;
 }
 
 @Route("doses")
@@ -32,7 +68,7 @@ export class DoseController {
     @Query() status?: string,
     @Query() startDate?: string,
     @Query() endDate?: string
-  ): Promise<DoseResponse[]> {
+  ): Promise<FlattenedDoseResponse[]> {
     const prisma = getPrismaClient();
     
     // Build query
@@ -78,7 +114,8 @@ export class DoseController {
     // Get doses
     const doses = await prisma.dose.findMany(query);
     
-    return doses;
+    // Flatten the doses
+    return doses.map(flattenDose);
   }
 
   /**
@@ -87,7 +124,7 @@ export class DoseController {
   @Get("{id}")
   @Security('jwt')
   @Response<{ message: string }>(404, "Dose not found")
-  public async getDose(@Path() id: string): Promise<DoseResponse> {
+  public async getDose(@Path() id: string): Promise<FlattenedDoseResponse> {
     const prisma = getPrismaClient();
     
     // Get dose
@@ -106,7 +143,8 @@ export class DoseController {
       throw new Error("Dose not found");
     }
     
-    return dose;
+    // Flatten the dose
+    return flattenDose(dose);
   }
 
   /**
@@ -119,7 +157,7 @@ export class DoseController {
   public async updateDoseStatus(
     @Path() id: string,
     @Body() requestBody: UpdateDoseStatusRequest
-  ): Promise<DoseResponse> {
+  ): Promise<FlattenedDoseResponse> {
     const prisma = getPrismaClient();
     const { status } = requestBody;
     
@@ -153,7 +191,8 @@ export class DoseController {
       }
     });
     
-    return dose;
+    // Flatten the dose
+    return flattenDose(dose);
   }
 
   /**
@@ -165,7 +204,7 @@ export class DoseController {
   @Response<{ message: string }>(404, "Medication not found")
   public async createDose(
     @Body() requestBody: CreateDoseRequest
-  ): Promise<DoseResponse> {
+  ): Promise<FlattenedDoseResponse> {
     const prisma = getPrismaClient();
     const { medicationId, scheduleId, scheduledTime, status = 'taken' } = requestBody;
     
@@ -224,6 +263,7 @@ export class DoseController {
       }
     });
     
-    return dose;
+    // Flatten the dose
+    return flattenDose(dose);
   }
 } 

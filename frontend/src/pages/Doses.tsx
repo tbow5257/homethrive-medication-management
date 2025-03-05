@@ -74,7 +74,7 @@ const Doses: React.FC = () => {
     // Filter by recipient
     if (selectedRecipient) {
       filtered = filtered.filter(dose => {
-        return dose.medication?.careRecipientId === selectedRecipient;
+        return dose.careRecipientId === selectedRecipient;
       });
       console.log('After recipient filter:', filtered.length);
     }
@@ -91,16 +91,12 @@ const Doses: React.FC = () => {
     {
       title: 'Medication',
       key: 'medicationName',
-      render: (_, record) => record.medication?.name || record.medicationId,
+      dataIndex: 'medicationName',
     },
     {
       title: 'Care Recipient',
-      key: 'careRecipientName',
-      render: (_, record) => {
-        const firstName = record.medication?.careRecipient?.firstName || '';
-        const lastName = record.medication?.careRecipient?.lastName || '';
-        return firstName && lastName ? `${firstName} ${lastName}` : record.medication?.careRecipientId || '';
-      },
+      key: 'careRecipientFullName',
+      dataIndex: 'careRecipientFullName',
     },
     {
       title: 'Scheduled Time',

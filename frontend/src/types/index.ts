@@ -10,7 +10,7 @@ import type {
   CareRecipientResponse as CareRecipient,
   CreateCareRecipientRequest,
   UpdateCareRecipientRequest,
-  DoseResponse,
+  FlattenedDoseResponse as DoseResponse,
   UpcomingMedication,
   // Import API services
   CareRecipientsService,

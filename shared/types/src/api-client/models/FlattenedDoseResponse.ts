@@ -3,10 +3,7 @@
 /* tslint:disable */
 /* eslint-disable */
 
-import type { CareRecipient } from './CareRecipient';
-import type { Medication } from './Medication';
-
-export type DoseResponse = {
+export type FlattenedDoseResponse = {
     updatedAt: string;
     createdAt: string;
     medicationId: string;
@@ -14,8 +11,12 @@ export type DoseResponse = {
     scheduledFor: string;
     takenAt: string;
     id: string;
-    medication?: (Medication & {
-        careRecipient?: CareRecipient;
-    });
+    medicationName?: string;
+    medicationDosage?: string;
+    medicationInstructions?: string;
+    careRecipientId?: string;
+    careRecipientFirstName?: string;
+    careRecipientLastName?: string;
+    careRecipientFullName?: string;
 };
 

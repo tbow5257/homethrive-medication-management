@@ -4,10 +4,10 @@
 /* eslint-disable */
 
 export type DefaultSelection_Prisma__36_CareRecipientPayload_ = {
+    isActive: boolean;
     dateOfBirth: string;
     lastName: string;
     firstName: string;
-    isActive: boolean;
     updatedAt: string;
     createdAt: string;
     id: string;

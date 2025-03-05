@@ -5,9 +5,9 @@
 
 export type DefaultSelection_Prisma__36_MedicationPayload_ = {
     careRecipientId: string;
-    isActive: boolean;
     instructions: string;
     dosage: string;
+    isActive: boolean;
     updatedAt: string;
     createdAt: string;
     id: string;

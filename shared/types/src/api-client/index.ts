@@ -19,7 +19,7 @@ export { DayOfWeek } from './models/DayOfWeek';
 export type { DefaultSelection_Prisma__36_CareRecipientPayload_ } from './models/DefaultSelection_Prisma__36_CareRecipientPayload_';
 export type { DefaultSelection_Prisma__36_DosePayload_ } from './models/DefaultSelection_Prisma__36_DosePayload_';
 export type { DefaultSelection_Prisma__36_MedicationPayload_ } from './models/DefaultSelection_Prisma__36_MedicationPayload_';
-export type { DoseResponse } from './models/DoseResponse';
+export type { FlattenedDoseResponse } from './models/FlattenedDoseResponse';
 export type { FlattenedMedicationResponse } from './models/FlattenedMedicationResponse';
 export type { FlattenedScheduleResponse } from './models/FlattenedScheduleResponse';
 export type { LoginRequest } from './models/LoginRequest';

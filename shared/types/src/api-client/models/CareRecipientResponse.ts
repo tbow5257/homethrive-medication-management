@@ -6,10 +6,10 @@
 import type { Medication } from './Medication';
 
 export type CareRecipientResponse = {
+    isActive: boolean;
     dateOfBirth: string;
     lastName: string;
     firstName: string;
-    isActive: boolean;
     updatedAt: string;
     createdAt: string;
     id: string;

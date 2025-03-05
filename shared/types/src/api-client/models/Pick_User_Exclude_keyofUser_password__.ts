@@ -10,9 +10,9 @@ export type Pick_User_Exclude_keyofUser_password__ = {
     id: string;
     createdAt: string;
     updatedAt: string;
-    isActive: boolean;
     firstName: string;
     lastName: string;
+    isActive: boolean;
     email: string;
     role: string;
 };
