@@ -4,12 +4,12 @@
 /* eslint-disable */
 
 export type DefaultSelection_Prisma__36_DosePayload_ = {
-    status: string;
-    scheduledFor: string;
-    takenAt: string;
     updatedAt: string;
     createdAt: string;
     medicationId: string;
+    status: string;
+    scheduledFor: string;
+    takenAt: string;
     id: string;
 };
 

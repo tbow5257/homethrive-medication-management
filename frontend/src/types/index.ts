@@ -5,7 +5,7 @@ import type {
   DashboardStats,
   DoseStatus,
   PaginatedResponse,
-  ScheduleResponse as Schedule,
+  FlattenedScheduleResponse as Schedule,
   FlattenedMedicationResponse as Medication,
   CareRecipientResponse as CareRecipient,
   CreateCareRecipientRequest,

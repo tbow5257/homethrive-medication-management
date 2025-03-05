@@ -7,9 +7,9 @@ export type DefaultSelection_Prisma__36_CareRecipientPayload_ = {
     dateOfBirth: string;
     lastName: string;
     firstName: string;
+    isActive: boolean;
     updatedAt: string;
     createdAt: string;
-    isActive: boolean;
     id: string;
 };
 

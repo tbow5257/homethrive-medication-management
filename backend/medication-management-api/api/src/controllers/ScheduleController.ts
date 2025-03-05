@@ -9,6 +9,22 @@ interface ScheduleResponse extends Schedule {
   };
 }
 
+interface FlattenedScheduleResponse {
+  id: string;
+  times: string[];
+  daysOfWeek: string[];
+  isActive: boolean;
+  medicationId: string;
+  createdAt: string;
+  updatedAt: string;
+  medicationName?: string;
+  medicationDosage?: string;
+  careRecipientId?: string;
+  careRecipientFirstName?: string;
+  careRecipientLastName?: string;
+  careRecipientFullName?: string;
+}
+
 interface CreateScheduleRequest {
   times: string[];
   daysOfWeek: DayOfWeek[];
@@ -22,6 +38,33 @@ interface UpdateScheduleRequest {
   medicationId?: string;
 }
 
+function flattenSchedule(schedule: ScheduleResponse): FlattenedScheduleResponse {
+  const flattened: FlattenedScheduleResponse = {
+    id: schedule.id,
+    times: schedule.times,
+    daysOfWeek: schedule.daysOfWeek,
+    isActive: schedule.isActive,
+    medicationId: schedule.medicationId,
+    createdAt: schedule.createdAt.toISOString(),
+    updatedAt: schedule.updatedAt.toISOString(),
+  };
+
+  if (schedule.medication) {
+    flattened.medicationName = schedule.medication.name;
+    flattened.medicationDosage = schedule.medication.dosage;
+    
+    if (schedule.medication.careRecipient) {
+      const careRecipient = schedule.medication.careRecipient;
+      flattened.careRecipientId = careRecipient.id;
+      flattened.careRecipientFirstName = careRecipient.firstName;
+      flattened.careRecipientLastName = careRecipient.lastName;
+      flattened.careRecipientFullName = `${careRecipient.firstName} ${careRecipient.lastName}`.trim();
+    }
+  }
+
+  return flattened;
+}
+
 @Route("schedules")
 @Tags('Schedules')
 export class ScheduleController {
@@ -30,7 +73,7 @@ export class ScheduleController {
    */
   @Get()
   @Security('jwt')
-  public async getSchedules(@Query() medicationId?: string): Promise<ScheduleResponse[]> {
+  public async getSchedules(@Query() medicationId?: string): Promise<FlattenedScheduleResponse[]> {
     const prisma = getPrismaClient();
     
     // Build query
@@ -55,7 +98,7 @@ export class ScheduleController {
     // Get schedules
     const schedules = await prisma.schedule.findMany(query);
     
-    return schedules;
+    return schedules.map(flattenSchedule);
   }
 
   /**
@@ -64,7 +107,7 @@ export class ScheduleController {
   @Get("{id}")
   @Security('jwt')
   @Response<{ message: string }>(404, "Schedule not found")
-  public async getSchedule(@Path() id: string): Promise<ScheduleResponse> {
+  public async getSchedule(@Path() id: string): Promise<FlattenedScheduleResponse> {
     const prisma = getPrismaClient();
     
     // Get schedule
@@ -83,7 +126,7 @@ export class ScheduleController {
       throw new Error("Schedule not found");
     }
     
-    return schedule;
+    return flattenSchedule(schedule);
   }
 
   /**
@@ -92,7 +135,7 @@ export class ScheduleController {
   @Post()
   @Security('jwt')
   @Response<{ message: string }>(400, "Bad request")
-  public async createSchedule(@Body() requestBody: CreateScheduleRequest): Promise<ScheduleResponse> {
+  public async createSchedule(@Body() requestBody: CreateScheduleRequest): Promise<FlattenedScheduleResponse> {
     const prisma = getPrismaClient();
     const { times, daysOfWeek, medicationId } = requestBody;
     
@@ -136,7 +179,7 @@ export class ScheduleController {
       }
     });
     
-    return schedule;
+    return flattenSchedule(schedule);
   }
 
   /**
@@ -149,7 +192,7 @@ export class ScheduleController {
   public async updateSchedule(
     @Path() id: string,
     @Body() requestBody: UpdateScheduleRequest
-  ): Promise<ScheduleResponse> {
+  ): Promise<FlattenedScheduleResponse> {
     const prisma = getPrismaClient();
     const { times, daysOfWeek, isActive, medicationId } = requestBody;
     
@@ -201,7 +244,7 @@ export class ScheduleController {
       }
     });
     
-    return schedule;
+    return flattenSchedule(schedule);
   }
 
   /**

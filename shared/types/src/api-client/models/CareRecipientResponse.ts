@@ -9,9 +9,9 @@ export type CareRecipientResponse = {
     dateOfBirth: string;
     lastName: string;
     firstName: string;
+    isActive: boolean;
     updatedAt: string;
     createdAt: string;
-    isActive: boolean;
     id: string;
     medications?: Array<Medication>;
 };

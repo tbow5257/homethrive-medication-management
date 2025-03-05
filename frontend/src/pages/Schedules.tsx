@@ -162,26 +162,17 @@ const Schedules: React.FC = () => {
     {
       title: 'Medication',
       key: 'medicationName',
-      render: (_: unknown, record: Schedule) => {
-        const medication = medications?.find(m => m.id === record.medicationId);
-        return medication?.name || 'Unknown';
-      },
+      dataIndex: 'medicationName',
       sorter: (a: Schedule, b: Schedule) => {
-        const medicationA = medications?.find(m => m.id === a.medicationId)?.name || '';
-        const medicationB = medications?.find(m => m.id === b.medicationId)?.name || '';
-        return medicationA.localeCompare(medicationB);
+        return (a.medicationName || '').localeCompare(b.medicationName || '');
       },
     },
     {
       title: 'Care Recipient',
-      key: 'careRecipientName',
+      key: 'careRecipientFullName',
+      dataIndex: 'careRecipientFullName',
       render: (_: unknown, record: Schedule) => {
-        if (!record.medication) return 'Unknown';
-        
-        // Use flattened properties instead of nested careRecipient object
-        const firstName = record.medication.careRecipient?.firstName || '';
-        const lastName = record.medication.careRecipient?.lastName || '';
-        return `${firstName} ${lastName}`.trim() || 'Unknown';
+        return record.careRecipientFullName || 'Unknown';
       },
     },
     {

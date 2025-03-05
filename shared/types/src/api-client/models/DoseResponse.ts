@@ -7,12 +7,12 @@ import type { CareRecipient } from './CareRecipient';
 import type { Medication } from './Medication';
 
 export type DoseResponse = {
-    status: string;
-    scheduledFor: string;
-    takenAt: string;
     updatedAt: string;
     createdAt: string;
     medicationId: string;
+    status: string;
+    scheduledFor: string;
+    takenAt: string;
     id: string;
     medication?: (Medication & {
         careRecipient?: CareRecipient;

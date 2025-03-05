@@ -7,191 +7,62 @@
 		"requestBodies": {},
 		"responses": {},
 		"schemas": {
-			"DefaultSelection_Prisma._36_MedicationPayload_": {
+			"FlattenedScheduleResponse": {
 				"properties": {
+					"id": {
+						"type": "string"
+					},
+					"times": {
+						"items": {
+							"type": "string"
+						},
+						"type": "array"
+					},
+					"daysOfWeek": {
+						"items": {
+							"type": "string"
+						},
+						"type": "array"
+					},
+					"isActive": {
+						"type": "boolean"
+					},
+					"medicationId": {
+						"type": "string"
+					},
+					"createdAt": {
+						"type": "string"
+					},
+					"updatedAt": {
+						"type": "string"
+					},
+					"medicationName": {
+						"type": "string"
+					},
+					"medicationDosage": {
+						"type": "string"
+					},
 					"careRecipientId": {
 						"type": "string"
 					},
-					"instructions": {
+					"careRecipientFirstName": {
 						"type": "string"
 					},
-					"dosage": {
+					"careRecipientLastName": {
 						"type": "string"
 					},
-					"updatedAt": {
-						"type": "string",
-						"format": "date-time"
-					},
-					"createdAt": {
-						"type": "string",
-						"format": "date-time"
-					},
-					"isActive": {
-						"type": "boolean"
-					},
-					"id": {
-						"type": "string"
-					},
-					"name": {
+					"careRecipientFullName": {
 						"type": "string"
 					}
 				},
 				"required": [
-					"careRecipientId",
-					"instructions",
-					"dosage",
-					"updatedAt",
-					"createdAt",
-					"isActive",
 					"id",
-					"name"
-				],
-				"type": "object"
-			},
-			"Medication": {
-				"$ref": "#/components/schemas/DefaultSelection_Prisma._36_MedicationPayload_",
-				"description": "Model Medication"
-			},
-			"DefaultSelection_Prisma._36_CareRecipientPayload_": {
-				"properties": {
-					"dateOfBirth": {
-						"type": "string",
-						"format": "date-time"
-					},
-					"lastName": {
-						"type": "string"
-					},
-					"firstName": {
-						"type": "string"
-					},
-					"updatedAt": {
-						"type": "string",
-						"format": "date-time"
-					},
-					"createdAt": {
-						"type": "string",
-						"format": "date-time"
-					},
-					"isActive": {
-						"type": "boolean"
-					},
-					"id": {
-						"type": "string"
-					}
-				},
-				"required": [
-					"dateOfBirth",
-					"lastName",
-					"firstName",
-					"updatedAt",
-					"createdAt",
-					"isActive",
-					"id"
-				],
-				"type": "object"
-			},
-			"CareRecipient": {
-				"$ref": "#/components/schemas/DefaultSelection_Prisma._36_CareRecipientPayload_",
-				"description": "Model CareRecipient"
-			},
-			"DefaultSelection_Prisma._36_SchedulePayload_": {
-				"properties": {
-					"updatedAt": {
-						"type": "string",
-						"format": "date-time"
-					},
-					"createdAt": {
-						"type": "string",
-						"format": "date-time"
-					},
-					"medicationId": {
-						"type": "string"
-					},
-					"isActive": {
-						"type": "boolean"
-					},
-					"daysOfWeek": {
-						"items": {
-							"type": "string"
-						},
-						"type": "array"
-					},
-					"times": {
-						"items": {
-							"type": "string"
-						},
-						"type": "array"
-					},
-					"id": {
-						"type": "string"
-					}
-				},
-				"required": [
-					"updatedAt",
-					"createdAt",
-					"medicationId",
-					"isActive",
-					"daysOfWeek",
 					"times",
-					"id"
-				],
-				"type": "object"
-			},
-			"ScheduleResponse": {
-				"properties": {
-					"updatedAt": {
-						"type": "string",
-						"format": "date-time"
-					},
-					"createdAt": {
-						"type": "string",
-						"format": "date-time"
-					},
-					"medicationId": {
-						"type": "string"
-					},
-					"isActive": {
-						"type": "boolean"
-					},
-					"daysOfWeek": {
-						"items": {
-							"type": "string"
-						},
-						"type": "array"
-					},
-					"times": {
-						"items": {
-							"type": "string"
-						},
-						"type": "array"
-					},
-					"id": {
-						"type": "string"
-					},
-					"medication": {
-						"allOf": [
-							{
-								"$ref": "#/components/schemas/Medication"
-							},
-							{
-								"properties": {
-									"careRecipient": {
-										"$ref": "#/components/schemas/CareRecipient"
-									}
-								},
-								"type": "object"
-							}
-						]
-					}
-				},
-				"required": [
-					"updatedAt",
-					"createdAt",
-					"medicationId",
-					"isActive",
 					"daysOfWeek",
-					"times",
-					"id"
+					"isActive",
+					"medicationId",
+					"createdAt",
+					"updatedAt"
 				],
 				"type": "object",
 				"additionalProperties": false
@@ -408,18 +279,19 @@
 				"type": "object",
 				"additionalProperties": false
 			},
-			"DefaultSelection_Prisma._36_DosePayload_": {
+			"DefaultSelection_Prisma._36_MedicationPayload_": {
 				"properties": {
-					"status": {
+					"careRecipientId": {
 						"type": "string"
 					},
-					"scheduledFor": {
-						"type": "string",
-						"format": "date-time"
+					"isActive": {
+						"type": "boolean"
 					},
-					"takenAt": {
-						"type": "string",
-						"format": "date-time"
+					"instructions": {
+						"type": "string"
+					},
+					"dosage": {
+						"type": "string"
 					},
 					"updatedAt": {
 						"type": "string",
@@ -429,26 +301,84 @@
 						"type": "string",
 						"format": "date-time"
 					},
-					"medicationId": {
+					"id": {
 						"type": "string"
+					},
+					"name": {
+						"type": "string"
+					}
+				},
+				"required": [
+					"careRecipientId",
+					"isActive",
+					"instructions",
+					"dosage",
+					"updatedAt",
+					"createdAt",
+					"id",
+					"name"
+				],
+				"type": "object"
+			},
+			"Medication": {
+				"$ref": "#/components/schemas/DefaultSelection_Prisma._36_MedicationPayload_",
+				"description": "Model Medication"
+			},
+			"DefaultSelection_Prisma._36_CareRecipientPayload_": {
+				"properties": {
+					"dateOfBirth": {
+						"type": "string",
+						"format": "date-time"
+					},
+					"lastName": {
+						"type": "string"
+					},
+					"firstName": {
+						"type": "string"
+					},
+					"isActive": {
+						"type": "boolean"
+					},
+					"updatedAt": {
+						"type": "string",
+						"format": "date-time"
+					},
+					"createdAt": {
+						"type": "string",
+						"format": "date-time"
 					},
 					"id": {
 						"type": "string"
 					}
 				},
 				"required": [
-					"status",
-					"scheduledFor",
-					"takenAt",
+					"dateOfBirth",
+					"lastName",
+					"firstName",
+					"isActive",
 					"updatedAt",
 					"createdAt",
-					"medicationId",
 					"id"
 				],
 				"type": "object"
 			},
-			"DoseResponse": {
+			"CareRecipient": {
+				"$ref": "#/components/schemas/DefaultSelection_Prisma._36_CareRecipientPayload_",
+				"description": "Model CareRecipient"
+			},
+			"DefaultSelection_Prisma._36_DosePayload_": {
 				"properties": {
+					"updatedAt": {
+						"type": "string",
+						"format": "date-time"
+					},
+					"createdAt": {
+						"type": "string",
+						"format": "date-time"
+					},
+					"medicationId": {
+						"type": "string"
+					},
 					"status": {
 						"type": "string"
 					},
@@ -460,6 +390,23 @@
 						"type": "string",
 						"format": "date-time"
 					},
+					"id": {
+						"type": "string"
+					}
+				},
+				"required": [
+					"updatedAt",
+					"createdAt",
+					"medicationId",
+					"status",
+					"scheduledFor",
+					"takenAt",
+					"id"
+				],
+				"type": "object"
+			},
+			"DoseResponse": {
+				"properties": {
 					"updatedAt": {
 						"type": "string",
 						"format": "date-time"
@@ -470,6 +417,17 @@
 					},
 					"medicationId": {
 						"type": "string"
+					},
+					"status": {
+						"type": "string"
+					},
+					"scheduledFor": {
+						"type": "string",
+						"format": "date-time"
+					},
+					"takenAt": {
+						"type": "string",
+						"format": "date-time"
 					},
 					"id": {
 						"type": "string"
@@ -491,12 +449,12 @@
 					}
 				},
 				"required": [
-					"status",
-					"scheduledFor",
-					"takenAt",
 					"updatedAt",
 					"createdAt",
 					"medicationId",
+					"status",
+					"scheduledFor",
+					"takenAt",
 					"id"
 				],
 				"type": "object",
@@ -649,6 +607,9 @@
 					"firstName": {
 						"type": "string"
 					},
+					"isActive": {
+						"type": "boolean"
+					},
 					"updatedAt": {
 						"type": "string",
 						"format": "date-time"
@@ -656,9 +617,6 @@
 					"createdAt": {
 						"type": "string",
 						"format": "date-time"
-					},
-					"isActive": {
-						"type": "boolean"
 					},
 					"id": {
 						"type": "string"
@@ -674,9 +632,9 @@
 					"dateOfBirth",
 					"lastName",
 					"firstName",
+					"isActive",
 					"updatedAt",
 					"createdAt",
-					"isActive",
 					"id"
 				],
 				"type": "object",
@@ -725,9 +683,6 @@
 					"id": {
 						"type": "string"
 					},
-					"isActive": {
-						"type": "boolean"
-					},
 					"createdAt": {
 						"type": "string",
 						"format": "date-time"
@@ -735,6 +690,9 @@
 					"updatedAt": {
 						"type": "string",
 						"format": "date-time"
+					},
+					"isActive": {
+						"type": "boolean"
 					},
 					"firstName": {
 						"type": "string"
@@ -751,9 +709,9 @@
 				},
 				"required": [
 					"id",
-					"isActive",
 					"createdAt",
 					"updatedAt",
+					"isActive",
 					"firstName",
 					"lastName",
 					"email",
@@ -866,7 +824,7 @@
 							"application/json": {
 								"schema": {
 									"items": {
-										"$ref": "#/components/schemas/ScheduleResponse"
+										"$ref": "#/components/schemas/FlattenedScheduleResponse"
 									},
 									"type": "array"
 								}
@@ -902,7 +860,7 @@
 						"content": {
 							"application/json": {
 								"schema": {
-									"$ref": "#/components/schemas/ScheduleResponse"
+									"$ref": "#/components/schemas/FlattenedScheduleResponse"
 								}
 							}
 						}
@@ -957,7 +915,7 @@
 						"content": {
 							"application/json": {
 								"schema": {
-									"$ref": "#/components/schemas/ScheduleResponse"
+									"$ref": "#/components/schemas/FlattenedScheduleResponse"
 								}
 							}
 						}
@@ -1009,7 +967,7 @@
 						"content": {
 							"application/json": {
 								"schema": {
-									"$ref": "#/components/schemas/ScheduleResponse"
+									"$ref": "#/components/schemas/FlattenedScheduleResponse"
 								}
 							}
 						}

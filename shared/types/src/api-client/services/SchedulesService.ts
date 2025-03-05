@@ -3,7 +3,7 @@
 /* tslint:disable */
 /* eslint-disable */
 import type { CreateScheduleRequest } from '../models/CreateScheduleRequest';
-import type { ScheduleResponse } from '../models/ScheduleResponse';
+import type { FlattenedScheduleResponse } from '../models/FlattenedScheduleResponse';
 import type { UpdateScheduleRequest } from '../models/UpdateScheduleRequest';
 
 import type { CancelablePromise } from '../core/CancelablePromise';
@@ -15,12 +15,12 @@ export class SchedulesService {
     /**
      * Get all schedules with optional filtering by medication
      * @param medicationId
-     * @returns ScheduleResponse Ok
+     * @returns FlattenedScheduleResponse Ok
      * @throws ApiError
      */
     public static getSchedules(
         medicationId?: string,
-    ): CancelablePromise<Array<ScheduleResponse>> {
+    ): CancelablePromise<Array<FlattenedScheduleResponse>> {
         return __request(OpenAPI, {
             method: 'GET',
             url: '/schedules',
@@ -33,12 +33,12 @@ export class SchedulesService {
     /**
      * Create a new schedule
      * @param requestBody
-     * @returns ScheduleResponse Ok
+     * @returns FlattenedScheduleResponse Ok
      * @throws ApiError
      */
     public static createSchedule(
         requestBody: CreateScheduleRequest,
-    ): CancelablePromise<ScheduleResponse> {
+    ): CancelablePromise<FlattenedScheduleResponse> {
         return __request(OpenAPI, {
             method: 'POST',
             url: '/schedules',
@@ -53,12 +53,12 @@ export class SchedulesService {
     /**
      * Get a schedule by ID
      * @param id
-     * @returns ScheduleResponse Ok
+     * @returns FlattenedScheduleResponse Ok
      * @throws ApiError
      */
     public static getSchedule(
         id: string,
-    ): CancelablePromise<ScheduleResponse> {
+    ): CancelablePromise<FlattenedScheduleResponse> {
         return __request(OpenAPI, {
             method: 'GET',
             url: '/schedules/{id}',
@@ -75,13 +75,13 @@ export class SchedulesService {
      * Update a schedule
      * @param id
      * @param requestBody
-     * @returns ScheduleResponse Ok
+     * @returns FlattenedScheduleResponse Ok
      * @throws ApiError
      */
     public static updateSchedule(
         id: string,
         requestBody: UpdateScheduleRequest,
-    ): CancelablePromise<ScheduleResponse> {
+    ): CancelablePromise<FlattenedScheduleResponse> {
         return __request(OpenAPI, {
             method: 'PUT',
             url: '/schedules/{id}',
