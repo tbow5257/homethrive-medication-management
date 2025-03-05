@@ -30,7 +30,7 @@ The decision to use Prisma despite these challenges was justified by the signifi
 
 **Trade-offs**:
 - Additional code complexity and indirection
-- Duplicate type definitions between Prisma and TSOA
+- Duplicate type definitions between Prisma and TSOA (makes a OpenAPI / Swagger doc!)
 
 This pattern enables the generation of OpenAPI specifications and TypeScript types through TSOA, which creates a seamless type-safe bridge between frontend and backend. The slight increase in code complexity is outweighed by the benefits in maintainability and type safety.
 

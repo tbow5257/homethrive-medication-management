@@ -33,7 +33,7 @@ npm run initialize-db-container
 3. Build the application:
 
 ```bash
-npm run build
+npm run build:backend
 ```
 > This builds the Prisma layer, shared types, frontend, and backend.
 > 
