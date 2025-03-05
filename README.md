@@ -2,6 +2,12 @@
 
 Welcome Homethrivers! 👋 is a monorepo for the Medication Management application, containing both the frontend and backend code, as well as shared types.
 
+
+
+https://github.com/user-attachments/assets/46be53f1-5fc2-45d8-b6c5-c5627b5dc7b4
+
+
+
 ## Project Structure
 
 ```
