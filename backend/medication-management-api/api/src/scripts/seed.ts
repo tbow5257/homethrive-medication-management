@@ -48,6 +48,21 @@ async function main() {
 
   console.log(`Created care recipient: ${careRecipient.firstName} ${careRecipient.lastName}`);
 
+  // Create second care recipient - Tina Turner
+  const careRecipient2 = await prisma.careRecipient.upsert({
+    where: { id: '00000000-0000-0000-0000-000000000004' },
+    update: {},
+    create: {
+      id: '00000000-0000-0000-0000-000000000004',
+      firstName: 'Tina',
+      lastName: 'Turner',
+      dateOfBirth: new Date('1939-11-26'),
+      isActive: true,
+    },
+  });
+
+  console.log(`Created care recipient: ${careRecipient2.firstName} ${careRecipient2.lastName}`);
+
   // Create medications
   const medication1 = await prisma.medication.upsert({
     where: { id: '00000000-0000-0000-0000-000000000002' },
@@ -61,11 +76,11 @@ async function main() {
       schedules: {
         create: [
           {
-            time: '08:00',
+            times: ['08:00'],
             daysOfWeek: ['Monday', 'Wednesday', 'Friday'],
           },
           {
-            time: '20:00',
+            times: ['20:00'],
             daysOfWeek: ['Monday', 'Wednesday', 'Friday'],
           },
         ],
@@ -85,7 +100,7 @@ async function main() {
       schedules: {
         create: [
           {
-            time: '09:00',
+            times: ['09:00'],
             daysOfWeek: ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'],
           },
         ],
@@ -93,7 +108,68 @@ async function main() {
     },
   });
 
-  console.log(`Created medications: ${medication1.name}, ${medication2.name}`);
+  // Create medications for Tina Turner
+  const medication3 = await prisma.medication.upsert({
+    where: { id: '00000000-0000-0000-0000-000000000005' },
+    update: {},
+    create: {
+      id: '00000000-0000-0000-0000-000000000005',
+      name: 'Metformin',
+      dosage: '500mg',
+      instructions: 'Take with meals',
+      careRecipientId: careRecipient2.id,
+      schedules: {
+        create: [
+          {
+            times: ['08:00', '13:00', '19:00'],
+            daysOfWeek: ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'],
+          },
+        ],
+      },
+    },
+  });
+
+  const medication4 = await prisma.medication.upsert({
+    where: { id: '00000000-0000-0000-0000-000000000006' },
+    update: {},
+    create: {
+      id: '00000000-0000-0000-0000-000000000006',
+      name: 'Atorvastatin',
+      dosage: '20mg',
+      instructions: 'Take at bedtime',
+      careRecipientId: careRecipient2.id,
+      schedules: {
+        create: [
+          {
+            times: ['22:00'],
+            daysOfWeek: ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'],
+          },
+        ],
+      },
+    },
+  });
+
+  const medication5 = await prisma.medication.upsert({
+    where: { id: '00000000-0000-0000-0000-000000000007' },
+    update: {},
+    create: {
+      id: '00000000-0000-0000-0000-000000000007',
+      name: 'Vitamin D',
+      dosage: '1000 IU',
+      instructions: 'Take with breakfast',
+      careRecipientId: careRecipient2.id,
+      schedules: {
+        create: [
+          {
+            times: ['08:00'],
+            daysOfWeek: ['Monday', 'Wednesday', 'Friday', 'Sunday'],
+          },
+        ],
+      },
+    },
+  });
+
+  console.log(`Created medications: ${medication1.name}, ${medication2.name}, ${medication3.name}, ${medication4.name}, ${medication5.name}`);
 
   // Create doses for today and tomorrow
   const today = new Date();
@@ -143,6 +219,69 @@ async function main() {
       {
         medicationId: medication2.id,
         scheduledFor: new Date(tomorrow.setHours(9, 0, 0, 0)),
+        status: 'scheduled',
+      },
+    ],
+  });
+
+  // Create doses for medication 3, 4, and 5 (Tina's medications)
+  await prisma.dose.createMany({
+    data: [
+      // Metformin doses for today
+      {
+        medicationId: medication3.id,
+        scheduledFor: new Date(today.setHours(8, 0, 0, 0)),
+        status: 'taken',
+        takenAt: new Date(today.setHours(8, 10, 0, 0)),
+      },
+      {
+        medicationId: medication3.id,
+        scheduledFor: new Date(today.setHours(13, 0, 0, 0)),
+        status: 'taken',
+        takenAt: new Date(today.setHours(13, 5, 0, 0)),
+      },
+      {
+        medicationId: medication3.id,
+        scheduledFor: new Date(today.setHours(19, 0, 0, 0)),
+        status: 'scheduled',
+      },
+      // Metformin doses for tomorrow
+      {
+        medicationId: medication3.id,
+        scheduledFor: new Date(tomorrow.setHours(8, 0, 0, 0)),
+        status: 'scheduled',
+      },
+      {
+        medicationId: medication3.id,
+        scheduledFor: new Date(tomorrow.setHours(13, 0, 0, 0)),
+        status: 'scheduled',
+      },
+      {
+        medicationId: medication3.id,
+        scheduledFor: new Date(tomorrow.setHours(19, 0, 0, 0)),
+        status: 'scheduled',
+      },
+      // Atorvastatin doses
+      {
+        medicationId: medication4.id,
+        scheduledFor: new Date(today.setHours(22, 0, 0, 0)),
+        status: 'scheduled',
+      },
+      {
+        medicationId: medication4.id,
+        scheduledFor: new Date(tomorrow.setHours(22, 0, 0, 0)),
+        status: 'scheduled',
+      },
+      // Vitamin D doses
+      {
+        medicationId: medication5.id,
+        scheduledFor: new Date(today.setHours(8, 0, 0, 0)),
+        status: 'taken',
+        takenAt: new Date(today.setHours(8, 15, 0, 0)),
+      },
+      {
+        medicationId: medication5.id,
+        scheduledFor: new Date(tomorrow.setHours(8, 0, 0, 0)),
         status: 'scheduled',
       },
     ],

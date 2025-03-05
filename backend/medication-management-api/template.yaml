@@ -451,40 +451,40 @@ Resources:
         - nodejs20.x
       RetentionPolicy: Retain
 
-  DatabaseMigrationFunction:
-    Type: AWS::Serverless::Function
-    Properties:
-      CodeUri: api/
-      Handler: src/scripts/migrations.handler
-      Runtime: nodejs20.x
-      Timeout: 300
-      Layers:
-        - !Ref PrismaLayer
-      Environment:
-        Variables:
-          DATABASE_URL: !Sub 'postgresql://postgres:{{resolve:secretsmanager:${DatabaseSecret}:SecretString:password}}@${DatabaseHost}:5432/medication_management'
-      VpcConfig:
-        SecurityGroupIds: 
-          - !Ref LambdaSecurityGroup
-        SubnetIds:
-          - !Ref PrivateSubnet1
-          - !Ref PrivateSubnet2
-    Metadata:
-      BuildMethod: esbuild
-      BuildProperties:
-        Minify: false
-        Target: "es2020"
-        Sourcemap: true
-        EntryPoints:
-          - src/scripts/migrations.ts
-        External:
-          - "@prisma/client"
+  # DatabaseMigrationFunction:
+  #   Type: AWS::Serverless::Function
+  #   Properties:
+  #     CodeUri: api/
+  #     Handler: src/scripts/migrations.handler
+  #     Runtime: nodejs20.x
+  #     Timeout: 300
+  #     Layers:
+  #       - !Ref PrismaLayer
+  #     Environment:
+  #       Variables:
+  #         DATABASE_URL: !Sub 'postgresql://postgres:{{resolve:secretsmanager:${DatabaseSecret}:SecretString:password}}@${DatabaseHost}:5432/medication_management'
+  #     VpcConfig:
+  #       SecurityGroupIds: 
+  #         - !Ref LambdaSecurityGroup
+  #       SubnetIds:
+  #         - !Ref PrivateSubnet1
+  #         - !Ref PrivateSubnet2
+  #   Metadata:
+  #     BuildMethod: esbuild
+  #     BuildProperties:
+  #       Minify: false
+  #       Target: "es2020"
+  #       Sourcemap: true
+  #       EntryPoints:
+  #         - src/scripts/migrations.ts
+  #       External:
+  #         - "@prisma/client"
 
-  DatabaseMigration:
-    Type: AWS::CloudFormation::CustomResource
-    Properties:
-      ServiceToken: !GetAtt DatabaseMigrationFunction.Arn
-      DatabaseHost: !Ref DatabaseHost
+  # DatabaseMigration:
+  #   Type: AWS::CloudFormation::CustomResource
+  #   Properties:
+  #     ServiceToken: !GetAtt DatabaseMigrationFunction.Arn
+  #     DatabaseHost: !Ref DatabaseHost
 
 Outputs:
   MedicationManagementApi:
