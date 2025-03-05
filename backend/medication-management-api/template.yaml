@@ -99,7 +99,7 @@ Resources:
   DatabaseSecret:
     Type: AWS::SecretsManager::Secret
     Properties:
-      Name: !Sub 'medication-management-db-credentials-${Environment}'
+      Name: !Sub '${AWS::StackName}-db-credentials'
       Description: RDS database credentials
       GenerateSecretString:
         SecretStringTemplate: '{"username": "postgres"}'
@@ -416,7 +416,7 @@ Resources:
   JwtSecret:
     Type: AWS::SecretsManager::Secret
     Properties:
-      Name: !Sub 'medication-management-jwt-secret-${Environment}'
+      Name: !Sub '${AWS::StackName}-jwt-secret'
       Description: JWT secret for authentication
       GenerateSecretString:
         SecretStringTemplate: '{"secret": ""}'
